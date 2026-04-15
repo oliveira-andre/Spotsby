@@ -1,0 +1,92 @@
+Table users {
+  id int [pk, not null, unique]
+  first_name varchar
+  last_name varchar
+  avatar blob
+  email varchar [not null, unique]
+  password varchar [not null, unique]
+  status user_status
+  birthdate date
+}
+
+Table categories {
+  id int [pk, not null, unique]
+  name varchar [not null]
+} // Rock, Metal, Classic, Country 
+
+Table playlists {
+  id int [pk, not null, unique]
+  image blob
+  name varchar [not null]
+  position int
+  status playlist_status 
+  user_id int [ref: > users.id]
+} // start with favorites on 1.
+
+Table playlist_songs {
+  id int [pk]
+  playlist_id int [ref: > playlists.id]
+  song_id int [ref: > songs.id]
+  position int
+  added_at timestamp
+} // many playlists can have many songs
+
+Table songs {
+  id int [pk, not null, unique]
+  image blob
+  name varchar [not null]
+  category_id int [ref: > categories.id]
+  album_id int [ref: > albums.id]
+  lyrics text
+  duration_ms int 
+  age int
+} // Aerials
+
+Table albums {
+  id int [pk, not null, unique]
+  image blob
+  name varchar [not null]
+  category_id int [ref: > categories.id]
+  author_id int [ref: > authors.id]
+  release_date date
+} // Toxicity
+
+Table song_authors {
+  song_id int [ref: > songs.id]
+  author_id int [ref: > authors.id]
+}
+
+Table authors {
+  id int [pk, not null, unique]
+  image blob
+  name varchar [not null]
+  description text
+  user_id int [ref: > users.id]
+} // System of a down
+
+Table queue {
+  id int [pk]
+  user_id int [ref: > users.id]
+  song_id int [ref: > songs.id]
+  position int
+  source varchar // playlist, album, manual
+  created_at timestamp
+}
+
+Table play_history {
+  user_id int [ref: > users.id]
+  song_id int [ref: > songs.id]
+  played_at timestamp
+}
+
+Enum user_status {
+  blocked
+  admin
+  user
+  author
+}
+
+Enum playlist_status {
+  private
+  public
+}
