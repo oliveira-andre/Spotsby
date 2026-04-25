@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  has_one_attached :avatar, content_type: %w[image/jpeg image/png image/webp]
+
   enum :status, {
     active: 0,
     blocked: 1,

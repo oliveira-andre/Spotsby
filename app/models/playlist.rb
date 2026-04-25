@@ -1,4 +1,6 @@
 class Playlist < ApplicationRecord
+  has_one_attached :image, content_type: %w[image/jpeg image/png image/webp]
+
   acts_as_list scope: :user
 
   enum :status, {

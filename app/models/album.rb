@@ -1,4 +1,6 @@
 class Album < ApplicationRecord
+  has_one_attached :image, content_type: %w[image/jpeg image/png image/webp]
+
   belongs_to :category
   belongs_to :author
 

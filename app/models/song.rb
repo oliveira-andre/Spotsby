@@ -1,4 +1,7 @@
 class Song < ApplicationRecord
+  has_one_attached :image, content_type: %w[image/jpeg image/png image/webp]
+  has_one_attached :audio, content_type: %w[audio/mpeg audio/mp3 audio/mp4 audio/m4a audio/ogg audio/wav audio/webm]
+
   belongs_to :category
   belongs_to :album
 

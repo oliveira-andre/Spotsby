@@ -1,4 +1,6 @@
 class Author < ApplicationRecord
+  has_one_attached :image, content_type: %w[image/jpeg image/png image/webp]
+
   belongs_to :user, optional: true
 
   has_many :albums
