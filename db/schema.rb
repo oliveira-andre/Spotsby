@@ -106,7 +106,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_161700) do
     t.bigint "category_id", null: false
     t.bigint "album_id", null: false
     t.text "lyrics"
-    t.integer "duartion_ms"
+    t.integer "duration_ms"
     t.integer "age"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

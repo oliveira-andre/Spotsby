@@ -2,6 +2,6 @@ FactoryBot.define do
   factory :song_queue do
     user { association :user }
     song { association :song }
-    source { FFaker::Internet.http_url }
+    source { %w[search user_defined recommendation].sample }
   end
 end

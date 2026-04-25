@@ -1,6 +1,8 @@
 FactoryBot.define do
   factory :author do
-    name { FFaker::Music.unique.artist }
+    sequence :name do |n|
+      "#{FFaker::Music.artist} #{n}"
+    end
     description { FFaker::Lorem.paragraph }
     user { association :user }
   end

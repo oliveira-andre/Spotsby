@@ -5,4 +5,7 @@ class PlaylistSong < ApplicationRecord
   belongs_to :song
 
   scope :ordered, -> { order(position: :asc) }
+
+  validates :playlist_id, presence: true
+  validates :song_id, presence: true
 end

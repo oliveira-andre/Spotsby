@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  enum status: {
+  enum :status, {
     active: 0,
     blocked: 1,
     admin: 2

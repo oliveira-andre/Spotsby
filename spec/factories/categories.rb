@@ -1,5 +1,5 @@
 FactoryBot.define do
   factory :category do
-    name { FFaker::Music.unique.genre }
+    sequence(:name) { |n| "#{FFaker::Music.genre} #{n}" }
   end
 end

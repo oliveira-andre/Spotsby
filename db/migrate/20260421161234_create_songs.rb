@@ -5,7 +5,7 @@ class CreateSongs < ActiveRecord::Migration[8.0]
       t.references :category, null: false, foreign_key: true
       t.references :album, null: false, foreign_key: true
       t.text :lyrics
-      t.integer :duartion_ms
+      t.integer :duration_ms
       t.integer :age
 
       t.timestamps
