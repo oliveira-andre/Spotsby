@@ -1,6 +1,10 @@
 class Song < ApplicationRecord
-  has_one_attached :image, content_type: %w[image/jpeg image/png image/webp]
-  has_one_attached :audio, content_type: %w[audio/mpeg audio/mp3 audio/mp4 audio/m4a audio/ogg audio/wav audio/webm]
+  has_one_attached :image
+  has_one_attached :audio
+
+  validates :image, content_type: %w[image/jpeg image/png image/webp]
+  validates :audio, content_type: %w[audio/mpeg audio/mp4 audio/ogg audio/vnd.wave], if: :audio_attached?
+  validates :audio, size: { less_than: 100.megabytes }
 
   belongs_to :category
   belongs_to :album
@@ -19,4 +23,10 @@ class Song < ApplicationRecord
   validates :album_id, presence: true
   validates_numericality_of :duration_ms, greater_than_or_equal_to: 0
   validates_numericality_of :age, greater_than_or_equal_to: 0
+
+  private
+
+  def audio_attached?
+    audio.attached?
+  end
 end
