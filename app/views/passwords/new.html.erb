@@ -1,8 +1,39 @@
-<h1>Forgot your password?</h1>
+<main class="auth">
+  <section class="auth__card">
+    <%= image_tag "/logo.png", alt: "Spotsby", class: "auth__logo" %>
 
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
+    <header class="auth__header">
+      <h1 class="auth__title">Forgot your password?</h1>
+      <p class="auth__subtitle">We'll email you a link to reset it.</p>
+    </header>
 
-<%= form_with url: passwords_path do |form| %>
-  <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br>
-  <%= form.submit "Email reset instructions" %>
-<% end %>
+    <% if flash[:alert] %>
+      <div class="flash flash--alert" role="alert"><%= flash[:alert] %></div>
+    <% end %>
+
+    <% if flash[:notice] %>
+      <div class="flash flash--notice" role="status"><%= flash[:notice] %></div>
+    <% end %>
+
+    <%= form_with url: passwords_path, class: "form" do |form| %>
+      <div class="form-field">
+        <%= form.label :email_address, "Email address", class: "label" %>
+        <%= form.email_field :email_address,
+              class: "input",
+              required: true,
+              autofocus: true,
+              autocomplete: "username",
+              placeholder: "name@email.com",
+              value: params[:email_address] %>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--block btn--uppercase btn--lg">
+        Send <%= icon :send %>
+      </button>
+    <% end %>
+
+    <div class="auth__footer">
+      <p>Remembered it? <%= link_to "Log in", new_session_path %></p>
+    </div>
+  </section>
+</main>

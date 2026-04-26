@@ -1,0 +1,71 @@
+<main class="auth">
+  <section class="auth__card">
+    <%= image_tag "/logo.png", alt: "Spotsby", class: "auth__logo" %>
+
+    <header>
+      <h1 class="auth__title">Sign up to start listening</h1>
+    </header>
+
+    <% if flash[:alert] %>
+      <div class="flash flash--alert" role="alert"><%= flash[:alert] %></div>
+    <% end %>
+
+    <%= form_with model: @user, url: registration_path, class: "form" do |form| %>
+      <div class="form-field">
+        <%= form.label :email_address, "Email address", class: "label" %>
+        <%= form.email_field :email_address,
+              class: "input",
+              required: true,
+              autofocus: true,
+              autocomplete: "username",
+              placeholder: "name@email.com" %>
+      </div>
+
+      <div class="form-field" data-controller="password-strength">
+        <%= form.label :password, "Password", class: "label" %>
+        <%= form.password_field :password,
+              class: "input",
+              required: true,
+              autocomplete: "new-password",
+              placeholder: "Create a password",
+              maxlength: 72,
+              data: {
+                password_strength_target: "input",
+                action: "input->password-strength#evaluate"
+              } %>
+
+        <div class="password-strength"
+             data-password-strength-target="meter"
+             data-strength="0">
+          <div class="password-strength__bar" aria-hidden="true">
+            <span class="password-strength__segment"></span>
+            <span class="password-strength__segment"></span>
+            <span class="password-strength__segment"></span>
+            <span class="password-strength__segment"></span>
+          </div>
+          <div class="password-strength__label">
+            <span>Password strength</span>
+            <span class="password-strength__label-value"
+                  data-password-strength-target="label">Too short</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <%= form.label :password_confirmation, "Confirm password", class: "label" %>
+        <%= form.password_field :password_confirmation,
+              class: "input",
+              required: true,
+              autocomplete: "new-password",
+              placeholder: "Repeat your password",
+              maxlength: 72 %>
+      </div>
+
+      <%= form.submit "Sign up", class: "btn btn--primary btn--block btn--uppercase btn--lg" %>
+    <% end %>
+
+    <div class="auth__footer">
+      <p>Already have an account? <%= link_to "Log in", new_session_path %></p>
+    </div>
+  </section>
+</main>
