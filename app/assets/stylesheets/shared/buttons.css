@@ -1,0 +1,118 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.14px;
+  padding: 12px 32px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: transform 0.05s ease, background-color 0.15s ease,
+    color 0.15s ease, border-color 0.15s ease;
+  user-select: none;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background-color: var(--color-accent);
+  color: #000000;
+  border: none;
+}
+
+.btn--primary:hover {
+  background-color: #25e36a;
+  filter: brightness(1.08);
+  text-decoration: none;
+}
+
+.btn--primary:active {
+  background-color: var(--color-accent-pressed);
+  filter: none;
+}
+
+.btn--dark {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-base);
+  border: none;
+}
+
+.btn--dark:hover {
+  background-color: #2a2a2a;
+  filter: brightness(1.15);
+  text-decoration: none;
+}
+
+.btn--outlined {
+  background-color: transparent;
+  color: var(--color-text-base);
+  border: 1px solid var(--color-border-light);
+}
+
+.btn--outlined:hover {
+  border-color: var(--color-text-base);
+  background-color: rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+}
+
+.btn--uppercase {
+  text-transform: uppercase;
+  letter-spacing: 1.6px;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--lg {
+  padding: 14px 40px;
+  font-size: 1rem;
+}
+
+.btn--sm {
+  padding: 8px 20px;
+  font-size: 0.8125rem;
+}
+
+.btn--link,
+a.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.btn--link {
+  background: transparent;
+  color: var(--color-text-muted);
+  padding: 0;
+  border-radius: 0;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.btn--link:hover,
+a.btn--link:hover {
+  color: var(--color-accent);
+  text-decoration: none;
+}

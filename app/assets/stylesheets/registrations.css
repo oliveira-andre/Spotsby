@@ -1,0 +1,70 @@
+.password-strength {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.password-strength__bar {
+  display: flex;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.password-strength__segment {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--radius-tiny);
+  background-color: var(--color-border);
+  transition: background-color 0.2s ease;
+}
+
+.password-strength[data-strength="1"] .password-strength__segment:nth-child(-n + 1),
+.password-strength[data-strength="2"] .password-strength__segment:nth-child(-n + 2),
+.password-strength[data-strength="3"] .password-strength__segment:nth-child(-n + 3),
+.password-strength[data-strength="4"] .password-strength__segment:nth-child(-n + 4) {
+  background-color: var(--color-negative);
+}
+
+.password-strength[data-strength="2"] .password-strength__segment:nth-child(-n + 2) {
+  background-color: var(--color-warning);
+}
+
+.password-strength[data-strength="3"] .password-strength__segment:nth-child(-n + 3) {
+  background-color: var(--color-announcement);
+}
+
+.password-strength[data-strength="4"] .password-strength__segment:nth-child(-n + 4) {
+  background-color: var(--color-accent);
+}
+
+.password-strength__label {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.password-strength__label-value {
+  font-weight: 700;
+  color: var(--color-text-muted);
+  transition: color 0.2s ease;
+}
+
+.password-strength[data-strength="1"] .password-strength__label-value {
+  color: var(--color-negative);
+}
+
+.password-strength[data-strength="2"] .password-strength__label-value {
+  color: var(--color-warning);
+}
+
+.password-strength[data-strength="3"] .password-strength__label-value {
+  color: var(--color-announcement);
+}
+
+.password-strength[data-strength="4"] .password-strength__label-value {
+  color: var(--color-accent);
+}

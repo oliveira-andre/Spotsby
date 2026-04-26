@@ -1,0 +1,66 @@
+:root {
+  --color-bg-base: #121212;
+  --color-bg-surface: #181818;
+  --color-bg-elevated: #1f1f1f;
+  --color-bg-card: #252525;
+  --color-bg-card-alt: #272727;
+
+  --color-text-base: #ffffff;
+  --color-text-muted: #b3b3b3;
+  --color-text-near-white: #cbcbcb;
+  --color-text-light: #fdfdfd;
+
+  --color-accent: #1ed760;
+  --color-accent-hover: #1fdf64;
+  --color-accent-pressed: #169c46;
+  --color-accent-border: #1db954;
+
+  --color-negative: #f3727f;
+  --color-warning: #ffa42b;
+  --color-announcement: #539df5;
+
+  --color-border: #4d4d4d;
+  --color-border-light: #7c7c7c;
+  --color-separator: #b3b3b3;
+
+  --shadow-heavy: rgba(0, 0, 0, 0.5) 0px 8px 24px;
+  --shadow-medium: rgba(0, 0, 0, 0.3) 0px 8px 8px;
+  --shadow-input-inset: rgb(18, 18, 18) 0px 1px 0px,
+    rgb(124, 124, 124) 0px 0px 0px 1px inset;
+  --shadow-input-focus: rgb(18, 18, 18) 0px 1px 0px,
+    rgb(255, 255, 255) 0px 0px 0px 1px inset;
+  --shadow-input-error: rgb(18, 18, 18) 0px 1px 0px,
+    var(--color-negative) 0px 0px 0px 1px inset;
+
+  --radius-tiny: 2px;
+  --radius-subtle: 4px;
+  --radius-standard: 6px;
+  --radius-comfortable: 8px;
+  --radius-medium: 12px;
+  --radius-large: 100px;
+  --radius-pill: 500px;
+  --radius-full-pill: 9999px;
+  --radius-circle: 50%;
+
+  --font-ui: "SpotifyMixUI", "CircularSp-Arab", "CircularSp-Hebr",
+    "CircularSp-Cyrl", "CircularSp-Grek", "CircularSp-Deva",
+    "Manrope", "Inter", "Figtree", "DM Sans",
+    "Helvetica Neue", helvetica, arial, "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", "Meiryo", "MS Gothic", sans-serif;
+  --font-title: "SpotifyMixUITitle", "CircularSp-Arab", "CircularSp-Hebr",
+    "CircularSp-Cyrl", "CircularSp-Grek", "CircularSp-Deva",
+    "Manrope", "Inter", "Figtree", "DM Sans",
+    "Helvetica Neue", helvetica, arial, "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", "Meiryo", "MS Gothic", sans-serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+}
