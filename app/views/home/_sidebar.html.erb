@@ -1,0 +1,52 @@
+<div class="sidebar"
+     data-sidebar-target="panel"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="sidebar-title">
+  <header class="sidebar__header">
+    <div class="sidebar__user">
+      <% if current_user.avatar.attached? %>
+        <%= image_tag current_user.avatar, class: "avatar avatar--lg" %>
+      <% else %>
+        <div class="avatar avatar--lg avatar--initials">
+          <%= user_initials(current_user) %>
+        </div>
+      <% end %>
+      <div>
+        <p id="sidebar-title" class="sidebar__name"><%= user_display_name(current_user) %></p>
+        <p class="sidebar__email"><%= current_user.email_address %></p>
+      </div>
+    </div>
+    <button type="button"
+            class="sidebar__close"
+            aria-label="Close sidebar"
+            data-action="click->sidebar#close">
+      <%= icon :close, size: 18 %>
+    </button>
+  </header>
+
+  <ul class="sidebar__menu">
+    <li>
+      <a href="#" class="sidebar__link">
+        <%= icon :user, size: 20 %>
+        <span>View profile</span>
+      </a>
+    </li>
+    <li>
+      <a href="#" class="sidebar__link">
+        <%= icon :gear, size: 20 %>
+        <span>Account</span>
+      </a>
+    </li>
+  </ul>
+
+  <%= button_to session_path,
+        method: :delete,
+        class: "sidebar__logout btn btn--outlined btn--block" do %>
+    Log out
+  <% end %>
+</div>
+
+<div class="sidebar__backdrop"
+     data-sidebar-target="backdrop"
+     data-action="click->sidebar#close"></div>

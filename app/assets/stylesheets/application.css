@@ -12,5 +12,10 @@
 @import "shared/inputs.css";
 @import "shared/forms.css";
 @import "shared/auth.css";
+@import "shared/avatar.css";
+@import "shared/filters.css";
+@import "shared/sidebar.css";
+@import "shared/footer-nav.css";
 
 @import "registrations.css";
+@import "home.css";

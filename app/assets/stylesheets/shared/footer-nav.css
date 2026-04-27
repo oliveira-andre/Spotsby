@@ -1,0 +1,54 @@
+.footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) calc(env(safe-area-inset-bottom) + var(--space-2));
+  background-color: var(--color-bg-base);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-medium);
+}
+
+.footer-nav__item {
+  flex: 1;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-1);
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: var(--radius-comfortable);
+  transition: color 0.15s ease, background-color 0.15s ease;
+  max-width: 96px;
+}
+
+.footer-nav__item:hover {
+  color: var(--color-text-base);
+  text-decoration: none;
+}
+
+.footer-nav__item.is-active {
+  color: var(--color-text-base);
+}
+
+.footer-nav__label {
+  letter-spacing: 0.2px;
+}
+
+body.has-footer-nav {
+  padding-bottom: 76px;
+}
+
+
+.magnifying-glass-icon {
+  margin-left: var(--space-1);
+}

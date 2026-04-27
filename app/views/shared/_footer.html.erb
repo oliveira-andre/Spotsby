@@ -1,0 +1,28 @@
+<nav class="footer-nav" aria-label="Primary">
+  <%= link_to root_path, class: "footer-nav__item #{'is-active' if current_page?(root_path)}" do %>
+    <%= icon :house, size: 22 %>
+    <span class="footer-nav__label">Home</span>
+  <% end %>
+
+  <%= link_to search_path, class: "footer-nav__item #{'is-active' if current_page?(search_path)}" do %>
+    <%= icon :magnifying_glass, class: "magnifying-glass-icon", size: 22 %>
+    <span class="footer-nav__label">Search</span>
+  <% end %>
+
+  <%= link_to library_path, class: "footer-nav__item #{'is-active' if current_page?(library_path)}" do %>
+    <%= icon :bars, size: 22 %>
+    <span class="footer-nav__label">Library</span>
+  <% end %>
+
+  <%= link_to manage_path, class: "footer-nav__item #{'is-active' if current_page?(manage_path)}" do %>
+    <%= icon :plus, size: 22 %>
+    <span class="footer-nav__label">Create</span>
+  <% end %>
+
+  <% if current_user&.admin? %>
+    <%= link_to admin_dashboard_path, class: "footer-nav__item #{'is-active' if current_page?(admin_dashboard_path)}" do %>
+      <%= icon :admin, size: 22 %>
+      <span class="footer-nav__label">Admin</span>
+    <% end %>
+  <% end %>
+</nav>

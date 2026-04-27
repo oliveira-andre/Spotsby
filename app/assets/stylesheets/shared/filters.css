@@ -1,0 +1,37 @@
+.filters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.filters__chip {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-full-pill);
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-base);
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  border: none;
+  white-space: nowrap;
+}
+
+.filters__chip:hover {
+  background-color: #2a2a2a;
+}
+
+.filters__chip.is-active {
+  background-color: var(--color-accent);
+  color: #000000;
+}
+
+.filters__chip.is-active:hover {
+  background-color: var(--color-accent-hover);
+  filter: brightness(1.05);
+}

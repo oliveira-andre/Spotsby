@@ -1,0 +1,43 @@
+<div class="home" data-controller="sidebar filters">
+  <header class="home__header">
+    <button type="button"
+            class="home__avatar-button"
+            aria-label="Open menu"
+            data-action="click->sidebar#open">
+      <% if current_user.avatar.attached? %>
+        <%= image_tag current_user.avatar, class: "avatar" %>
+      <% else %>
+        <div class="avatar avatar--initials">
+          <%= user_initials(current_user) %>
+        </div>
+      <% end %>
+    </button>
+
+    <div class="filters" role="tablist" aria-label="Browse filter">
+      <button type="button"
+              class="filters__chip is-active"
+              role="tab"
+              aria-selected="true"
+              data-action="click->filters#select"
+              data-filter="all">All</button>
+      <button type="button"
+              class="filters__chip"
+              role="tab"
+              aria-selected="false"
+              data-action="click->filters#select"
+              data-filter="albums">Albums</button>
+      <button type="button"
+              class="filters__chip"
+              role="tab"
+              aria-selected="false"
+              data-action="click->filters#select"
+              data-filter="artists">Artists</button>
+    </div>
+  </header>
+
+  <main class="home__body">
+    <p class="home__empty">Too quiet, start listening some music</p>
+  </main>
+
+  <%= render "home/sidebar" %>
+</div>
