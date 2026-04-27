@@ -23,7 +23,7 @@ require 'rspec/rails'
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
 #
-# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
+Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Ensures that the test database schema matches the current schema file.
 # If there are pending migrations it will invoke `db:test:prepare` to
@@ -77,5 +77,11 @@ RSpec.configure do |config|
       with.test_framework :rspec
       with.library :rails
     end
+  end
+
+  config.before(:each, type: :system) do
+    # driven_by :rack_test
+    driven_by :selenium_chrome # only for debugging purpose
+    # driven_by :selenium_chrome_headless # still working to run on container
   end
 end
