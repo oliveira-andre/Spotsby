@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :passwords, param: :token
 
   get "search", to: "home#search", as: :search
+  get "search/results", to: "home#search_results", as: :search_results
   get "library", to: "home#library", as: :library
   get "manage", to: "home#manage", as: :manage
 

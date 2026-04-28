@@ -1,1 +1,57 @@
-<h1>Search</h1>
+<div class="search-page"
+     data-controller="sidebar search"
+     data-search-url-value="<%= search_results_path %>">
+  <header class="home__header search-page__header">
+    <button type="button"
+            class="home__avatar-button"
+            aria-label="Open menu"
+            data-action="click->sidebar#open">
+      <% if current_user.avatar.attached? %>
+        <%= image_tag current_user.avatar, class: "avatar" %>
+      <% else %>
+        <div class="avatar avatar--initials">
+          <%= user_initials(current_user) %>
+        </div>
+      <% end %>
+    </button>
+
+    <label class="search-page__field">
+      <span class="search-page__field-icon">
+        <%= icon :magnifying_glass, size: 18 %>
+      </span>
+      <input type="search"
+             class="search-page__input"
+             placeholder="What do you wanna listen to?"
+             autocomplete="off"
+             aria-label="Search"
+             data-search-target="input"
+             data-action="input->search#search">
+    </label>
+  </header>
+
+  <main class="search-page__body">
+    <section class="search-page__browse" data-search-target="browse">
+      <h2 class="search-page__heading">Browse all</h2>
+      <div class="categories">
+        <% @categories.each do |category| %>
+          <a href="#"
+             class="category-card"
+             style="--cat-color: <%= category.color %>;">
+            <span class="category-card__name"><%= category.name %></span>
+            <% if category.image.attached? %>
+              <%= image_tag category.image, class: "category-card__image", loading: "lazy", alt: "" %>
+            <% end %>
+          </a>
+        <% end %>
+      </div>
+    </section>
+
+    <section id="search_results"
+             class="search-page__results"
+             data-search-target="results"
+             aria-live="polite"
+             hidden></section>
+  </main>
+
+  <%= render "home/sidebar" %>
+</div>
