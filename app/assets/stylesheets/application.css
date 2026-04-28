@@ -16,7 +16,9 @@
 @import "shared/filters.css";
 @import "shared/sidebar.css";
 @import "shared/footer-nav.css";
+@import "shared/modal.css";
 
 @import "registrations.css";
 @import "home.css";
 @import "search.css";
+@import "player.css";

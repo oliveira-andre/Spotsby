@@ -1,0 +1,103 @@
+<div class="player"
+     data-controller="player"
+     data-player-modal-outlet="#song-details">
+  <header class="player__header">
+    <%= link_to (request.referer.presence || root_path),
+                class: "player__icon-btn",
+                aria: { label: "Close player" } do %>
+      <%= icon :chevron_down, size: 24 %>
+    <% end %>
+
+    <div class="player__header-spacer"></div>
+
+    <button type="button"
+            class="player__icon-btn"
+            aria-label="Song details"
+            data-action="click->player#openDetails">
+      <%= icon :dots_vertical, size: 22 %>
+    </button>
+  </header>
+
+  <% if @song&.audio&.attached? %>
+    <audio data-player-target="audio"
+           preload="metadata"
+           src="<%= url_for(@song.audio) %>"></audio>
+  <% end %>
+
+  <main class="player__art-wrap">
+    <% if @song&.image&.attached? %>
+      <%= image_tag @song.image, class: "player__art", alt: @song.name %>
+    <% elsif @song&.album&.image&.attached? %>
+      <%= image_tag @song.album.image, class: "player__art", alt: @song.name %>
+    <% else %>
+      <div class="player__art player__art--placeholder"></div>
+    <% end %>
+  </main>
+
+  <footer class="player__bar">
+    <div class="player__track">
+      <div class="player__track-text">
+        <p class="player__track-name"><%= @song&.name || "No song playing" %></p>
+        <p class="player__track-artist">
+          <%= @song ? @song.authors.map(&:name).join(", ") : "—" %>
+        </p>
+      </div>
+      <button type="button" class="player__icon-btn player__heart" aria-label="Favorite">
+        <%= icon :heart, size: 22 %>
+      </button>
+    </div>
+
+    <div class="player__progress">
+      <input type="range"
+             class="player__slider"
+             min="0"
+             max="100"
+             step="0.1"
+             value="0"
+             aria-label="Seek"
+             data-player-target="slider"
+             data-action="input->player#seek">
+    </div>
+
+    <div class="player__controls">
+      <button type="button" class="player__ctrl" aria-label="Shuffle">
+        <%= icon :shuffle, size: 22 %>
+      </button>
+      <button type="button" class="player__ctrl" aria-label="Previous">
+        <%= icon :backward, size: 28 %>
+      </button>
+      <button type="button"
+              class="player__ctrl player__ctrl--primary"
+              aria-label="Play"
+              data-action="click->player#toggle"
+              data-player-target="playButton">
+        <span data-player-target="playIcon"><%= icon :play, size: 22 %></span>
+        <span data-player-target="pauseIcon" hidden><%= icon :pause, size: 22 %></span>
+      </button>
+      <button type="button" class="player__ctrl" aria-label="Next">
+        <%= icon :forward, size: 28 %>
+      </button>
+      <button type="button" class="player__ctrl" aria-label="Repeat">
+        <%= icon :repeat, size: 22 %>
+      </button>
+    </div>
+  </footer>
+</div>
+
+<%= render "shared/modal", id: "song-details", title: "Song details" do %>
+  <% if @song %>
+    <div class="player__details">
+      <% if @song.album&.image&.attached? %>
+        <%= image_tag @song.album.image, class: "player__details-thumb", alt: "" %>
+      <% elsif @song.image.attached? %>
+        <%= image_tag @song.image, class: "player__details-thumb", alt: "" %>
+      <% end %>
+      <div class="player__details-text">
+        <p class="player__details-artist"><%= @song.authors.map(&:name).join(", ") %></p>
+        <p class="player__details-album"><%= @song.album&.name %></p>
+      </div>
+    </div>
+  <% else %>
+    <p class="player__details-empty">No song playing.</p>
+  <% end %>
+<% end %>

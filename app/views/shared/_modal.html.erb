@@ -1,0 +1,40 @@
+<%#
+  Reusable bottom-sheet modal.
+
+  Locals:
+    id    - DOM id used as the outlet target from other Stimulus controllers
+    title - optional heading shown at the top of the modal
+
+  Block content is rendered into the modal body.
+%>
+<div class="modal"
+     id="<%= id %>"
+     data-controller="modal"
+     hidden>
+  <div class="modal__backdrop"
+       data-action="click->modal#close"></div>
+
+  <div class="modal__panel"
+       data-modal-target="panel"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="<%= id %>-title">
+    <div class="modal__handle" aria-hidden="true"></div>
+
+    <header class="modal__header">
+      <h2 id="<%= id %>-title" class="modal__title">
+        <%= local_assigns[:title] %>
+      </h2>
+      <button type="button"
+              class="modal__close"
+              aria-label="Close"
+              data-action="click->modal#close">
+        <%= icon :close, size: 18 %>
+      </button>
+    </header>
+
+    <div class="modal__body">
+      <%= yield if block_given? %>
+    </div>
+  </div>
+</div>
