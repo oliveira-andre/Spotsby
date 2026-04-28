@@ -72,22 +72,22 @@ blocked = User.create(
 # Categories
 
 puts "Creating categories..."
-rock = Category.create(name: 'Rock')
+rock = Category.create(name: 'Rock', color: '#006450')
 rock.image.attach(io: File.open(Rails.root.join('tmp/images/queen_album.jpg')), filename: 'rock.jpg')
 
-pop = Category.create(name: 'Pop')
+pop = Category.create(name: 'Pop', color: '#dc148c')
 pop.image.attach(io: File.open(Rails.root.join('tmp/images/michael.jpg')), filename: 'pop.jpg')
 
-classical = Category.create(name: 'Classical')
+classical = Category.create(name: 'Classical', color: '#8d67ab')
 classical.image.attach(io: File.open(Rails.root.join('tmp/images/beethoven.jpg')), filename: 'classical.jpg')
 
-jazz = Category.create(name: 'Jazz')
+jazz = Category.create(name: 'Jazz', color: '#777777')
 jazz.image.attach(io: File.open(Rails.root.join('tmp/images/miles.jpg')), filename: 'jazz.jpg')
 
-electronic = Category.create(name: 'Electronic')
+electronic = Category.create(name: 'Electronic', color: '#e61e32')
 electronic.image.attach(io: File.open(Rails.root.join('tmp/images/daft_punk.jpg')), filename: 'electronic.jpg')
 
-hip_hop = Category.create(name: 'Hip Hop')
+hip_hop = Category.create(name: 'Hip Hop', color: '#1e3264')
 hip_hop.image.attach(io: File.open(Rails.root.join('tmp/images/kanye.jpg')), filename: 'hip_hop.jpg')
 
 # Authors
