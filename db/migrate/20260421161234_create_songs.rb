@@ -7,8 +7,11 @@ class CreateSongs < ActiveRecord::Migration[8.0]
       t.text :lyrics
       t.integer :duration_ms
       t.integer :age
+      t.string :slug, null: false
 
       t.timestamps
     end
+
+    add_index :songs, :slug, unique: true
   end
 end

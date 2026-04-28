@@ -45,6 +45,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
 
   create_table "albums", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
+    t.string "slug", null: false
     t.uuid "category_id", null: false
     t.uuid "author_id", null: false
     t.date "release_date"
@@ -52,23 +53,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.datetime "updated_at", null: false
     t.index ["author_id"], name: "index_albums_on_author_id"
     t.index ["category_id"], name: "index_albums_on_category_id"
+    t.index ["slug"], name: "index_albums_on_slug", unique: true
   end
 
   create_table "authors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
+    t.string "slug", null: false
     t.uuid "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_authors_on_slug", unique: true
     t.index ["user_id"], name: "index_authors_on_user_id"
   end
 
   create_table "categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.string "color", default: "#FFFFFF", null: false
+    t.string "slug", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_categories_on_name", unique: true
+    t.index ["slug"], name: "index_categories_on_slug", unique: true
   end
 
   create_table "play_histories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -96,9 +102,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.string "name", null: false
     t.integer "position", default: 1
     t.integer "status", default: 0
+    t.string "slug", null: false
     t.uuid "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_playlists_on_slug", unique: true
     t.index ["user_id"], name: "index_playlists_on_user_id"
   end
 
@@ -138,10 +146,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.text "lyrics"
     t.integer "duration_ms"
     t.integer "age"
+    t.string "slug", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["album_id"], name: "index_songs_on_album_id"
     t.index ["category_id"], name: "index_songs_on_category_id"
+    t.index ["slug"], name: "index_songs_on_slug", unique: true
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

@@ -4,9 +4,12 @@ class CreatePlaylists < ActiveRecord::Migration[8.0]
       t.string :name, null: false
       t.integer :position, default: 1
       t.integer :status, default: 0
+      t.string :slug, null: false
       t.references :user, null: false, foreign_key: true, type: :uuid
 
       t.timestamps
     end
+
+    add_index :playlists, :slug, unique: true
   end
 end
