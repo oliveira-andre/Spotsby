@@ -1,9 +1,9 @@
 class CreateAlbums < ActiveRecord::Migration[8.0]
   def change
-    create_table :albums do |t|
+    create_table :albums, id: :uuid do |t|
       t.string :name, null: false
-      t.references :category, null: false, foreign_key: true
-      t.references :author, null: false, foreign_key: true
+      t.references :category, null: false, foreign_key: true, type: :uuid
+      t.references :author, null: false, foreign_key: true, type: :uuid
       t.date :release_date
 
       t.timestamps

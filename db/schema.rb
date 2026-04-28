@@ -13,18 +13,19 @@
 ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pgcrypto"
 
-  create_table "active_storage_attachments", force: :cascade do |t|
+  create_table "active_storage_attachments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.bigint "record_id", null: false
-    t.bigint "blob_id", null: false
+    t.uuid "record_id", null: false
+    t.uuid "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
-  create_table "active_storage_blobs", force: :cascade do |t|
+  create_table "active_storage_blobs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "key", null: false
     t.string "filename", null: false
     t.string "content_type"
@@ -36,16 +37,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "active_storage_variant_records", force: :cascade do |t|
-    t.bigint "blob_id", null: false
+  create_table "active_storage_variant_records", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "albums", force: :cascade do |t|
+  create_table "albums", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
-    t.bigint "category_id", null: false
-    t.bigint "author_id", null: false
+    t.uuid "category_id", null: false
+    t.uuid "author_id", null: false
     t.date "release_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -53,16 +54,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.index ["category_id"], name: "index_albums_on_category_id"
   end
 
-  create_table "authors", force: :cascade do |t|
+  create_table "authors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
-    t.bigint "user_id"
+    t.uuid "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_authors_on_user_id"
   end
 
-  create_table "categories", force: :cascade do |t|
+  create_table "categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.string "color", default: "#FFFFFF", null: false
     t.datetime "created_at", null: false
@@ -70,9 +71,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.index ["name"], name: "index_categories_on_name", unique: true
   end
 
-  create_table "play_histories", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "song_id", null: false
+  create_table "play_histories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "song_id", null: false
     t.datetime "played_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -80,9 +81,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.index ["user_id"], name: "index_play_histories_on_user_id"
   end
 
-  create_table "playlist_songs", force: :cascade do |t|
-    t.bigint "playlist_id", null: false
-    t.bigint "song_id", null: false
+  create_table "playlist_songs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "playlist_id", null: false
+    t.uuid "song_id", null: false
     t.integer "position", default: 1
     t.datetime "added_at"
     t.datetime "created_at", null: false
@@ -91,18 +92,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.index ["song_id"], name: "index_playlist_songs_on_song_id"
   end
 
-  create_table "playlists", force: :cascade do |t|
+  create_table "playlists", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.integer "position", default: 1
     t.integer "status", default: 0
-    t.bigint "user_id", null: false
+    t.uuid "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_playlists_on_user_id"
   end
 
-  create_table "sessions", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "sessions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "ip_address"
     t.string "user_agent"
     t.datetime "created_at", null: false
@@ -110,18 +111,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
-  create_table "song_authors", force: :cascade do |t|
-    t.bigint "song_id", null: false
-    t.bigint "author_id", null: false
+  create_table "song_authors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "song_id", null: false
+    t.uuid "author_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["author_id"], name: "index_song_authors_on_author_id"
     t.index ["song_id"], name: "index_song_authors_on_song_id"
   end
 
-  create_table "song_queues", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "song_id", null: false
+  create_table "song_queues", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "song_id", null: false
     t.integer "position", default: 1
     t.string "source"
     t.datetime "created_at", null: false
@@ -130,10 +131,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.index ["user_id"], name: "index_song_queues_on_user_id"
   end
 
-  create_table "songs", force: :cascade do |t|
+  create_table "songs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
-    t.bigint "category_id", null: false
-    t.bigint "album_id", null: false
+    t.uuid "category_id", null: false
+    t.uuid "album_id", null: false
     t.text "lyrics"
     t.integer "duration_ms"
     t.integer "age"
@@ -143,7 +144,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.index ["category_id"], name: "index_songs_on_category_id"
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "first_name"
     t.string "last_name"
     t.integer "status", default: 0
