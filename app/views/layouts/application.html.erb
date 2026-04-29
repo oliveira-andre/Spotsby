@@ -28,8 +28,11 @@
   </head>
 
   <body class="<%= 'has-footer-nav' if current_user %>">
-    <%= yield %>
+    <div id="page-content">
+      <%= yield %>
+    </div>
     <% if current_user %>
+      <%= render "shared/minimal_player" %>
       <%= render "shared/footer" %>
     <% end %>
   </body>

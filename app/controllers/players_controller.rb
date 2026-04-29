@@ -6,8 +6,6 @@ class PlayersController < ApplicationController
 
   def show; end
 
-  def minimal; end
-
   private
 
   def load_song

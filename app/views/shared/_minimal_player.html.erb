@@ -1,0 +1,31 @@
+<div id="minimal-player"
+     class="minimal-player"
+     data-controller="now-playing"
+     hidden>
+  <audio data-now-playing-target="audio" preload="metadata"></audio>
+
+  <%= link_to "#",
+              class: "minimal-player__link",
+              data: { "now-playing-target": "link", turbo_stream: true },
+              aria: { label: "Open player" } do %>
+    <img data-now-playing-target="image"
+         class="minimal-player__art"
+         alt=""
+         hidden>
+    <div data-now-playing-target="imagePlaceholder"
+         class="minimal-player__art minimal-player__art--placeholder"></div>
+    <div class="minimal-player__meta">
+      <p class="minimal-player__name" data-now-playing-target="name"></p>
+      <p class="minimal-player__authors" data-now-playing-target="authors"></p>
+    </div>
+  <% end %>
+
+  <button type="button"
+          class="minimal-player__play"
+          aria-label="Play"
+          data-now-playing-target="playButton"
+          data-action="click->now-playing#toggle">
+    <span data-now-playing-target="playIcon"><%= icon :play, size: 20 %></span>
+    <span data-now-playing-target="pauseIcon" hidden><%= icon :pause, size: 20 %></span>
+  </button>
+</div>

@@ -1,63 +1,85 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["audio", "playButton", "playIcon", "pauseIcon", "slider"]
-  static outlets = ["modal"]
+  static targets = ["playButton", "playIcon", "pauseIcon", "slider"]
+  static outlets = ["modal", "now-playing"]
+  static values = {
+    songId: String,
+    slug: String,
+    name: String,
+    authors: String,
+    imageUrl: String,
+    audioUrl: String
+  }
 
   connect() {
-    if (!this.hasAudioTarget) return
-
-    this.onTimeUpdate = this.onTimeUpdate.bind(this)
-    this.onEnded = this.onEnded.bind(this)
-    this.onPlay = this.showPauseIcon.bind(this)
-    this.onPause = this.showPlayIcon.bind(this)
-
-    this.audioTarget.addEventListener("timeupdate", this.onTimeUpdate)
-    this.audioTarget.addEventListener("ended", this.onEnded)
-    this.audioTarget.addEventListener("play", this.onPlay)
-    this.audioTarget.addEventListener("pause", this.onPause)
+    this.onState = this.handleState.bind(this)
+    this.onTimeUpdate = this.handleTimeUpdate.bind(this)
+    document.body.classList.add("is-big-player")
   }
 
   disconnect() {
-    if (!this.hasAudioTarget) return
-
-    this.audioTarget.removeEventListener("timeupdate", this.onTimeUpdate)
-    this.audioTarget.removeEventListener("ended", this.onEnded)
-    this.audioTarget.removeEventListener("play", this.onPlay)
-    this.audioTarget.removeEventListener("pause", this.onPause)
+    if (this.boundOutletElement) {
+      this.boundOutletElement.removeEventListener("now-playing:state", this.onState)
+      this.boundOutletElement.removeEventListener("now-playing:timeupdate", this.onTimeUpdate)
+      this.boundOutletElement = null
+    }
+    document.body.classList.remove("is-big-player")
   }
 
-  toggle() {
-    if (!this.hasAudioTarget) return
+  nowPlayingOutletConnected(outlet, element) {
+    this.boundOutletElement = element
+    element.addEventListener("now-playing:state", this.onState)
+    element.addEventListener("now-playing:timeupdate", this.onTimeUpdate)
 
-    if (this.audioTarget.paused) {
-      this.audioTarget.play()
-    } else {
-      this.audioTarget.pause()
+    if (this.audioUrlValue) {
+      element.dispatchEvent(new CustomEvent("now-playing:load", {
+        detail: {
+          id: this.songIdValue,
+          slug: this.slugValue,
+          name: this.nameValue,
+          authors: this.authorsValue,
+          imageUrl: this.imageUrlValue,
+          audioUrl: this.audioUrlValue,
+          autoplay: true
+        }
+      }))
+    }
+
+    if (outlet.isPlaying) this.showPauseIcon()
+    else this.showPlayIcon()
+  }
+
+  nowPlayingOutletDisconnected(_outlet, element) {
+    if (element === this.boundOutletElement) {
+      element.removeEventListener("now-playing:state", this.onState)
+      element.removeEventListener("now-playing:timeupdate", this.onTimeUpdate)
+      this.boundOutletElement = null
     }
   }
 
-  seek(event) {
-    if (!this.hasAudioTarget || !this.audioTarget.duration) return
+  toggle() {
+    if (this.hasNowPlayingOutlet) this.nowPlayingOutlet.toggle()
+  }
 
-    const value = Number(event.target.value)
-    this.audioTarget.currentTime = (value / 100) * this.audioTarget.duration
+  seek(event) {
+    if (this.hasNowPlayingOutlet) this.nowPlayingOutlet.seekToPercent(event.target.value)
   }
 
   openDetails() {
     if (this.hasModalOutlet) this.modalOutlet.open()
   }
 
-  onTimeUpdate() {
-    if (!this.hasSliderTarget || !this.audioTarget.duration) return
-
-    const percent = (this.audioTarget.currentTime / this.audioTarget.duration) * 100
-    this.sliderTarget.value = percent
+  handleState(event) {
+    if (event.detail?.playing) this.showPauseIcon()
+    else this.showPlayIcon()
   }
 
-  onEnded() {
-    this.showPlayIcon()
-    if (this.hasSliderTarget) this.sliderTarget.value = 0
+  handleTimeUpdate(event) {
+    if (!this.hasSliderTarget) return
+    const { currentTime, duration } = event.detail || {}
+    if (!duration) return
+    this.sliderTarget.value = (currentTime / duration) * 100
   }
 
   showPlayIcon() {

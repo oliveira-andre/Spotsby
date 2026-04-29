@@ -7,6 +7,15 @@ class ApplicationController < ActionController::Base
 
   helper_method :current_user
 
+  def default_render(*args)
+    if request.format.turbo_stream?
+      body = render_to_string(action_name, layout: false)
+      render turbo_stream: turbo_stream.update("page-content", body)
+    else
+      super
+    end
+  end
+
   private
 
   def current_user

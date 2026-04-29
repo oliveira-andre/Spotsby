@@ -8,9 +8,7 @@ Rails.application.routes.draw do
   get "library", to: "home#library", as: :library
   get "manage", to: "home#manage", as: :manage
 
-  resources :players, only: %i[show] do
-    get :minimal, to: "players#minimal", as: :minimal
-  end
+  resources :players, only: %i[show]
 
   namespace :admin do
     get "dashboard", to: "dashboard#index", as: :dashboard

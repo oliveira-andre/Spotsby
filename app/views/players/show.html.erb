@@ -1,9 +1,28 @@
+<%
+  song_image_url =
+    if @song&.image&.attached?
+      url_for(@song.image)
+    elsif @song&.album&.image&.attached?
+      url_for(@song.album.image)
+    end
+  song_audio_url = @song&.audio&.attached? ? url_for(@song.audio) : nil
+  song_authors = @song ? @song.authors.map(&:name).join(", ") : nil
+%>
+
 <div class="player"
      data-controller="player"
-     data-player-modal-outlet="#song-details">
+     data-player-modal-outlet="#song-details"
+     data-player-now-playing-outlet="#minimal-player"
+     data-player-song-id-value="<%= @song&.id %>"
+     data-player-slug-value="<%= @song&.slug %>"
+     data-player-name-value="<%= @song&.name %>"
+     data-player-authors-value="<%= song_authors %>"
+     data-player-image-url-value="<%= song_image_url %>"
+     data-player-audio-url-value="<%= song_audio_url %>">
   <header class="player__header">
-    <%= link_to (request.referer.presence || root_path),
+    <%= link_to (request.referer.presence && !request.referer.include?(player_path) ? request.referer : root_path),
                 class: "player__icon-btn",
+                data: { turbo_stream: true },
                 aria: { label: "Close player" } do %>
       <%= icon :chevron_down, size: 24 %>
     <% end %>
@@ -18,17 +37,9 @@
     </button>
   </header>
 
-  <% if @song&.audio&.attached? %>
-    <audio data-player-target="audio"
-           preload="metadata"
-           src="<%= url_for(@song.audio) %>"></audio>
-  <% end %>
-
   <main class="player__art-wrap">
-    <% if @song&.image&.attached? %>
-      <%= image_tag @song.image, class: "player__art", alt: @song.name %>
-    <% elsif @song&.album&.image&.attached? %>
-      <%= image_tag @song.album.image, class: "player__art", alt: @song.name %>
+    <% if song_image_url %>
+      <%= image_tag song_image_url, class: "player__art", alt: @song.name %>
     <% else %>
       <div class="player__art player__art--placeholder"></div>
     <% end %>
@@ -39,7 +50,7 @@
       <div class="player__track-text">
         <p class="player__track-name"><%= @song&.name || "No song playing" %></p>
         <p class="player__track-artist">
-          <%= @song ? @song.authors.map(&:name).join(", ") : "—" %>
+          <%= song_authors || "—" %>
         </p>
       </div>
       <button type="button" class="player__icon-btn player__heart" aria-label="Favorite">
