@@ -34,14 +34,15 @@
       <h2 class="search-page__heading">Browse all</h2>
       <div class="categories">
         <% @categories.each do |category| %>
-          <a href="#"
-             class="category-card"
-             style="--cat-color: <%= category.color %>;">
+          <%= link_to category_path(category),
+                      class: "category-card",
+                      style: "--cat-color: #{category.color};",
+                      data: { turbo_stream: true } do %>
             <span class="category-card__name"><%= category.name %></span>
             <% if category.image.attached? %>
               <%= image_tag category.image, class: "category-card__image", loading: "lazy", alt: "" %>
             <% end %>
-          </a>
+          <% end %>
         <% end %>
       </div>
     </section>
