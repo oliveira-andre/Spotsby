@@ -1,7 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
 
+const LAST_PAGE_KEY = "spotsby:last-page"
+
 export default class extends Controller {
-  static targets = ["playButton", "playIcon", "pauseIcon", "slider"]
+  static targets = ["playButton", "playIcon", "pauseIcon", "slider", "currentTime", "totalTime", "closeLink"]
   static outlets = ["modal", "now-playing"]
   static values = {
     songId: String,
@@ -12,10 +14,34 @@ export default class extends Controller {
     audioUrl: String
   }
 
-  connect() {
+  initialize() {
     this.onState = this.handleState.bind(this)
     this.onTimeUpdate = this.handleTimeUpdate.bind(this)
+  }
+
+  connect() {
     document.body.classList.add("is-big-player")
+    this.applyCloseLinkHref()
+  }
+
+  applyCloseLinkHref() {
+    if (!this.hasCloseLinkTarget) return
+    let stored
+    try {
+      stored = sessionStorage.getItem(LAST_PAGE_KEY)
+    } catch (_) {
+      return
+    }
+    if (!stored) return
+    let url
+    try {
+      url = new URL(stored, window.location.origin)
+    } catch (_) {
+      return
+    }
+    if (url.origin !== window.location.origin) return
+    if (url.pathname.startsWith("/players/")) return
+    this.closeLinkTarget.href = url.pathname + url.search + url.hash
   }
 
   disconnect() {
@@ -41,7 +67,7 @@ export default class extends Controller {
           authors: this.authorsValue,
           imageUrl: this.imageUrlValue,
           audioUrl: this.audioUrlValue,
-          autoplay: true
+          autoplay: outlet.isPlaying
         }
       }))
     }
@@ -76,10 +102,19 @@ export default class extends Controller {
   }
 
   handleTimeUpdate(event) {
-    if (!this.hasSliderTarget) return
     const { currentTime, duration } = event.detail || {}
     if (!duration) return
-    this.sliderTarget.value = (currentTime / duration) * 100
+    if (this.hasSliderTarget) this.sliderTarget.value = (currentTime / duration) * 100
+    if (this.hasCurrentTimeTarget) this.currentTimeTarget.textContent = this.formatTime(currentTime)
+    if (this.hasTotalTimeTarget) this.totalTimeTarget.textContent = this.formatTime(duration)
+  }
+
+  formatTime(seconds) {
+    if (!Number.isFinite(seconds) || seconds < 0) return "0:00"
+    const total = Math.floor(seconds)
+    const m = Math.floor(total / 60)
+    const s = total % 60
+    return `${m}:${String(s).padStart(2, "0")}`
   }
 
   showPlayIcon() {

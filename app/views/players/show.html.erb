@@ -20,9 +20,9 @@
      data-player-image-url-value="<%= song_image_url %>"
      data-player-audio-url-value="<%= song_audio_url %>">
   <header class="player__header">
-    <%= link_to (request.referer.presence && !request.referer.include?(player_path) ? request.referer : root_path),
+    <%= link_to root_path,
                 class: "player__icon-btn",
-                data: { turbo_stream: true },
+                data: { turbo_stream: true, player_target: "closeLink" },
                 aria: { label: "Close player" } do %>
       <%= icon :chevron_down, size: 24 %>
     <% end %>
@@ -68,6 +68,15 @@
              aria-label="Seek"
              data-player-target="slider"
              data-action="input->player#seek">
+      <div class="player__times">
+        <span class="player__time player__time--current"
+              data-player-target="currentTime">0:00</span>
+        <span class="player__time player__time--total"
+              data-player-target="totalTime"
+              data-duration-ms="<%= @song&.duration_ms %>">
+          <%= @song&.duration_ms ? Time.at(@song.duration_ms / 1000).utc.strftime("%-M:%S") : "0:00" %>
+        </span>
+      </div>
     </div>
 
     <div class="player__controls">

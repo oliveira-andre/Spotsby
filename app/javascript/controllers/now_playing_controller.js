@@ -1,6 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 
 const STORAGE_KEY = "spotsby:now-playing"
+const LAST_PAGE_KEY = "spotsby:last-page"
+const PLAYER_PATH_PREFIX = "/players/"
 
 export default class extends Controller {
   static targets = [
@@ -21,12 +23,14 @@ export default class extends Controller {
     this.onTimeUpdate = this.handleTimeUpdate.bind(this)
     this.onEnded = this.handleEnded.bind(this)
     this.onLoadEvent = this.handleLoadEvent.bind(this)
+    this.onDocumentClick = this.trackLastPage.bind(this)
 
     this.audioTarget.addEventListener("play", this.onPlay)
     this.audioTarget.addEventListener("pause", this.onPause)
     this.audioTarget.addEventListener("timeupdate", this.onTimeUpdate)
     this.audioTarget.addEventListener("ended", this.onEnded)
     this.element.addEventListener("now-playing:load", this.onLoadEvent)
+    document.addEventListener("click", this.onDocumentClick, true)
 
     this.restoreFromStorage()
   }
@@ -37,6 +41,27 @@ export default class extends Controller {
     this.audioTarget.removeEventListener("timeupdate", this.onTimeUpdate)
     this.audioTarget.removeEventListener("ended", this.onEnded)
     this.element.removeEventListener("now-playing:load", this.onLoadEvent)
+    document.removeEventListener("click", this.onDocumentClick, true)
+  }
+
+  trackLastPage(event) {
+    const link = event.target.closest("a[href][data-turbo-stream]")
+    if (!link) return
+
+    let url
+    try {
+      url = new URL(link.href, window.location.origin)
+    } catch (_) {
+      return
+    }
+    if (url.origin !== window.location.origin) return
+    if (url.pathname.startsWith(PLAYER_PATH_PREFIX)) return
+
+    try {
+      sessionStorage.setItem(LAST_PAGE_KEY, url.pathname + url.search + url.hash)
+    } catch (_) {
+      // storage unavailable — ignore
+    }
   }
 
   handleLoadEvent(event) {
