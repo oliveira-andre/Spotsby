@@ -90,6 +90,9 @@ electronic.image.attach(io: File.open(Rails.root.join('tmp/images/daft_punk.jpg'
 hip_hop = Category.create(name: 'Hip Hop', color: '#1e3264')
 hip_hop.image.attach(io: File.open(Rails.root.join('tmp/images/kanye.jpg')), filename: 'hip_hop.jpg')
 
+funk = Category.create(name: 'Funk', color: '#006450')
+funk.image.attach(io: File.open(Rails.root.join('tmp/images/kevin.jpg')), filename: 'funk.jpg')
+
 # Authors
 
 puts "Creating authors..."
@@ -125,6 +128,9 @@ kanye.image.attach(io: File.open(Rails.root.join('tmp/images/kanye.jpg')), filen
 
 jay_z = Author.create(name: 'Jay-Z')
 jay_z.image.attach(io: File.open(Rails.root.join('tmp/images/jay_z.jpg')), filename: 'jay_z.jpg')
+
+kevin = Author.create(name: 'MC Kevin')
+kevin.image.attach(io: File.open(Rails.root.join('tmp/images/kevin.jpg')), filename: 'kevin.jpg')
 
 # Albums
 
@@ -182,8 +188,6 @@ jay_z_song = Song.create(name: "The ruler's back", duration_ms: 228000, age: 200
 jay_z_song.image.attach(io: File.open(Rails.root.join('tmp/images/jay_z_album.png')), filename: 'jay_z_song.jpg')
 jay_z_song.audio.attach(io: File.open(Rails.root.join('tmp/audio/jay_z_song.mp3')), filename: 'jay_z_song.mp3')
 
-# Song Authors
-
 puts "Attaching authors to songs..."
 queen_song.authors << queen
 katy_perry_song.authors << katy_perry
@@ -193,3 +197,70 @@ miles_song.authors << miles
 john_song.authors << john
 the_prodigy_song.authors << the_prodigy
 jay_z_song.authors << jay_z
+
+puts "Spamming album songs for testing..."
+
+(1..20).each do |i|
+  # Complete album for testing
+  if i == 1
+    kevin_album = Album.create(name: "Passado e Presente", release_date: '2021-05-12', category: funk, author: kevin)
+    kevin_album.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_album.jpg')
+  else
+    kevin_album = Album.create(name: "Passado e Presente #{i}", release_date: '2021-05-12', category: funk, author: kevin)
+    kevin_album.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_album.jpg')
+  end
+
+  puts "Album selected: #{kevin_album.name}"
+  kevin_song_1 = Song.create(name: "1 Milhão de Sonhos#{i == 1 ? '' : i}", duration_ms: 133000, age: 2021, category: funk, album: kevin_album)
+  kevin_song_1.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_song.jpg')
+  kevin_song_1.audio.attach(io: File.open(Rails.root.join('tmp/audio/kevin_faixa_1.mp3')), filename: 'kevin_song_1.mp3')
+
+  kevin_song_2 = Song.create(name: "Sistema#{i == 1 ? '' : i}", duration_ms: 156000, age: 2021, category: funk, album: kevin_album)
+  kevin_song_2.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_song.jpg')
+  kevin_song_2.audio.attach(io: File.open(Rails.root.join('tmp/audio/kevin_faixa_2.mp3')), filename: 'kevin_song_2.mp3')
+
+  kevin_song_3 = Song.create(name: "Trilha#{i == 1 ? '' : i}", duration_ms: 161000, age: 2021, category: funk, album: kevin_album)
+  kevin_song_3.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_song.jpg')
+  kevin_song_3.audio.attach(io: File.open(Rails.root.join('tmp/audio/kevin_faixa_3.mp3')), filename: 'kevin_song_3.mp3')
+
+  kevin_song_4 = Song.create(name: "Inspiração#{i == 1 ? '' : i}", duration_ms: 217000, age: 2021, category: funk, album: kevin_album)
+  kevin_song_4.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_song.jpg')
+  kevin_song_4.audio.attach(io: File.open(Rails.root.join('tmp/audio/kevin_faixa_4.mp3')), filename: 'kevin_song_4.mp3')
+
+  kevin_song_5 = Song.create(name: "Opção#{i == 1 ? '' : i}", duration_ms: 251000, age: 2021, category: funk, album: kevin_album)
+  kevin_song_5.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_song.jpg')
+  kevin_song_5.audio.attach(io: File.open(Rails.root.join('tmp/audio/kevin_faixa_5.mp3')), filename: 'kevin_song_5.mp3')
+
+  kevin_song_6 = Song.create(name: "Alma Pura#{i == 1 ? '' : i}", duration_ms: 302000, age: 2021, category: funk, album: kevin_album)
+  kevin_song_6.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_song.jpg')
+  kevin_song_6.audio.attach(io: File.open(Rails.root.join('tmp/audio/kevin_faixa_6.mp3')), filename: 'kevin_song_6.mp3')
+
+  kevin_song_7 = Song.create(name: "Junção Venenosa#{i == 1 ? '' : i}", duration_ms: 205000, age: 2021, category: funk, album: kevin_album)
+  kevin_song_7.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_song.jpg')
+  kevin_song_7.audio.attach(io: File.open(Rails.root.join('tmp/audio/kevin_faixa_7.mp3')), filename: 'kevin_song_7.mp3')
+
+  kevin_song_8 = Song.create(name: "Palhaço#{i == 1 ? '' : i}", duration_ms: 174000, age: 2021, category: funk, album: kevin_album)
+  kevin_song_8.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_song.jpg')
+  kevin_song_8.audio.attach(io: File.open(Rails.root.join('tmp/audio/kevin_faixa_8.mp3')), filename: 'kevin_song_8.mp3')
+
+  kevin_song_9 = Song.create(name: "Grana#{i == 1 ? '' : i}", duration_ms: 189000, age: 2021, category: funk, album: kevin_album)
+  kevin_song_9.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_song.jpg')
+  kevin_song_9.audio.attach(io: File.open(Rails.root.join('tmp/audio/kevin_faixa_9.mp3')), filename: 'kevin_song_9.mp3')
+
+  kevin_song_10 = Song.create(name: "Vida Longa#{i == 1 ? '' : i}", duration_ms: 190000, age: 2021, category: funk, album: kevin_album)
+  kevin_song_10.image.attach(io: File.open(Rails.root.join('tmp/images/kevin_album.jpg')), filename: 'kevin_song.jpg')
+  kevin_song_10.audio.attach(io: File.open(Rails.root.join('tmp/audio/kevin_faixa_10.mp3')), filename: 'kevin_song_10.mp3')
+
+  # Song Authors
+
+  kevin_song_1.authors << kevin
+  kevin_song_2.authors << kevin
+  kevin_song_3.authors << kevin
+  kevin_song_4.authors << kevin
+  kevin_song_5.authors << kevin
+  kevin_song_6.authors << kevin
+  kevin_song_7.authors << kevin
+  kevin_song_8.authors << kevin
+  kevin_song_9.authors << kevin
+  kevin_song_10.authors << kevin
+end

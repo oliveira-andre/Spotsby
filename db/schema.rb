@@ -49,6 +49,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.uuid "category_id", null: false
     t.uuid "author_id", null: false
     t.date "release_date"
+    t.integer "position", default: 1
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["author_id"], name: "index_albums_on_author_id"
@@ -122,6 +123,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
   create_table "song_authors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "song_id", null: false
     t.uuid "author_id", null: false
+    t.integer "position", default: 1
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["author_id"], name: "index_song_authors_on_author_id"
@@ -147,6 +149,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.integer "duration_ms"
     t.integer "age"
     t.string "slug", null: false
+    t.integer "monthly_listeners", default: 0
+    t.integer "position", default: 1
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["album_id"], name: "index_songs_on_album_id"

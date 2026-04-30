@@ -3,50 +3,19 @@
     <h1 class="category-show__title"><%= @category.name %></h1>
   </header>
 
-  <% if @albums.any? %>
+  <% if @albums.any? || @pagy.page > 1 %>
     <div class="category-show__albums">
-      <% @albums.each do |album| %>
-        <section class="album-block">
-          <header class="album-block__header">
-            <% if album.image.attached? %>
-              <%= image_tag album.image, class: "album-block__art", loading: "lazy", alt: "" %>
-            <% else %>
-              <div class="album-block__art album-block__art--placeholder"></div>
-            <% end %>
-            <div class="album-block__meta">
-              <p class="album-block__name"><%= album.name %></p>
-              <p class="album-block__date">
-                <%= l(album.release_date, format: :long) if album.release_date %>
-              </p>
-            </div>
-          </header>
+      <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
+        <%= render partial: "albums/album", collection: @albums, as: :album %>
 
-          <% if album.songs.any? %>
-            <ul class="song-grid">
-              <% album.songs.each do |song| %>
-                <li class="song-card">
-                  <%= link_to player_path(song),
-                              class: "song-card__link",
-                              data: { turbo_stream: true } do %>
-                    <% if song.image.attached? %>
-                      <%= image_tag song.image, class: "song-card__art", loading: "lazy", alt: "" %>
-                    <% elsif album.image.attached? %>
-                      <%= image_tag album.image, class: "song-card__art", loading: "lazy", alt: "" %>
-                    <% else %>
-                      <div class="song-card__art song-card__art--placeholder"></div>
-                    <% end %>
-                    <div class="song-card__meta">
-                      <p class="song-card__name"><%= song.name %></p>
-                      <p class="song-card__authors"><%= song.authors.map(&:name).join(", ") %></p>
-                    </div>
-                  <% end %>
-                </li>
-              <% end %>
-            </ul>
-          <% else %>
-            <p class="album-block__empty">No songs in this album yet.</p>
+        <% if @pagy.next %>
+          <%= turbo_frame_tag :page, @pagy.next,
+                              src: category_path(@category, page: @pagy.next),
+                              loading: :lazy,
+                              target: :_top do %>
+            <p class="category-show__loading">Loading...</p>
           <% end %>
-        </section>
+        <% end %>
       <% end %>
     </div>
   <% else %>

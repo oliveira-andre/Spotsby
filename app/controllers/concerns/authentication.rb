@@ -42,11 +42,13 @@ module Authentication
       user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
         Current.session = session
         cookies.signed.permanent[:session_id] = { value: session.id, httponly: true, same_site: :lax }
+        flash[:_full_render] = true
       end
     end
 
     def terminate_session
       Current.session.destroy
       cookies.delete(:session_id)
+      flash[:_full_render] = true
     end
 end
