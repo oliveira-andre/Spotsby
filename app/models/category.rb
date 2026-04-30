@@ -5,8 +5,8 @@ class Category < ApplicationRecord
   has_one_attached :image
   validates :image, content_type: %w[image/jpeg image/png image/webp]
 
-  has_many :albums
-  has_many :songs
+  has_many :albums, -> { ordered }
+  has_many :songs, -> { ordered }
 
   validates :name, presence: true, uniqueness: true
 end

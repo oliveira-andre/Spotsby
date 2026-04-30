@@ -8,6 +8,8 @@ class CreateSongs < ActiveRecord::Migration[8.0]
       t.integer :duration_ms
       t.integer :age
       t.string :slug, null: false
+      t.integer :monthly_listeners, default: 0
+      t.integer :position, default: 1
 
       t.timestamps
     end
