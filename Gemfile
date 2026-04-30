@@ -43,6 +43,7 @@ gem "image_processing", "~> 1.2"
 gem "acts_as_list"
 gem "active_storage_validations"
 gem "friendly_id"
+gem "pagy"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
