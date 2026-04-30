@@ -14,7 +14,7 @@
       <div class="flash flash--notice" role="status"><%= flash[:notice] %></div>
     <% end %>
 
-    <%= form_with url: session_path, class: "form" do |form| %>
+    <%= form_with url: session_path, class: "form", data: { turbo_frame: "_top" } do |form| %>
       <div class="form-field">
         <%= form.label :email_address, "Email address", class: "label" %>
         <%= form.email_field :email_address,
