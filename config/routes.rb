@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   get "manage", to: "home#manage", as: :manage
 
   resources :categories, only: %i[show]
-  resources :players, only: %i[show]
+  resources :albums, only: %i[show]
 
   namespace :admin do
     get "dashboard", to: "dashboard#index", as: :dashboard

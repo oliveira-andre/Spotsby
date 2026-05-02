@@ -1,5 +1,5 @@
 <section class="album-block">
-  <header class="album-block__header">
+  <%= link_to album_path(album), class: "album-block__header", data: { turbo_stream: true } do %>
     <% if album.image.attached? %>
       <%= image_tag album.image, class: "album-block__art", loading: "lazy", alt: "" %>
     <% else %>
@@ -11,7 +11,7 @@
         <%= l(album.release_date, format: :long) if album.release_date %>
       </p>
     </div>
-  </header>
+  <% end %>
 
   <% if album.songs.any? %>
     <ul class="song-grid">
