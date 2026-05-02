@@ -39,7 +39,7 @@
 
   <main class="player__art-wrap">
     <% if song_image_url %>
-      <%= image_tag song_image_url, class: "player__art", alt: @song.name %>
+      <%= image_tag song_image_url, class: "player__art", alt: @song.name, loading: "lazy" %>
     <% else %>
       <div class="player__art player__art--placeholder"></div>
     <% end %>
@@ -48,7 +48,11 @@
   <footer class="player__bar">
     <div class="player__track">
       <div class="player__track-text">
-        <p class="player__track-name"><%= @song&.name || "No song playing" %></p>
+        <% if @song&.album %>
+          <%= link_to @song.name, album_path(@song.album), class: "player__track-name", data: { turbo_stream: true } %>
+        <% else %>
+          <p class="player__track-name"><%= @song&.name || "No song playing" %></p>
+        <% end %>
         <p class="player__track-artist">
           <%= song_authors || "—" %>
         </p>
@@ -83,9 +87,13 @@
       <button type="button" class="player__ctrl" aria-label="Shuffle">
         <%= icon :shuffle, size: 22 %>
       </button>
-      <button type="button" class="player__ctrl" aria-label="Previous">
+      <%= button_to previous_players_path,
+                    method: :post,
+                    class: "player__ctrl",
+                    form_class: "player__ctrl-form",
+                    aria: { label: "Previous" } do %>
         <%= icon :backward, size: 28 %>
-      </button>
+      <% end %>
       <button type="button"
               class="player__ctrl player__ctrl--primary"
               aria-label="Play"
@@ -94,9 +102,13 @@
         <span data-player-target="playIcon"><%= icon :play, size: 22 %></span>
         <span data-player-target="pauseIcon" hidden><%= icon :pause, size: 22 %></span>
       </button>
-      <button type="button" class="player__ctrl" aria-label="Next">
+      <%= button_to next_players_path,
+                    method: :post,
+                    class: "player__ctrl",
+                    form_class: "player__ctrl-form",
+                    aria: { label: "Next" } do %>
         <%= icon :forward, size: 28 %>
-      </button>
+      <% end %>
       <button type="button" class="player__ctrl" aria-label="Repeat">
         <%= icon :repeat, size: 22 %>
       </button>
@@ -108,9 +120,9 @@
   <% if @song %>
     <div class="player__details">
       <% if @song.album&.image&.attached? %>
-        <%= image_tag @song.album.image, class: "player__details-thumb", alt: "" %>
+        <%= image_tag @song.album.image, class: "player__details-thumb", alt: @song.album.name, loading: "lazy" %>
       <% elsif @song.image.attached? %>
-        <%= image_tag @song.image, class: "player__details-thumb", alt: "" %>
+        <%= image_tag @song.image, class: "player__details-thumb", alt: @song.name, loading: "lazy" %>
       <% end %>
       <div class="player__details-text">
         <p class="player__details-artist"><%= @song.authors.map(&:name).join(", ") %></p>

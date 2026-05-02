@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  after_create :create_playlist
+
   has_one_attached :avatar
   validates :avatar, content_type: %w[image/png image/jpeg image/gif]
 
@@ -16,4 +18,10 @@ class User < ApplicationRecord
   has_many :song_queues, -> { ordered }
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
+
+  private
+
+  def create_playlist
+    Playlist.create(user: self, name: "Saved Songs", status: :private, position: 0)
+  end
 end

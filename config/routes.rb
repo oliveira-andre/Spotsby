@@ -10,6 +10,12 @@ Rails.application.routes.draw do
 
   resources :categories, only: %i[show]
   resources :albums, only: %i[show]
+  resources :players, only: %i[show] do
+    collection do
+      post :next
+      post :previous
+    end
+  end
 
   namespace :admin do
     get "dashboard", to: "dashboard#index", as: :dashboard

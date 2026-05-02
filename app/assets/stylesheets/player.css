@@ -126,6 +126,7 @@
 }
 
 .player__track-name {
+  display: block;
   font-family: var(--font-title);
   font-size: 1.25rem;
   font-weight: 700;
@@ -134,6 +135,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-decoration: none;
+}
+
+.player__track-name:hover {
+  text-decoration: none;
+  color: var(--color-text-base);
 }
 
 .player__track-artist {
@@ -218,6 +225,11 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+}
+
+.player__ctrl-form {
+  display: inline-flex;
+  margin: 0;
 }
 
 .player__ctrl {

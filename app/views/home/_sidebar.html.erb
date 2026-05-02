@@ -6,7 +6,7 @@
   <header class="sidebar__header">
     <div class="sidebar__user">
       <% if current_user.avatar.attached? %>
-        <%= image_tag current_user.avatar, class: "avatar avatar--lg" %>
+        <%= image_tag current_user.avatar, class: "avatar avatar--lg", loading: "lazy" %>
       <% else %>
         <div class="avatar avatar--lg avatar--initials">
           <%= user_initials(current_user) %>
