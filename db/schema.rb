@@ -72,6 +72,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.string "name", null: false
     t.string "color", default: "#FFFFFF", null: false
     t.string "slug", null: false
+    t.integer "position", default: 1, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_categories_on_name", unique: true

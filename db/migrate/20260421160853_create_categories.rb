@@ -4,6 +4,7 @@ class CreateCategories < ActiveRecord::Migration[8.0]
       t.string :name, null: false
       t.string :color, null: false, default: '#FFFFFF'
       t.string :slug, null: false
+      t.integer :position, null: false, default: 1
 
       t.timestamps
     end

@@ -6,7 +6,7 @@ class HomeController < ApplicationController
 
   def search
     @categories = Rails.cache.fetch("categories") do
-      Category.with_attached_image.order(:name)
+      Category.with_attached_image.ordered
     end
   end
 
