@@ -1,8 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 
 const STORAGE_KEY = "spotsby:now-playing"
-const LAST_PAGE_KEY = "spotsby:last-page"
-const PLAYER_PATH_PREFIX = "/players/"
+const NAV_STACK_KEY = "spotsby:nav-stack"
+const NAV_STACK_MAX = 30
 
 export default class extends Controller {
   static targets = [
@@ -32,7 +32,17 @@ export default class extends Controller {
     this.element.addEventListener("now-playing:load", this.onLoadEvent)
     document.addEventListener("click", this.onDocumentClick, true)
 
+    this.seedNavStack()
     this.restoreFromStorage()
+  }
+
+  seedNavStack() {
+    let stack = readNavStack()
+    const here = window.location.pathname + window.location.search + window.location.hash
+    if (stack.length === 0 || stack[stack.length - 1] !== here) {
+      stack.push(here)
+      writeNavStack(stack)
+    }
   }
 
   disconnect() {
@@ -47,6 +57,8 @@ export default class extends Controller {
   trackLastPage(event) {
     const link = event.target.closest("a[href][data-turbo-stream]")
     if (!link) return
+    const ctrls = (link.dataset.controller || "").split(/\s+/)
+    if (ctrls.includes("back-link")) return
 
     let url
     try {
@@ -55,13 +67,12 @@ export default class extends Controller {
       return
     }
     if (url.origin !== window.location.origin) return
-    if (url.pathname.startsWith(PLAYER_PATH_PREFIX)) return
 
-    try {
-      sessionStorage.setItem(LAST_PAGE_KEY, url.pathname + url.search + url.hash)
-    } catch (_) {
-      // storage unavailable — ignore
-    }
+    const dest = url.pathname + url.search + url.hash
+    let stack = readNavStack()
+    if (stack[stack.length - 1] !== dest) stack.push(dest)
+    if (stack.length > NAV_STACK_MAX) stack = stack.slice(-NAV_STACK_MAX)
+    writeNavStack(stack)
   }
 
   handleLoadEvent(event) {
@@ -165,6 +176,28 @@ export default class extends Controller {
 
   handleEnded() {
     this.dispatch("ended")
+    this.advanceToNext()
+  }
+
+  advanceToNext() {
+    try {
+      sessionStorage.setItem("spotsby:force-play", "1")
+    } catch (_) { /* storage unavailable — ignore */ }
+
+    const token = document.querySelector('meta[name="csrf-token"]')?.content
+    const form = document.createElement("form")
+    form.method = "post"
+    form.action = "/players/next"
+    form.style.display = "none"
+    if (token) {
+      const input = document.createElement("input")
+      input.type = "hidden"
+      input.name = "authenticity_token"
+      input.value = token
+      form.appendChild(input)
+    }
+    document.body.appendChild(form)
+    form.requestSubmit()
   }
 
   show() {
@@ -216,4 +249,18 @@ export default class extends Controller {
     this.audioTarget.load()
     this.show()
   }
+}
+
+function readNavStack() {
+  let raw
+  try { raw = sessionStorage.getItem(NAV_STACK_KEY) } catch (_) { return [] }
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch (_) { return [] }
+}
+
+function writeNavStack(stack) {
+  try { sessionStorage.setItem(NAV_STACK_KEY, JSON.stringify(stack)) } catch (_) {}
 }

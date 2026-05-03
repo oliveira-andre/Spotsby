@@ -1,9 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
 
-const LAST_PAGE_KEY = "spotsby:last-page"
+const FORCE_PLAY_KEY = "spotsby:force-play"
 
 export default class extends Controller {
-  static targets = ["playButton", "playIcon", "pauseIcon", "slider", "currentTime", "totalTime", "closeLink"]
+  static targets = ["playButton", "playIcon", "pauseIcon", "slider", "currentTime", "totalTime"]
   static outlets = ["modal", "now-playing"]
   static values = {
     songId: String,
@@ -21,27 +21,6 @@ export default class extends Controller {
 
   connect() {
     document.body.classList.add("is-big-player")
-    this.applyCloseLinkHref()
-  }
-
-  applyCloseLinkHref() {
-    if (!this.hasCloseLinkTarget) return
-    let stored
-    try {
-      stored = sessionStorage.getItem(LAST_PAGE_KEY)
-    } catch (_) {
-      return
-    }
-    if (!stored) return
-    let url
-    try {
-      url = new URL(stored, window.location.origin)
-    } catch (_) {
-      return
-    }
-    if (url.origin !== window.location.origin) return
-    if (url.pathname.startsWith("/players/")) return
-    this.closeLinkTarget.href = url.pathname + url.search + url.hash
   }
 
   disconnect() {
@@ -58,6 +37,14 @@ export default class extends Controller {
     element.addEventListener("now-playing:state", this.onState)
     element.addEventListener("now-playing:timeupdate", this.onTimeUpdate)
 
+    let autoplay = outlet.isPlaying
+    try {
+      if (sessionStorage.getItem(FORCE_PLAY_KEY) === "1") {
+        autoplay = true
+        sessionStorage.removeItem(FORCE_PLAY_KEY)
+      }
+    } catch (_) { /* storage unavailable — ignore */ }
+
     if (this.audioUrlValue) {
       element.dispatchEvent(new CustomEvent("now-playing:load", {
         detail: {
@@ -67,13 +54,19 @@ export default class extends Controller {
           authors: this.authorsValue,
           imageUrl: this.imageUrlValue,
           audioUrl: this.audioUrlValue,
-          autoplay: outlet.isPlaying
+          autoplay
         }
       }))
     }
 
-    if (outlet.isPlaying) this.showPauseIcon()
+    if (autoplay) this.showPauseIcon()
     else this.showPlayIcon()
+  }
+
+  prepareAdvance() {
+    try {
+      sessionStorage.setItem(FORCE_PLAY_KEY, "1")
+    } catch (_) { /* storage unavailable — ignore */ }
   }
 
   nowPlayingOutletDisconnected(_outlet, element) {

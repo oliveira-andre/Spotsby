@@ -2,8 +2,9 @@ class SongQueue < ApplicationRecord
   acts_as_list scope: :user
 
   SOURCE_ALBUM = "album"
+  SOURCE_POPULAR = "popular"
   SOURCE_ARTIST_SHUFFLE = "artist_shuffle"
-  SOURCES = [SOURCE_ALBUM, SOURCE_ARTIST_SHUFFLE].freeze
+  SOURCES = [SOURCE_ALBUM, SOURCE_POPULAR, SOURCE_ARTIST_SHUFFLE].freeze
 
   belongs_to :user
   belongs_to :song

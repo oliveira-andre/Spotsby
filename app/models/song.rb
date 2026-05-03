@@ -23,6 +23,8 @@ class Song < ApplicationRecord
   has_many :play_histories
   has_many :users, through: :play_histories
 
+  has_many :popular_songs, dependent: :destroy
+
   scope :ordered, -> { order(position: :asc) }
 
   validates :name, presence: true, uniqueness: { scope: :album_id }

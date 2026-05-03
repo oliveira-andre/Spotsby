@@ -25,7 +25,7 @@
              autocomplete="off"
              aria-label="Search"
              data-search-target="input"
-             data-action="input->search#search">
+             data-action="input->search#search focus->search#showHistory">
     </label>
   </header>
 
@@ -45,6 +45,18 @@
           <% end %>
         <% end %>
       </div>
+    </section>
+
+    <section class="search-page__history"
+             data-search-target="history"
+             hidden>
+      <h2 class="search-page__heading">Recent searches</h2>
+      <ul id="play_histories" class="search-history__list">
+        <%= render @play_histories %>
+      </ul>
+      <% if @play_histories.empty? %>
+        <p class="search-page__empty">No recent searches yet.</p>
+      <% end %>
     </section>
 
     <section id="search_results"

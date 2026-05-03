@@ -5,7 +5,10 @@ class PlayersController < ApplicationController
   before_action :load_song, only: %i[show]
 
   def show
-    record_queue_entry!(@song, params[:source]) if @song && params[:source].present?
+    return unless @song && params[:source].present?
+
+    record_queue_entry!(@song, params[:source])
+    record_play_history!(@song, params[:source])
   end
 
   def next
@@ -41,9 +44,13 @@ class PlayersController < ApplicationController
   end
 
   def resolve_next(current_song, current_source, direction)
-    if current_source == SongQueue::SOURCE_ALBUM
+    case current_source
+    when SongQueue::SOURCE_ALBUM
       sibling = album_sibling(current_song, direction)
       return [sibling, SongQueue::SOURCE_ALBUM] if sibling
+    when SongQueue::SOURCE_POPULAR
+      sibling = popular_sibling(current_song, direction)
+      return [sibling, SongQueue::SOURCE_POPULAR] if sibling
     end
 
     [sample_artist_song(current_song), SongQueue::SOURCE_ARTIST_SHUFFLE]
@@ -55,6 +62,20 @@ class PlayersController < ApplicationController
     return nil if target_position < 1
 
     Song.where(album_id: song.album_id, position: target_position).first
+  end
+
+  def popular_sibling(song, direction)
+    author_id = song.album&.author_id
+    return nil unless author_id
+
+    current_entry = PopularSong.find_by(author_id: author_id, song_id: song.id)
+    return nil unless current_entry
+
+    offset = direction == :next ? 1 : -1
+    target_position = current_entry.position.to_i + offset
+    return nil if target_position < 1
+
+    PopularSong.where(author_id: author_id, position: target_position).first&.song
   end
 
   def sample_artist_song(current_song)
@@ -72,5 +93,20 @@ class PlayersController < ApplicationController
     return unless SongQueue::SOURCES.include?(source.to_s)
 
     SongQueue.create!(user: current_user, song: song, source: source)
+  end
+
+  def record_play_history!(song, source)
+    return unless current_user
+
+    current_user.play_histories.create!(song: song, source: source, played_at: Time.current)
+    prune_play_histories!(source)
+  end
+
+  def prune_play_histories!(source)
+    cap = PlayHistory.cap_for(source)
+    scope = current_user.play_histories
+    scope = source.present? ? scope.where(source: source) : scope.where(source: nil)
+    keep_ids = scope.recent.limit(cap).pluck(:id)
+    scope.where.not(id: keep_ids).delete_all
   end
 end

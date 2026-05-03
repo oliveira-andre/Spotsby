@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   get "library", to: "home#library", as: :library
   get "manage", to: "home#manage", as: :manage
 
+  resources :play_histories, only: %i[destroy]
   resources :categories, only: %i[show]
   resources :albums, only: %i[show]
   resources :authors, only: %i[show] do

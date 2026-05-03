@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { Turbo } from "@hotwired/turbo-rails"
 
 export default class extends Controller {
-  static targets = ["input", "results", "browse"]
+  static targets = ["input", "results", "browse", "history"]
   static values = { url: String, debounce: { type: Number, default: 250 } }
 
   connect() {
@@ -19,10 +19,9 @@ export default class extends Controller {
     clearTimeout(this.timeout)
     const query = this.inputTarget.value.trim()
 
-    console.log(query)
     if (query === "") {
       if (this.controller) this.controller.abort()
-      this.showBrowse()
+      this.showHistory()
       return
     }
 
@@ -55,11 +54,24 @@ export default class extends Controller {
   showBrowse() {
     this.resultsTarget.hidden = true
     this.resultsTarget.innerHTML = ""
+    if (this.hasHistoryTarget) this.historyTarget.hidden = true
     this.browseTarget.hidden = false
   }
 
   showResults() {
     this.browseTarget.hidden = true
+    if (this.hasHistoryTarget) this.historyTarget.hidden = true
     this.resultsTarget.hidden = false
+  }
+
+  showHistory() {
+    if (!this.hasHistoryTarget) {
+      this.showBrowse()
+      return
+    }
+    this.resultsTarget.hidden = true
+    this.resultsTarget.innerHTML = ""
+    this.browseTarget.hidden = true
+    this.historyTarget.hidden = false
   }
 }
