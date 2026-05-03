@@ -1,0 +1,131 @@
+<%
+  popular_song_ids = @popular_songs.map { |s| s.id.to_s }
+  first_song = @popular_songs.first
+  first_song_image_url =
+    if first_song&.image&.attached?
+      url_for(first_song.image)
+    elsif first_song&.album&.image&.attached?
+      url_for(first_song.album.image)
+    end
+  first_song_audio_url = first_song&.audio&.attached? ? url_for(first_song.audio) : nil
+  first_song_authors = first_song ? first_song.authors.map(&:name).join(", ") : nil
+%>
+
+<div class="author-show"
+     data-controller="author-show"
+     data-author-show-now-playing-outlet="#minimal-player"
+     data-author-show-song-ids-value="<%= popular_song_ids.to_json %>"
+     data-author-show-first-id-value="<%= first_song&.id %>"
+     data-author-show-first-slug-value="<%= first_song&.slug %>"
+     data-author-show-first-name-value="<%= first_song&.name %>"
+     data-author-show-first-authors-value="<%= first_song_authors %>"
+     data-author-show-first-image-url-value="<%= first_song_image_url %>"
+     data-author-show-first-audio-url-value="<%= first_song_audio_url %>">
+  <header class="author-show__header">
+    <%= link_to root_path,
+                class: "author-show__back",
+                data: { turbo_stream: true, controller: "back-link" },
+                aria: { label: "Back" } do %>
+      <%= icon :chevron_left, size: 24 %>
+    <% end %>
+
+    <% if @author.image.attached? %>
+      <%= image_tag @author.image, class: "author-show__avatar", alt: @author.name, loading: "lazy" %>
+    <% else %>
+      <div class="author-show__avatar author-show__avatar--placeholder"></div>
+    <% end %>
+  </header>
+
+  <section class="author-show__meta">
+    <h1 class="author-show__name"><%= @author.name %></h1>
+  </section>
+
+  <div class="author-show__actions">
+    <div class="author-show__actions-right">
+      <button type="button" class="author-show__icon-btn" aria-label="Shuffle">
+        <%= icon :shuffle, size: 22 %>
+      </button>
+      <button type="button"
+              class="author-show__play"
+              aria-label="Play"
+              data-action="click->author-show#toggle"
+              data-author-show-target="playButton">
+        <span data-author-show-target="playIcon"><%= icon :play, size: 25 %></span>
+        <span data-author-show-target="pauseIcon" hidden><%= icon :pause, size: 25 %></span>
+      </button>
+    </div>
+  </div>
+
+  <% if @popular_songs.any? %>
+    <section class="author-show__popular" data-controller="reveal">
+      <h2 class="author-show__section-title">Popular</h2>
+      <ul class="author-show__songs">
+        <% @popular_songs.each_with_index do |song, idx| %>
+          <li class="author-song <%= 'hidden' if idx >= 5 %>"
+              data-author-show-target="songRow"
+              data-song-id="<%= song.id %>"
+              <% if idx >= 5 %>data-reveal-target="item"<% end %>>
+            <span class="author-song__index" aria-hidden="true"><%= idx + 1 %></span>
+            <span class="author-song__wave" aria-hidden="true">
+              <span class="author-song__wave-frame author-song__wave-frame--a"><%= icon :wave_a, size: 18 %></span>
+              <span class="author-song__wave-frame author-song__wave-frame--paused"><%= icon :wave_paused, size: 18 %></span>
+            </span>
+            <% if song.image.attached? %>
+              <%= image_tag song.image, class: "author-song__art", loading: "lazy", alt: "" %>
+            <% elsif song.album&.image&.attached? %>
+              <%= image_tag song.album.image, class: "author-song__art", loading: "lazy", alt: "" %>
+            <% else %>
+              <div class="author-song__art author-song__art--placeholder"></div>
+            <% end %>
+            <%= link_to player_path(song, source: SongQueue::SOURCE_POPULAR),
+                        class: "author-song__link",
+                        data: { turbo_stream: true } do %>
+              <div class="author-song__meta">
+                <p class="author-song__name"><%= song.name %></p>
+                <p class="author-song__authors"><%= song.authors.map(&:name).join(", ") %></p>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+
+      <% if @popular_songs.size > 5 %>
+        <div class="author-show__popular-actions">
+          <button type="button"
+                  class="author-show__link-btn"
+                  data-reveal-target="item"
+                  data-action="click->reveal#toggle">
+            Show more
+          </button>
+          <button type="button"
+                  class="author-show__link-btn hidden"
+                  data-reveal-target="item"
+                  data-action="click->reveal#toggle">
+            Show less
+          </button>
+          <%= link_to "View all", all_songs_author_path(@author),
+                      class: "author-show__link-btn author-show__link-btn--view-all hidden",
+                      data: { reveal_target: "item", turbo_stream: true } %>
+        </div>
+      <% end %>
+    </section>
+  <% end %>
+
+  <% if @albums.any? || @pagy.page > 1 %>
+    <section class="author-show__albums">
+      <h2 class="author-show__section-title">Albums</h2>
+      <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
+        <%= render partial: "albums/album", collection: @albums, as: :album %>
+
+        <% if @pagy.next %>
+          <%= turbo_frame_tag :page, @pagy.next,
+                              src: author_path(@author, page: @pagy.next),
+                              loading: :lazy,
+                              target: :_top do %>
+            <p class="author-show__loading">Loading...</p>
+          <% end %>
+        <% end %>
+      <% end %>
+    </section>
+  <% end %>
+</div>

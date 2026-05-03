@@ -1,0 +1,49 @@
+<div class="author-all-songs">
+  <header class="author-all-songs__header">
+    <%= link_to author_path(@author),
+                class: "author-all-songs__back",
+                data: { turbo_stream: true },
+                aria: { label: "Back" } do %>
+      <%= icon :chevron_left, size: 24 %>
+    <% end %>
+    <h1 class="author-all-songs__title"><%= @author.name %> · All songs</h1>
+  </header>
+
+  <% if @songs.any? || @pagy.page > 1 %>
+    <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
+      <ul class="author-all-songs__list">
+        <% @songs.each do |song| %>
+          <li class="author-song"
+              data-song-id="<%= song.id %>">
+            <% if song.image.attached? %>
+              <%= image_tag song.image, class: "author-song__art", loading: "lazy", alt: "" %>
+            <% elsif song.album&.image&.attached? %>
+              <%= image_tag song.album.image, class: "author-song__art", loading: "lazy", alt: "" %>
+            <% else %>
+              <div class="author-song__art author-song__art--placeholder"></div>
+            <% end %>
+            <%= link_to player_path(song, source: SongQueue::SOURCE_ARTIST_SHUFFLE),
+                        class: "author-song__link",
+                        data: { turbo_stream: true } do %>
+              <div class="author-song__meta">
+                <p class="author-song__name"><%= song.name %></p>
+                <p class="author-song__authors"><%= song.authors.map(&:name).join(", ") %></p>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+
+      <% if @pagy.next %>
+        <%= turbo_frame_tag :page, @pagy.next,
+                            src: all_songs_author_path(@author, page: @pagy.next),
+                            loading: :lazy,
+                            target: :_top do %>
+          <p class="author-all-songs__loading">Loading...</p>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <p class="author-all-songs__empty">No songs yet.</p>
+  <% end %>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_02_202010) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -83,9 +83,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.uuid "user_id", null: false
     t.uuid "song_id", null: false
     t.datetime "played_at"
+    t.string "source"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["song_id"], name: "index_play_histories_on_song_id"
+    t.index ["user_id", "source", "created_at"], name: "index_play_histories_on_user_id_and_source_and_created_at"
     t.index ["user_id"], name: "index_play_histories_on_user_id"
   end
 
@@ -110,6 +112,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.datetime "updated_at", null: false
     t.index ["slug"], name: "index_playlists_on_slug", unique: true
     t.index ["user_id"], name: "index_playlists_on_user_id"
+  end
+
+  create_table "popular_songs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "author_id", null: false
+    t.uuid "song_id", null: false
+    t.integer "position", default: 1
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id", "position"], name: "index_popular_songs_on_author_id_and_position"
+    t.index ["author_id", "song_id"], name: "index_popular_songs_on_author_id_and_song_id", unique: true
+    t.index ["author_id"], name: "index_popular_songs_on_author_id"
+    t.index ["song_id"], name: "index_popular_songs_on_song_id"
   end
 
   create_table "sessions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -152,6 +166,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
     t.string "slug", null: false
     t.integer "monthly_listeners", default: 0
     t.integer "position", default: 1
+    t.boolean "popular", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["album_id"], name: "index_songs_on_album_id"
@@ -181,6 +196,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_222231) do
   add_foreign_key "playlist_songs", "playlists"
   add_foreign_key "playlist_songs", "songs"
   add_foreign_key "playlists", "users"
+  add_foreign_key "popular_songs", "authors"
+  add_foreign_key "popular_songs", "songs"
   add_foreign_key "sessions", "users"
   add_foreign_key "song_authors", "authors"
   add_foreign_key "song_authors", "songs"

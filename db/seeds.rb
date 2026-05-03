@@ -8,12 +8,14 @@ result = gets.chomp
 if result == "y" || result == "Y"
   puts "Resetting database..."
   ActiveRecord::Base.connection.tables.each do |table|
+    PopularSong.destroy_all
+    PlaylistSong.destroy_all
     SongAuthor.destroy_all
     Song.destroy_all
     Album.destroy_all
     Author.destroy_all
     Category.destroy_all
-    User.delete_all
+    User.destroy_all
     Session.destroy_all
     Playlist.destroy_all
     PlaylistSong.destroy_all
@@ -263,4 +265,19 @@ puts "Spamming album songs for testing..."
   kevin_song_8.authors << kevin
   kevin_song_9.authors << kevin
   kevin_song_10.authors << kevin
+
+  # popular songs
+
+  if i == 1
+    PopularSong.create(author: kevin, song: kevin_song_1)
+    PopularSong.create(author: kevin, song: kevin_song_2)
+    PopularSong.create(author: kevin, song: kevin_song_3)
+    PopularSong.create(author: kevin, song: kevin_song_4)
+    PopularSong.create(author: kevin, song: kevin_song_5)
+    PopularSong.create(author: kevin, song: kevin_song_6)
+    PopularSong.create(author: kevin, song: kevin_song_7)
+    PopularSong.create(author: kevin, song: kevin_song_8)
+    PopularSong.create(author: kevin, song: kevin_song_9)
+    PopularSong.create(author: kevin, song: kevin_song_10)
+  end
 end

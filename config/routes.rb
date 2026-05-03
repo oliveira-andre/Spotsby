@@ -10,6 +10,11 @@ Rails.application.routes.draw do
 
   resources :categories, only: %i[show]
   resources :albums, only: %i[show]
+  resources :authors, only: %i[show] do
+    member do
+      get :all_songs
+    end
+  end
   resources :players, only: %i[show] do
     collection do
       post :next
