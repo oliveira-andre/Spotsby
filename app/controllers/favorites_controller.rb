@@ -2,7 +2,7 @@
 
 # FavoritesController
 class FavoritesController < ApplicationController
-  before_action :load_song,  only: %i[create_song destroy_song playlists_modal add_to_playlist]
+  before_action :load_song,  only: %i[create_song destroy_song playlists_modal add_to_playlist remove_from_playlist]
   before_action :load_album, only: %i[create_album destroy_album]
 
   def create_song
@@ -46,6 +46,16 @@ class FavoritesController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream { render :add_to_playlist }
+    end
+  end
+
+  def remove_from_playlist
+    @playlist = current_user.playlists.find(params[:playlist_id])
+    @playlist.playlist_songs.where(song_id: @song.id).destroy_all
+    current_user.reload
+
+    respond_to do |format|
+      format.turbo_stream { render :remove_from_playlist }
     end
   end
 

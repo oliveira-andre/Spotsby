@@ -5,10 +5,11 @@ class PlayersController < ApplicationController
   before_action :load_song, only: %i[show]
 
   def show
-    return unless @song && params[:source].present?
+    return unless @song
 
-    record_queue_entry!(@song, params[:source])
-    record_play_history!(@song, params[:source])
+    source = params[:source].presence
+    record_queue_entry!(@song, source)
+    record_play_history!(@song, source)
   end
 
   def next
@@ -90,9 +91,17 @@ class PlayersController < ApplicationController
 
   def record_queue_entry!(song, source)
     return unless current_user
-    return unless SongQueue::SOURCES.include?(source.to_s)
 
-    SongQueue.create!(user: current_user, song: song, source: source)
+    effective_source = SongQueue::SOURCES.include?(source.to_s) ? source : SongQueue::SOURCE_DEFAULT
+    SongQueue.create!(user: current_user, song: song, source: effective_source)
+    prune_song_queues!(effective_source)
+  end
+
+  def prune_song_queues!(source)
+    cap = SongQueue.cap_for(source)
+    scope = current_user.song_queues.where(source: source)
+    keep_ids = scope.recent.limit(cap).pluck(:id)
+    scope.where.not(id: keep_ids).delete_all
   end
 
   def record_play_history!(song, source)

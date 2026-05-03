@@ -14,29 +14,28 @@
     </button>
 
     <div class="filters" role="tablist" aria-label="Browse filter">
-      <button type="button"
-              class="filters__chip is-active"
-              role="tab"
-              aria-selected="true"
-              data-action="click->filters#select"
-              data-filter="all">All</button>
-      <button type="button"
-              class="filters__chip"
-              role="tab"
-              aria-selected="false"
-              data-action="click->filters#select"
-              data-filter="albums">Albums</button>
-      <button type="button"
-              class="filters__chip"
-              role="tab"
-              aria-selected="false"
-              data-action="click->filters#select"
-              data-filter="artists">Artists</button>
+      <%= link_to "All", home_all_path,
+                  class: "filters__chip is-active",
+                  role: "tab",
+                  aria: { selected: "true" },
+                  data: { turbo_frame: "home_filtered", action: "click->filters#select", filter: "all" } %>
+      <%= link_to "Albums", recent_albums_path,
+                  class: "filters__chip",
+                  role: "tab",
+                  aria: { selected: "false" },
+                  data: { turbo_frame: "home_filtered", action: "click->filters#select", filter: "albums" } %>
+      <%= link_to "Artists", recent_artists_path,
+                  class: "filters__chip",
+                  role: "tab",
+                  aria: { selected: "false" },
+                  data: { turbo_frame: "home_filtered", action: "click->filters#select", filter: "artists" } %>
     </div>
   </header>
 
   <main class="home__body">
-    <p class="home__empty">Too quiet, start listening some music</p>
+    <%= turbo_frame_tag :home_filtered do %>
+      <%= render "home/index_body" %>
+    <% end %>
   </main>
 
   <%= render "home/sidebar" %>

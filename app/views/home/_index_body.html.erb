@@ -1,0 +1,104 @@
+<% if @recent_tiles.any? %>
+  <section class="home__recents">
+    <ul class="home-recents">
+      <% @recent_tiles.each do |tile| %>
+        <% case tile[:type]
+           when :artist
+             author = tile[:record] %>
+             <li class="home-recents__item">
+               <%= link_to author_path(author),
+                           class: "home-recents__link",
+                           data: { turbo_stream: true } do %>
+                 <% if author.image.attached? %>
+                   <%= image_tag author.image, class: "home-recents__art home-recents__art--round", loading: "lazy", alt: "" %>
+                 <% else %>
+                   <div class="home-recents__art home-recents__art--round home-recents__art--placeholder"></div>
+                 <% end %>
+                 <span class="home-recents__name"><%= author.name %></span>
+               <% end %>
+             </li>
+        <% when :album
+             album = tile[:record] %>
+             <li class="home-recents__item">
+               <%= link_to album_path(album),
+                           class: "home-recents__link",
+                           data: { turbo_stream: true } do %>
+                 <% if album.image.attached? %>
+                   <%= image_tag album.image, class: "home-recents__art", loading: "lazy", alt: "" %>
+                 <% else %>
+                   <div class="home-recents__art home-recents__art--placeholder"></div>
+                 <% end %>
+                 <span class="home-recents__name"><%= album.name %></span>
+               <% end %>
+             </li>
+        <% else
+             song = tile[:record] %>
+             <li class="home-recents__item">
+               <%= link_to player_path(song),
+                           class: "home-recents__link",
+                           data: { turbo_stream: true } do %>
+                 <% if song.image.attached? %>
+                   <%= image_tag song.image, class: "home-recents__art", loading: "lazy", alt: "" %>
+                 <% elsif song.album&.image&.attached? %>
+                   <%= image_tag song.album.image, class: "home-recents__art", loading: "lazy", alt: "" %>
+                 <% else %>
+                   <div class="home-recents__art home-recents__art--placeholder"></div>
+                 <% end %>
+                 <span class="home-recents__name"><%= song.name %></span>
+               <% end %>
+             </li>
+        <% end %>
+      <% end %>
+    </ul>
+  </section>
+
+  <% if @jump_back_songs.any? %>
+    <section class="home-section">
+      <h2 class="home-section__title">Jump back in</h2>
+      <ul class="home-cards">
+        <% @jump_back_songs.each do |song| %>
+          <li class="home-card">
+            <%= link_to player_path(song),
+                        class: "home-card__link",
+                        data: { turbo_stream: true } do %>
+              <% if song.image.attached? %>
+                <%= image_tag song.image, class: "home-card__art", loading: "lazy", alt: "" %>
+              <% elsif song.album&.image&.attached? %>
+                <%= image_tag song.album.image, class: "home-card__art", loading: "lazy", alt: "" %>
+              <% else %>
+                <div class="home-card__art home-card__art--placeholder"></div>
+              <% end %>
+              <p class="home-card__name"><%= song.name %></p>
+              <p class="home-card__sub">Song · <%= song.authors.map(&:name).join(", ") %></p>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+
+  <% if @recent_artists.any? %>
+    <section class="home-section">
+      <h2 class="home-section__title">Most recent artists</h2>
+      <ul class="home-cards">
+        <% @recent_artists.each do |author| %>
+          <li class="home-card">
+            <%= link_to author_path(author),
+                        class: "home-card__link",
+                        data: { turbo_stream: true } do %>
+              <% if author.image.attached? %>
+                <%= image_tag author.image, class: "home-card__art home-card__art--round", loading: "lazy", alt: "" %>
+              <% else %>
+                <div class="home-card__art home-card__art--round home-card__art--placeholder"></div>
+              <% end %>
+              <p class="home-card__name"><%= author.name %></p>
+              <p class="home-card__sub">Artist</p>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+<% else %>
+  <p class="home__empty">Too quiet, start listening some music</p>
+<% end %>

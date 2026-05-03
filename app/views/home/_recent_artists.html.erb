@@ -1,0 +1,24 @@
+<% if @recent_artists.any? %>
+  <section class="home-section">
+    <h2 class="home-section__title">Recent artists</h2>
+    <ul class="home-grid">
+      <% @recent_artists.each do |author| %>
+        <li class="home-card home-card--grid">
+          <%= link_to author_path(author),
+                      class: "home-card__link",
+                      data: { turbo_stream: true } do %>
+            <% if author.image.attached? %>
+              <%= image_tag author.image, class: "home-card__art home-card__art--round", loading: "lazy", alt: "" %>
+            <% else %>
+              <div class="home-card__art home-card__art--round home-card__art--placeholder"></div>
+            <% end %>
+            <p class="home-card__name"><%= author.name %></p>
+            <p class="home-card__sub">Artist</p>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% else %>
+  <p class="home__empty">No recent artists yet</p>
+<% end %>
