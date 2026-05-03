@@ -1,0 +1,13 @@
+<%
+  saved_v        = local_assigns.fetch(:saved) { current_user.saved_song_ids.include?(song.id) }
+  size_v         = local_assigns[:size] || 20
+  button_class_v = local_assigns[:button_class] || "song-heart"
+%>
+
+<span id="<%= dom_id(song, :heart) %>" class="heart-wrap">
+  <%= render "shared/song_heart_button",
+             song: song,
+             saved: saved_v,
+             size: size_v,
+             button_class: button_class_v %>
+</span>

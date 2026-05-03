@@ -10,6 +10,7 @@
 <div class="modal"
      id="<%= id %>"
      data-controller="modal"
+     data-modal-auto-open-value="<%= local_assigns[:auto_open] ? 'true' : 'false' %>"
      hidden>
   <div class="modal__backdrop"
        data-action="click->modal#close"></div>

@@ -34,6 +34,7 @@
     <% if current_user %>
       <%= render "shared/minimal_player" %>
       <%= render "shared/footer" %>
+      <%= render "shared/modal", id: "playlists-modal", title: "Select a playlist" %>
     <% end %>
   </body>
 </html>

@@ -2,6 +2,11 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["panel"]
+  static values = { autoOpen: Boolean }
+
+  connect() {
+    if (this.autoOpenValue) this.open()
+  }
 
   open() {
     if (!this.element.hasAttribute("hidden")) return

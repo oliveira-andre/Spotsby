@@ -1,0 +1,13 @@
+<%
+  saved_v        = local_assigns.fetch(:saved) { current_user.saved_album_names.include?(album.name) }
+  size_v         = local_assigns[:size] || 24
+  button_class_v = local_assigns[:button_class] || "album-show__icon-btn"
+%>
+
+<span id="<%= dom_id(album, :heart) %>" class="heart-wrap">
+  <%= render "shared/album_heart_button",
+             album: album,
+             saved: saved_v,
+             size: size_v,
+             button_class: button_class_v %>
+</span>

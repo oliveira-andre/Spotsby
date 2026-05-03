@@ -9,6 +9,16 @@ Rails.application.routes.draw do
   get "manage", to: "home#manage", as: :manage
 
   resources :play_histories, only: %i[destroy]
+  resources :favorites, only: %i[] do
+    collection do
+      post   "songs/:id",                        action: :create_song,     as: :song
+      delete "songs/:id",                        action: :destroy_song
+      post   "songs/:id/modal",                  action: :playlists_modal, as: :song_modal
+      post   "songs/:id/playlists/:playlist_id", action: :add_to_playlist, as: :add_song_to_playlist
+      post   "albums/:id",                       action: :create_album,    as: :album
+      delete "albums/:id",                       action: :destroy_album
+    end
+  end
   resources :categories, only: %i[show]
   resources :albums, only: %i[show]
   resources :authors, only: %i[show] do

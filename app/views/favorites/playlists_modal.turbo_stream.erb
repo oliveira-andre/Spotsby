@@ -1,0 +1,28 @@
+<%= turbo_stream.replace "playlists-modal" do %>
+  <%= render "shared/modal", id: "playlists-modal", title: "Select a playlist", auto_open: true do %>
+    <% if @playlists.any? %>
+      <ul class="playlists-modal__list">
+        <% @playlists.each do |playlist| %>
+          <li>
+            <%= button_to add_song_to_playlist_favorites_path(@song, playlist_id: playlist.id),
+                          method: :post,
+                          params: { button_class: @button_class, size: @size },
+                          form: { class: "playlists-modal__form", data: { turbo_stream: true } },
+                          class: "playlists-modal__option" do %>
+              <% if playlist.image.attached? %>
+                <%= image_tag playlist.image, class: "playlists-modal__art", loading: "lazy", alt: "" %>
+              <% else %>
+                <div class="playlists-modal__art playlists-modal__art--initial">
+                  <%= playlist.name.to_s.first&.upcase %>
+                </div>
+              <% end %>
+              <span class="playlists-modal__name"><%= playlist.name %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="playlists-modal__empty">You don't have any custom playlists yet.</p>
+    <% end %>
+  <% end %>
+<% end %>

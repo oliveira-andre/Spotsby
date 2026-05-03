@@ -84,3 +84,76 @@
   font-family: var(--font-ui);
   color: var(--color-text-base);
 }
+
+.playlists-modal__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.playlists-modal__form {
+  margin: 0;
+  display: block;
+}
+
+.playlists-modal__option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  background: transparent;
+  border: 0;
+  color: var(--color-text-base);
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--radius-standard);
+  transition: background-color 0.15s ease;
+}
+
+.playlists-modal__option:hover {
+  background-color: var(--color-bg-elevated);
+}
+
+.playlists-modal__art {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: var(--radius-subtle);
+  background-color: var(--color-bg-elevated);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-base);
+  text-transform: uppercase;
+}
+
+.playlists-modal__art--initial {
+  background-color: var(--color-bg-card);
+}
+
+.playlists-modal__name {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-base);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlists-modal__empty {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  text-align: center;
+  padding: var(--space-5) 0;
+}

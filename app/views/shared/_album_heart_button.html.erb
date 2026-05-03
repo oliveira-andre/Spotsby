@@ -1,0 +1,19 @@
+<% if saved %>
+  <%= button_to album_favorites_path(album),
+                method: :delete,
+                params: { button_class: button_class, size: size },
+                form: { class: "heart-form", data: { turbo_stream: true } },
+                class: "#{button_class} heart-active",
+                aria: { label: "Remove album from saved" } do %>
+    <%= icon :heart, size: size %>
+  <% end %>
+<% else %>
+  <%= button_to album_favorites_path(album),
+                method: :post,
+                params: { button_class: button_class, size: size },
+                form: { class: "heart-form", data: { turbo_stream: true } },
+                class: button_class,
+                aria: { label: "Save album" } do %>
+    <%= icon :heart, size: size %>
+  <% end %>
+<% end %>

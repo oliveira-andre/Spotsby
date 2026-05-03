@@ -116,3 +116,24 @@ a.btn--link:hover {
   color: var(--color-accent);
   text-decoration: none;
 }
+
+.heart-wrap {
+  display: inline-flex;
+}
+
+.heart-form {
+  display: inline-flex;
+  margin: 0;
+}
+
+button.heart-active {
+  color: var(--color-accent);
+}
+
+button.heart-active svg {
+  fill: currentColor;
+}
+
+button.heart-active:hover {
+  color: var(--color-accent-hover);
+}

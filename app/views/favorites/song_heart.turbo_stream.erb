@@ -1,0 +1,8 @@
+<%= turbo_stream.update dom_id(@song, :heart) do %>
+  <% saved = defined?(@saved) ? @saved : current_user.saved_song_ids.include?(@song.id) %>
+  <%= render "shared/song_heart_button",
+             song: @song,
+             saved: saved,
+             size: @size,
+             button_class: @button_class %>
+<% end %>

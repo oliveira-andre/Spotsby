@@ -24,7 +24,7 @@
   <header class="album-show__header">
     <%= link_to category_path(@album.category),
                 class: "album-show__back",
-                data: { turbo_stream: true },
+                data: { turbo_stream: true, controller: "back-link" },
                 aria: { label: "Back" } do %>
       <%= icon :chevron_left, size: 24 %>
     <% end %>
@@ -38,7 +38,9 @@
 
   <section class="album-show__meta">
     <h1 class="album-show__name"><%= @album.name %></h1>
-    <p class="album-show__artist"><%= @album.author.name %></p>
+    <p class="album-show__artist">
+      <%= link_to @album.author.name, author_path(@album.author), data: { turbo_stream: true } %>
+    </p>
     <p class="album-show__sub">
       Album
       <% if @album.release_date %>
@@ -48,9 +50,8 @@
   </section>
 
   <div class="album-show__actions">
-    <button type="button" class="album-show__icon-btn" aria-label="Favorite">
-      <%= icon :heart, size: 24 %>
-    </button>
+    <% album_saved = current_user.saved_album_names.include?(@album.name) %>
+    <%= render "shared/album_heart", album: @album, saved: album_saved, button_class: "album-show__icon-btn", size: 24 %>
     <div class="album-show__actions-right">
       <button type="button" class="album-show__icon-btn" aria-label="Shuffle">
         <%= icon :shuffle, size: 22 %>
@@ -84,9 +85,8 @@
               <p class="album-song__authors"><%= song.authors.map(&:name).join(", ") %></p>
             </div>
           <% end %>
-          <button type="button" class="album-song__heart" aria-label="Favorite">
-            <%= icon :heart, size: 20 %>
-          </button>
+          <% saved = current_user.saved_song_ids.include?(song.id) %>
+          <%= render "shared/song_heart", song: song, saved: saved, button_class: "album-song__heart", size: 20 %>
         </li>
       <% end %>
     </ul>

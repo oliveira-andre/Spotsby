@@ -1,0 +1,38 @@
+<%
+  song = play_history.song
+  song_image_url =
+    if song.image.attached?
+      song.image
+    elsif song.album&.image&.attached?
+      song.album.image
+    end
+%>
+
+<li id="play_history_<%= play_history.id %>" class="search-history">
+  <%= link_to player_path(song, source: PlayHistory::SOURCE_SEARCH),
+              class: "search-result search-history__row",
+              data: { turbo_stream: true } do %>
+    <% if song_image_url %>
+      <%= image_tag song_image_url, class: "search-result__image", loading: "lazy", alt: "" %>
+    <% else %>
+      <div class="search-result__image search-result__image--placeholder"></div>
+    <% end %>
+    <div class="search-result__meta">
+      <p class="search-result__name"><%= song.name %></p>
+      <p class="search-result__sub">
+        Song
+        <% if song.authors.any? %>
+          · <%= song.authors.map(&:name).join(", ") %>
+        <% end %>
+      </p>
+    </div>
+  <% end %>
+
+  <%= button_to play_history_path(play_history),
+                method: :delete,
+                form: { class: "search-history__remove-form", data: { turbo_stream: true } },
+                class: "search-history__remove",
+                aria: { label: "Remove from history" } do %>
+    <%= icon :close, size: 18 %>
+  <% end %>
+</li>

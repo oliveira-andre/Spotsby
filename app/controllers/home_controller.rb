@@ -8,6 +8,12 @@ class HomeController < ApplicationController
     @categories = Rails.cache.fetch("categories") do
       Category.with_attached_image.ordered
     end
+
+    @play_histories = current_user.play_histories
+                                  .from_search
+                                  .includes(song: [:authors, :album, { image_attachment: :blob }])
+                                  .recent
+                                  .limit(20)
   end
 
   def search_results
@@ -45,7 +51,12 @@ class HomeController < ApplicationController
     end
   end
 
-  def library; end
+  def library
+    @playlists = current_user.playlists
+                             .with_attached_image
+                             .with_songs_count
+                             .ordered
+  end
 
   def manage; end
 end

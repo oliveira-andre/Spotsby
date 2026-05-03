@@ -6,21 +6,23 @@
       <h3 class="search-results__title">Songs</h3>
       <ul class="search-results__list">
         <% @songs.each do |song| %>
-          <li class="search-result">
-            <% if song.image.attached? %>
-              <%= image_tag song.image, class: "search-result__image", loading: "lazy", alt: "" %>
-            <% else %>
-              <div class="search-result__image search-result__image--placeholder"></div>
+          <li>
+            <%= link_to player_path(song, source: PlayHistory::SOURCE_SEARCH), class: "search-result", data: { turbo_stream: true } do %>
+              <% if song.image.attached? %>
+                <%= image_tag song.image, class: "search-result__image", loading: "lazy", alt: "" %>
+              <% else %>
+                <div class="search-result__image search-result__image--placeholder"></div>
+              <% end %>
+              <div class="search-result__meta">
+                <p class="search-result__name"><%= song.name %></p>
+                <p class="search-result__sub">
+                  Song
+                  <% if song.authors.any? %>
+                    · <%= song.authors.map(&:name).join(", ") %>
+                  <% end %>
+                </p>
+              </div>
             <% end %>
-            <div class="search-result__meta">
-              <p class="search-result__name"><%= song.name %></p>
-              <p class="search-result__sub">
-                Song
-                <% if song.authors.any? %>
-                  · <%= song.authors.map(&:name).join(", ") %>
-                <% end %>
-              </p>
-            </div>
           </li>
         <% end %>
       </ul>
@@ -32,16 +34,18 @@
       <h3 class="search-results__title">Albums</h3>
       <ul class="search-results__list">
         <% @albums.each do |album| %>
-          <li class="search-result">
-            <% if album.image.attached? %>
-              <%= image_tag album.image, class: "search-result__image", loading: "lazy", alt: album.name %>
-            <% else %>
-              <div class="search-result__image search-result__image--placeholder"></div>
+          <li>
+            <%= link_to album_path(album), class: "search-result", data: { turbo_stream: true } do %>
+              <% if album.image.attached? %>
+                <%= image_tag album.image, class: "search-result__image", loading: "lazy", alt: album.name %>
+              <% else %>
+                <div class="search-result__image search-result__image--placeholder"></div>
+              <% end %>
+              <div class="search-result__meta">
+                <p class="search-result__name"><%= album.name %></p>
+                <p class="search-result__sub">Album · <%= album.author.name %></p>
+              </div>
             <% end %>
-            <div class="search-result__meta">
-              <p class="search-result__name"><%= album.name %></p>
-              <p class="search-result__sub">Album · <%= album.author.name %></p>
-            </div>
           </li>
         <% end %>
       </ul>
@@ -53,16 +57,18 @@
       <h3 class="search-results__title">Artists</h3>
       <ul class="search-results__list">
         <% @authors.each do |author| %>
-          <li class="search-result">
-            <% if author.image.attached? %>
-              <%= image_tag author.image, class: "search-result__image search-result__image--round", loading: "lazy", alt: author.name %>
-            <% else %>
-              <div class="search-result__image search-result__image--round search-result__image--placeholder"></div>
+          <li>
+            <%= link_to author_path(author), class: "search-result", data: { turbo_stream: true } do %>
+              <% if author.image.attached? %>
+                <%= image_tag author.image, class: "search-result__image search-result__image--round", loading: "lazy", alt: author.name %>
+              <% else %>
+                <div class="search-result__image search-result__image--round search-result__image--placeholder"></div>
+              <% end %>
+              <div class="search-result__meta">
+                <p class="search-result__name"><%= author.name %></p>
+                <p class="search-result__sub">Artist</p>
+              </div>
             <% end %>
-            <div class="search-result__meta">
-              <p class="search-result__name"><%= author.name %></p>
-              <p class="search-result__sub">Artist</p>
-            </div>
           </li>
         <% end %>
       </ul>

@@ -1,0 +1,27 @@
+<% if saved %>
+  <%= button_to song_favorites_path(song),
+                method: :delete,
+                params: { button_class: button_class, size: size },
+                form: { class: "heart-form", data: { turbo_stream: true } },
+                class: "#{button_class} heart-active",
+                aria: { label: "Remove from saved" } do %>
+    <%= icon :heart, size: size %>
+  <% end %>
+  <%= button_to song_modal_favorites_path(song),
+                method: :post,
+                params: { button_class: button_class, size: size },
+                form: { class: "heart-form", data: { turbo_stream: true } },
+                class: button_class,
+                aria: { label: "Move to playlist" } do %>
+    <%= icon :dots_vertical, size: size %>
+  <% end %>
+<% else %>
+  <%= button_to song_favorites_path(song),
+                method: :post,
+                params: { button_class: button_class, size: size },
+                form: { class: "heart-form", data: { turbo_stream: true } },
+                class: button_class,
+                aria: { label: "Save song" } do %>
+    <%= icon :heart, size: size %>
+  <% end %>
+<% end %>

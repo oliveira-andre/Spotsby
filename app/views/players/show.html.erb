@@ -7,6 +7,13 @@
     end
   song_audio_url = @song&.audio&.attached? ? url_for(@song.audio) : nil
   song_authors = @song ? @song.authors.map(&:name).join(", ") : nil
+  song_author_links =
+    if @song
+      safe_join(
+        @song.authors.map { |a| link_to(a.name, author_path(a), data: { turbo_stream: true }) },
+        ", "
+      )
+    end
 %>
 
 <div class="player"
@@ -22,7 +29,7 @@
   <header class="player__header">
     <%= link_to root_path,
                 class: "player__icon-btn",
-                data: { turbo_stream: true, player_target: "closeLink" },
+                data: { turbo_stream: true, controller: "back-link" },
                 aria: { label: "Close player" } do %>
       <%= icon :chevron_down, size: 24 %>
     <% end %>
@@ -54,12 +61,13 @@
           <p class="player__track-name"><%= @song&.name || "No song playing" %></p>
         <% end %>
         <p class="player__track-artist">
-          <%= song_authors || "—" %>
+          <%= song_author_links || "—" %>
         </p>
       </div>
-      <button type="button" class="player__icon-btn player__heart" aria-label="Favorite">
-        <%= icon :heart, size: 22 %>
-      </button>
+      <% if @song %>
+        <% saved = current_user.saved_song_ids.include?(@song.id) %>
+        <%= render "shared/song_heart", song: @song, saved: saved, button_class: "player__icon-btn player__heart", size: 22 %>
+      <% end %>
     </div>
 
     <div class="player__progress">
@@ -91,6 +99,7 @@
                     method: :post,
                     class: "player__ctrl",
                     form_class: "player__ctrl-form",
+                    data: { action: "click->player#prepareAdvance" },
                     aria: { label: "Previous" } do %>
         <%= icon :backward, size: 28 %>
       <% end %>
@@ -106,6 +115,7 @@
                     method: :post,
                     class: "player__ctrl",
                     form_class: "player__ctrl-form",
+                    data: { action: "click->player#prepareAdvance" },
                     aria: { label: "Next" } do %>
         <%= icon :forward, size: 28 %>
       <% end %>

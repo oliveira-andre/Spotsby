@@ -1,1 +1,30 @@
-<h1>Library</h1>
+<div class="library">
+  <header class="library__header">
+    <h1 class="library__title">Your Library</h1>
+  </header>
+
+  <ul class="library__list">
+    <% @playlists.each do |playlist| %>
+      <li class="library-item">
+        <% if playlist.position.to_i.zero? %>
+          <div class="library-item__art library-item__art--saved">
+            <%= icon :heart, size: 22 %>
+          </div>
+        <% elsif playlist.image.attached? %>
+          <%= image_tag playlist.image, class: "library-item__art", loading: "lazy", alt: "" %>
+        <% else %>
+          <div class="library-item__art library-item__art--initial">
+            <%= playlist.name.to_s.first&.upcase %>
+          </div>
+        <% end %>
+
+        <div class="library-item__meta">
+          <p class="library-item__name"><%= playlist.name %></p>
+          <p class="library-item__sub">
+            Playlist · <%= pluralize(playlist.songs_count.to_i, "song") %>
+          </p>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+</div>

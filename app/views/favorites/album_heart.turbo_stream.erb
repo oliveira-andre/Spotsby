@@ -1,0 +1,18 @@
+<%= turbo_stream.update dom_id(@album, :heart) do %>
+  <%= render "shared/album_heart_button",
+             album: @album,
+             saved: @saved,
+             size: @size,
+             button_class: @button_class %>
+<% end %>
+
+<% @album.songs.each do |song| %>
+  <% saved = current_user.saved_song_ids.include?(song.id) %>
+  <%= turbo_stream.update dom_id(song, :heart) do %>
+    <%= render "shared/song_heart_button",
+               song: song,
+               saved: saved,
+               size: 20,
+               button_class: "album-song__heart" %>
+  <% end %>
+<% end %>
