@@ -1,0 +1,92 @@
+<%
+  songs = @playlist_songs.map(&:song)
+  song_ids = songs.map { |s| s.id.to_s }
+  first_song = songs.first
+  first_song_image_url =
+    if first_song&.image&.attached?
+      url_for(first_song.image)
+    elsif @playlist.image.attached?
+      url_for(@playlist.image)
+    end
+  first_song_audio_url = first_song&.audio&.attached? ? url_for(first_song.audio) : nil
+  first_song_authors = first_song ? first_song.authors.map(&:name).join(", ") : nil
+%>
+
+<div class="playlist-show"
+     data-controller="album-show"
+     data-album-show-now-playing-outlet="#minimal-player"
+     data-album-show-song-ids-value="<%= song_ids.to_json %>"
+     data-album-show-first-id-value="<%= first_song&.id %>"
+     data-album-show-first-slug-value="<%= first_song&.slug %>"
+     data-album-show-first-name-value="<%= first_song&.name %>"
+     data-album-show-first-authors-value="<%= first_song_authors %>"
+     data-album-show-first-image-url-value="<%= first_song_image_url %>"
+     data-album-show-first-audio-url-value="<%= first_song_audio_url %>">
+  <header class="playlist-show__header">
+    <%= link_to library_path,
+                class: "playlist-show__back",
+                data: { turbo_stream: true, controller: "back-link" },
+                aria: { label: "Back" } do %>
+      <%= icon :chevron_left, size: 24 %>
+    <% end %>
+
+    <% if @playlist.image.attached? %>
+      <div class="playlist-show__hero playlist-show__hero--image"
+           style="background-image: url('<%= url_for(@playlist.image) %>');">
+        <h1 class="playlist-show__name"><%= @playlist.name %></h1>
+      </div>
+    <% else %>
+      <div class="playlist-show__hero">
+        <h1 class="playlist-show__name"><%= @playlist.name %></h1>
+      </div>
+    <% end %>
+  </header>
+
+  <div class="playlist-show__actions">
+    <button type="button" class="playlist-show__icon-btn" aria-label="Shuffle">
+      <%= icon :shuffle, size: 22 %>
+    </button>
+    <button type="button"
+            class="playlist-show__play"
+            aria-label="Play"
+            data-action="click->album-show#toggle"
+            data-album-show-target="playButton">
+      <span data-album-show-target="playIcon"><%= icon :play, size: 25 %></span>
+      <span data-album-show-target="pauseIcon" hidden><%= icon :pause, size: 25 %></span>
+    </button>
+  </div>
+
+  <% if songs.any? %>
+    <ul class="playlist-show__songs">
+      <% songs.each do |song| %>
+        <li class="playlist-song"
+            id="playlist_song_<%= @playlist.id %>_<%= song.id %>"
+            data-album-show-target="songRow"
+            data-song-id="<%= song.id %>">
+          <% if song.image.attached? %>
+            <%= image_tag song.image, class: "playlist-song__art", loading: "lazy", alt: "" %>
+          <% else %>
+            <div class="playlist-song__art playlist-song__art--placeholder"></div>
+          <% end %>
+          <%= link_to player_path(song),
+                      class: "playlist-song__link",
+                      data: { turbo_stream: true } do %>
+            <div class="playlist-song__meta">
+              <p class="playlist-song__name"><%= song.name %></p>
+              <p class="playlist-song__authors"><%= song.authors.map(&:name).join(", ") %></p>
+            </div>
+          <% end %>
+          <%= button_to remove_song_from_playlist_favorites_path(song, playlist_id: @playlist.id),
+                        method: :delete,
+                        form: { class: "heart-form", data: { turbo_stream: true } },
+                        class: "playlist-song__heart heart-active",
+                        aria: { label: "Remove from this playlist" } do %>
+            <%= icon :heart, size: 20 %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="playlist-show__empty">No songs in this playlist yet.</p>
+  <% end %>
+</div>

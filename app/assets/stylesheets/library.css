@@ -34,10 +34,13 @@
   padding: var(--space-2);
   border-radius: var(--radius-standard);
   transition: background-color 0.15s ease;
+  color: inherit;
+  text-decoration: none;
 }
 
 .library-item:hover {
   background-color: var(--color-bg-surface);
+  text-decoration: none;
 }
 
 .library-item__art {
