@@ -8,12 +8,12 @@ class AuthorsController < ApplicationController
 
   def show
     @popular_songs = @author.popular_songs
-                            .includes(song: [:authors, { image_attachment: :blob }])
+                            .includes(song: [ :authors, { image_attachment: :blob } ])
                             .limit(POPULAR_SONGS_LIMIT)
                             .map(&:song)
 
     albums = @author.albums.with_attached_image
-                    .includes(songs: [:authors, { image_attachment: :blob }])
+                    .includes(songs: [ :authors, { image_attachment: :blob } ])
     @pagy, @albums = pagy(albums, limit: DEFAULT_PER_PAGE)
   end
 

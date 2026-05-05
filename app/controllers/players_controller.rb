@@ -48,13 +48,13 @@ class PlayersController < ApplicationController
     case current_source
     when SongQueue::SOURCE_ALBUM
       sibling = album_sibling(current_song, direction)
-      return [sibling, SongQueue::SOURCE_ALBUM] if sibling
+      return [ sibling, SongQueue::SOURCE_ALBUM ] if sibling
     when SongQueue::SOURCE_POPULAR
       sibling = popular_sibling(current_song, direction)
-      return [sibling, SongQueue::SOURCE_POPULAR] if sibling
+      return [ sibling, SongQueue::SOURCE_POPULAR ] if sibling
     end
 
-    [sample_artist_song(current_song), SongQueue::SOURCE_ARTIST_SHUFFLE]
+    [ sample_artist_song(current_song), SongQueue::SOURCE_ARTIST_SHUFFLE ]
   end
 
   def album_sibling(song, direction)

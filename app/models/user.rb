@@ -28,13 +28,13 @@ class User < ApplicationRecord
   end
 
   def saved_song_ids
-    Rails.cache.fetch([cache_key_with_version, "saved_song_ids"]) do
+    Rails.cache.fetch([ cache_key_with_version, "saved_song_ids" ]) do
       PlaylistSong.where(playlist_id: playlist_ids).distinct.pluck(:song_id)
     end
   end
 
   def saved_album_names
-    Rails.cache.fetch([cache_key_with_version, "saved_album_names"]) do
+    Rails.cache.fetch([ cache_key_with_version, "saved_album_names" ]) do
       playlists.pluck(:name)
     end
   end

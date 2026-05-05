@@ -31,7 +31,7 @@ RSpec.describe SongQueue, type: :model do
       second = create(:song_queue, user: user)
       third = create(:song_queue, user: user)
 
-      expect(user.song_queues.ordered).to eq([first, second, third])
+      expect(user.song_queues.ordered).to eq([ first, second, third ])
     end
   end
 end

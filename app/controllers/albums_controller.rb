@@ -11,7 +11,7 @@ class AlbumsController < ApplicationController
   def load_album
     @album = Rails.cache.fetch("album_#{params[:id]}") do
       Album.with_attached_image
-                    .includes(:author, :category, songs: [:authors, { image_attachment: :blob }])
+                    .includes(:author, :category, songs: [ :authors, { image_attachment: :blob } ])
                     .friendly
                     .find(params[:id])
     end

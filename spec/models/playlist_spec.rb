@@ -38,7 +38,7 @@ RSpec.describe Playlist, type: :model do
       second = create(:playlist, user: user)
       third = create(:playlist, user: user)
 
-      expect(user.playlists.ordered).to eq([saved_songs, first, second, third])
+      expect(user.playlists.ordered).to eq([ saved_songs, first, second, third ])
     end
   end
 end

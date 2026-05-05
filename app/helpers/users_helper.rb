@@ -15,7 +15,7 @@ module UsersHelper
     return "" unless user
 
     if user.first_name.present? || user.last_name.present?
-      [user.first_name, user.last_name].compact_blank.join(" ")
+      [ user.first_name, user.last_name ].compact_blank.join(" ")
     else
       user.email_address
     end

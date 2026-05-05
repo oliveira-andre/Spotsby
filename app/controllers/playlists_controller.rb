@@ -14,7 +14,7 @@ class PlaylistsController < ApplicationController
                             .friendly
                             .find(params[:id])
     @playlist_songs = @playlist.playlist_songs
-                               .includes(song: [:authors, :album, { image_attachment: :blob }])
+                               .includes(song: [ :authors, :album, { image_attachment: :blob } ])
                                .ordered
   end
 end

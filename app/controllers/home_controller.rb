@@ -17,7 +17,7 @@ class HomeController < ApplicationController
 
     @play_histories = current_user.play_histories
                                   .from_search
-                                  .includes(song: [:authors, :album, { image_attachment: :blob }])
+                                  .includes(song: [ :authors, :album, { image_attachment: :blob } ])
                                   .recent
                                   .limit(20)
   end
@@ -78,7 +78,7 @@ class HomeController < ApplicationController
 
   def load_home_feed
     queue_includes = {
-      song: [:authors, { album: [:author, { image_attachment: :blob }] }, { image_attachment: :blob }]
+      song: [ :authors, { album: [ :author, { image_attachment: :blob } ] }, { image_attachment: :blob } ]
     }
 
     history_pool = current_user.song_queues
@@ -153,7 +153,7 @@ class HomeController < ApplicationController
   def recent_distinct_from_queue(kind, limit:)
     pool = current_user.song_queues
                        .recent
-                       .includes(song: [:authors, { album: [:author, { image_attachment: :blob }] }, { image_attachment: :blob }])
+                       .includes(song: [ :authors, { album: [ :author, { image_attachment: :blob } ] }, { image_attachment: :blob } ])
                        .limit(200)
 
     seen = {}

@@ -31,7 +31,7 @@ module IconsHelper
       raise ArgumentError, "Unknown icon: #{name}"
     end
 
-    classes = ["icon", options[:class]].compact.join(" ")
+    classes = [ "icon", options[:class] ].compact.join(" ")
     style = "width: #{size}px; height: #{size}px;"
     content_tag(:span, svg.html_safe, class: classes, style: style, "aria-hidden": true)
   end
