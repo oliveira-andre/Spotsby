@@ -1,89 +1,141 @@
 Table users {
-  id int [pk, not null, unique]
+  id uuid [pk, not null, unique]
   first_name varchar
   last_name varchar
   avatar blob
-  email varchar [not null, unique]
-  password varchar [not null, unique]
-  status user_status
+  email_address varchar [not null, unique]
+  password_digest varchar [not null]
+  status user_status [default: 0]
   birthdate date
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table sessions {
+  id uuid [pk, not null, unique]
+  user_id uuid [not null, ref: > users.id]
+  ip_address varchar
+  user_agent varchar
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
 }
 
 Table categories {
-  id int [pk, not null, unique]
-  name varchar [not null]
-} // Rock, Metal, Classic, Country 
+  id uuid [pk, not null, unique]
+  name varchar [not null, unique]
+  color varchar [not null, default: "#FFFFFF"]
+  slug varchar [not null, unique]
+  position int [not null, default: 1]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+} // Rock, Metal, Classic, Country
 
 Table playlists {
-  id int [pk, not null, unique]
+  id uuid [pk, not null, unique]
   image blob
   name varchar [not null]
-  position int
-  status playlist_status 
-  user_id int [ref: > users.id]
-} // start with favorites on 1.
+  position int [default: 1]
+  status playlist_status [default: 0]
+  slug varchar [not null, unique]
+  user_id uuid [not null, ref: > users.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+} // unique by (name, user_id); position 0 is auto-created "Saved Songs"
 
 Table playlist_songs {
-  id int [pk]
-  playlist_id int [ref: > playlists.id]
-  song_id int [ref: > songs.id]
-  position int
+  id uuid [pk, not null, unique]
+  playlist_id uuid [not null, ref: > playlists.id]
+  song_id uuid [not null, ref: > songs.id]
+  position int [default: 1]
   added_at timestamp
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
 } // many playlists can have many songs
 
 Table songs {
-  id int [pk, not null, unique]
+  id uuid [pk, not null, unique]
   image blob
+  audio blob
   name varchar [not null]
-  category_id int [ref: > categories.id]
-  album_id int [ref: > albums.id]
+  category_id uuid [not null, ref: > categories.id]
+  album_id uuid [not null, ref: > albums.id]
   lyrics text
-  duration_ms int 
+  duration_ms int
   age int
-} // Aerials
+  slug varchar [not null, unique]
+  monthly_listeners int [default: 0]
+  position int [default: 1]
+  popular boolean [default: false]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+} // unique by (name, album_id) — Aerials
 
 Table albums {
-  id int [pk, not null, unique]
+  id uuid [pk, not null, unique]
   image blob
   name varchar [not null]
-  category_id int [ref: > categories.id]
-  author_id int [ref: > authors.id]
+  slug varchar [not null, unique]
+  category_id uuid [not null, ref: > categories.id]
+  author_id uuid [not null, ref: > authors.id]
   release_date date
-} // Toxicity
+  position int [default: 1]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+} // unique by (name, author_id) — Toxicity
 
 Table song_authors {
-  song_id int [ref: > songs.id]
-  author_id int [ref: > authors.id]
+  id uuid [pk, not null, unique]
+  song_id uuid [not null, ref: > songs.id]
+  author_id uuid [not null, ref: > authors.id]
+  position int [default: 1]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
 }
 
 Table authors {
-  id int [pk, not null, unique]
+  id uuid [pk, not null, unique]
   image blob
-  name varchar [not null]
+  name varchar [not null, unique]
   description text
-  user_id int [ref: > users.id]
-} // System of a down
+  slug varchar [not null, unique]
+  user_id uuid [ref: > users.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+} // System of a Down
 
-Table queue {
-  id int [pk]
-  user_id int [ref: > users.id]
-  song_id int [ref: > songs.id]
-  position int
-  source varchar // playlist, album, manual
-  created_at timestamp
+Table popular_songs {
+  id uuid [pk, not null, unique]
+  author_id uuid [not null, ref: > authors.id]
+  song_id uuid [not null, ref: > songs.id]
+  position int [default: 1]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+} // unique by (author_id, song_id)
+
+Table song_queues {
+  id uuid [pk, not null, unique]
+  user_id uuid [not null, ref: > users.id]
+  song_id uuid [not null, ref: > songs.id]
+  position int [default: 1]
+  source varchar // album, popular, artist_shuffle, default
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
 }
 
-Table play_history {
-  user_id int [ref: > users.id]
-  song_id int [ref: > songs.id]
+Table play_histories {
+  id uuid [pk, not null, unique]
+  user_id uuid [not null, ref: > users.id]
+  song_id uuid [not null, ref: > songs.id]
   played_at timestamp
+  source varchar // search, or null
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
 }
 
 Enum user_status {
+  active
   blocked
   admin
-  user
-  author
 }
 
 Enum playlist_status {
