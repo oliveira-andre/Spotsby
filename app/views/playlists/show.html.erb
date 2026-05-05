@@ -50,7 +50,7 @@
                     class: "playlist-show__icon-btn",
                     aria: { label: "Add songs" } do %>
         <%= icon :plus, size: 22 %>
-      <% end %>
+      <% end unless @playlist.position == 0 %>
       <button type="button" class="playlist-show__icon-btn" aria-label="Shuffle">
         <%= icon :shuffle, size: 22 %>
       </button>
@@ -65,7 +65,13 @@
     </button>
   </div>
 
-  <ul class="playlist-show__songs" id="playlist_songs_<%= @playlist.id %>">
+  <% owner = @playlist.user_id == current_user.id %>
+  <ul class="playlist-show__songs"
+      id="playlist_songs_<%= @playlist.id %>"
+      <% if owner %>
+        data-controller="sortable"
+        data-sortable-url-template-value="<%= update_position_playlist_song_path(@playlist, ":id") %>"
+      <% end %>>
     <% songs.each do |song| %>
       <%= render "playlists/song_row", playlist: @playlist, song: song %>
     <% end %>

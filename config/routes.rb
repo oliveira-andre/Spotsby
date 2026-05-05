@@ -31,6 +31,11 @@ Rails.application.routes.draw do
     collection do
       get :create_options
     end
+    resources :songs, only: [], controller: "playlist_songs" do
+      member do
+        patch :update_position
+      end
+    end
   end
   resources :albums, only: %i[show]
   resources :authors, only: %i[show] do

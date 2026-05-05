@@ -273,6 +273,27 @@
   margin: 0;
 }
 
+.playlist-show__songs[data-controller~="sortable"] .playlist-song {
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.playlist-song.sortable-chosen {
+  background-color: var(--color-bg-elevated);
+  box-shadow: var(--shadow-medium);
+}
+
+.playlist-song.sortable-ghost {
+  opacity: 0.35;
+  background-color: var(--color-bg-surface);
+}
+
+.playlist-song.sortable-drag {
+  background-color: var(--color-bg-card);
+  box-shadow: var(--shadow-heavy);
+  border-radius: var(--radius-standard);
+}
+
 /* ===== Create-options modal ===== */
 
 .create-options__list {

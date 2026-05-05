@@ -1,7 +1,8 @@
 <li class="playlist-song"
     id="playlist_song_<%= playlist.id %>_<%= song.id %>"
     data-album-show-target="songRow"
-    data-song-id="<%= song.id %>">
+    data-song-id="<%= song.id %>"
+    data-sortable-id="<%= song.id %>">
   <% if song.image.attached? %>
     <%= image_tag song.image, class: "playlist-song__art", loading: "lazy", alt: "" %>
   <% else %>
