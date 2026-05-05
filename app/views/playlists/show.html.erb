@@ -43,9 +43,18 @@
   </header>
 
   <div class="playlist-show__actions">
-    <button type="button" class="playlist-show__icon-btn" aria-label="Shuffle">
-      <%= icon :shuffle, size: 22 %>
-    </button>
+    <div class="playlist-show__actions-left">
+      <%= button_to song_picker_playlist_path(@playlist),
+                    method: :get,
+                    form: { class: "playlist-show__icon-form", data: { turbo_stream: true } },
+                    class: "playlist-show__icon-btn",
+                    aria: { label: "Add songs" } do %>
+        <%= icon :plus, size: 22 %>
+      <% end %>
+      <button type="button" class="playlist-show__icon-btn" aria-label="Shuffle">
+        <%= icon :shuffle, size: 22 %>
+      </button>
+    </div>
     <button type="button"
             class="playlist-show__play"
             aria-label="Play"
@@ -56,37 +65,28 @@
     </button>
   </div>
 
-  <% if songs.any? %>
-    <ul class="playlist-show__songs">
-      <% songs.each do |song| %>
-        <li class="playlist-song"
-            id="playlist_song_<%= @playlist.id %>_<%= song.id %>"
-            data-album-show-target="songRow"
-            data-song-id="<%= song.id %>">
-          <% if song.image.attached? %>
-            <%= image_tag song.image, class: "playlist-song__art", loading: "lazy", alt: "" %>
-          <% else %>
-            <div class="playlist-song__art playlist-song__art--placeholder"></div>
-          <% end %>
-          <%= link_to player_path(song),
-                      class: "playlist-song__link",
-                      data: { turbo_stream: true } do %>
-            <div class="playlist-song__meta">
-              <p class="playlist-song__name"><%= song.name %></p>
-              <p class="playlist-song__authors"><%= song.authors.map(&:name).join(", ") %></p>
-            </div>
-          <% end %>
-          <%= button_to remove_song_from_playlist_favorites_path(song, playlist_id: @playlist.id),
-                        method: :delete,
-                        form: { class: "heart-form", data: { turbo_stream: true } },
-                        class: "playlist-song__heart heart-active",
-                        aria: { label: "Remove from this playlist" } do %>
-            <%= icon :heart, size: 20 %>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p class="playlist-show__empty">No songs in this playlist yet.</p>
+  <ul class="playlist-show__songs" id="playlist_songs_<%= @playlist.id %>">
+    <% songs.each do |song| %>
+      <%= render "playlists/song_row", playlist: @playlist, song: song %>
+    <% end %>
+  </ul>
+  <% if songs.empty? %>
+    <p class="playlist-show__empty" id="playlist_empty_<%= @playlist.id %>">
+      No songs in this playlist yet.
+    </p>
   <% end %>
 </div>
+
+<% if params[:picker].present? %>
+  <% songs_to_pick = Song.joins(:playlist_songs)
+                         .where(playlist_songs: { playlist_id: current_user.playlist_ids - [@playlist.id] })
+                         .with_attached_image
+                         .includes(:authors, :album)
+                         .distinct
+                         .limit(30) %>
+  <%= render "playlists/song_picker_modal",
+             playlist: @playlist,
+             songs: songs_to_pick,
+             query: "",
+             auto_open: true %>
+<% end %>

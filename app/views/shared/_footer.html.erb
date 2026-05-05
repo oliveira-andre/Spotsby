@@ -23,9 +23,10 @@
     <span class="footer-nav__label">Library</span>
   <% end %>
 
-  <%= link_to manage_path,
-              class: "footer-nav__item #{'is-active' if current_page?(manage_path)}",
-              data: { turbo_stream: true, turbo_action: :advance } do %>
+  <%= button_to create_options_playlists_path,
+                method: :get,
+                form: { class: "footer-nav__form", data: { turbo_stream: true } },
+                class: "footer-nav__item footer-nav__item--button" do %>
     <%= icon :plus, size: 22 %>
     <span class="footer-nav__label">Create</span>
   <% end %>

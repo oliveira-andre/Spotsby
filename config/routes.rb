@@ -24,7 +24,14 @@ Rails.application.routes.draw do
     end
   end
   resources :categories, only: %i[show]
-  resources :playlists, only: %i[show]
+  resources :playlists, only: %i[show new create] do
+    member do
+      get :song_picker
+    end
+    collection do
+      get :create_options
+    end
+  end
   resources :albums, only: %i[show]
   resources :authors, only: %i[show] do
     member do

@@ -37,7 +37,10 @@ class FavoritesController < ApplicationController
   def add_to_playlist
     @playlist = current_user.playlists.find(params[:playlist_id])
 
-    @playlist.songs << @song unless @playlist.playlist_songs.exists?(song_id: @song.id)
+    unless @playlist.playlist_songs.exists?(song_id: @song.id)
+      @playlist.songs << @song
+      @playlist.playlist_songs.find_by(song_id: @song.id)&.move_to_top
+    end
     saved = current_user.saved_songs_playlist
     saved&.playlist_songs&.where(song_id: @song.id)&.destroy_all
 

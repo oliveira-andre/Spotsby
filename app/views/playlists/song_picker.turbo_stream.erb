@@ -1,0 +1,17 @@
+<% if params[:q].present? %>
+  <%= turbo_stream.replace "song-picker-list" do %>
+    <%= render "playlists/song_picker_list",
+               playlist: @playlist,
+               songs: @songs,
+               playlist_song_ids: @playlist_song_ids %>
+  <% end %>
+<% else %>
+  <%= turbo_stream.replace "bottom-modal" do %>
+    <%= render "playlists/song_picker_modal",
+               playlist: @playlist,
+               songs: @songs,
+               query: "",
+               playlist_song_ids: @playlist_song_ids,
+               auto_open: true %>
+  <% end %>
+<% end %>

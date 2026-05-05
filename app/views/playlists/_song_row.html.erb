@@ -1,0 +1,25 @@
+<li class="playlist-song"
+    id="playlist_song_<%= playlist.id %>_<%= song.id %>"
+    data-album-show-target="songRow"
+    data-song-id="<%= song.id %>">
+  <% if song.image.attached? %>
+    <%= image_tag song.image, class: "playlist-song__art", loading: "lazy", alt: "" %>
+  <% else %>
+    <div class="playlist-song__art playlist-song__art--placeholder"></div>
+  <% end %>
+  <%= link_to player_path(song, source: SongQueue::SOURCE_PLAYLIST, playlist_id: playlist.id),
+              class: "playlist-song__link",
+              data: { turbo_stream: true } do %>
+    <div class="playlist-song__meta">
+      <p class="playlist-song__name"><%= song.name %></p>
+      <p class="playlist-song__authors"><%= song.authors.map(&:name).join(", ") %></p>
+    </div>
+  <% end %>
+  <%= button_to remove_song_from_playlist_favorites_path(song, playlist_id: playlist.id),
+                method: :delete,
+                form: { class: "heart-form", data: { turbo_stream: true } },
+                class: "playlist-song__heart heart-active",
+                aria: { label: "Remove from this playlist" } do %>
+    <%= icon :heart, size: 20 %>
+  <% end %>
+</li>

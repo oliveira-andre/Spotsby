@@ -5,6 +5,7 @@ class CreateSongQueues < ActiveRecord::Migration[8.0]
       t.references :song, null: false, foreign_key: true, type: :uuid
       t.integer :position, default: 1
       t.string :source
+      t.uuid :source_id, null: true, index: true
 
       t.timestamps
     end

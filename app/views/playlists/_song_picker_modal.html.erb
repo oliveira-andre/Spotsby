@@ -1,0 +1,23 @@
+<%= render "shared/modal", id: "bottom-modal", title: "Add songs", auto_open: local_assigns[:auto_open] do %>
+  <div class="song-picker"
+       data-controller="song-picker"
+       data-song-picker-url-value="<%= song_picker_playlist_path(playlist) %>">
+    <div class="song-picker__search">
+      <span class="song-picker__search-icon" aria-hidden="true">
+        <%= icon :magnifying_glass, size: 18 %>
+      </span>
+      <input type="search"
+             class="song-picker__input"
+             placeholder="Search all songs"
+             value="<%= local_assigns[:query] %>"
+             aria-label="Search songs"
+             data-song-picker-target="input"
+             data-action="input->song-picker#search">
+    </div>
+
+    <%= render "playlists/song_picker_list",
+               playlist: playlist,
+               songs: songs,
+               playlist_song_ids: local_assigns[:playlist_song_ids] || playlist.song_ids.to_set %>
+  </div>
+<% end %>

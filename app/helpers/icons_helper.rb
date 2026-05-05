@@ -23,7 +23,10 @@ module IconsHelper
     repeat: %(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>),
     wave_a: %(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="none" stroke="currentColor" stroke-width="42" stroke-linecap="round"><path d="M80 280V360"/><path d="M150 220V420"/><path d="M220 150V490"/><path d="M290 90V550"/><path d="M360 150V490"/><path d="M430 220V420"/><path d="M500 280V360"/><path d="M570 305V335"/></svg>),
     wave_b: %(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="none" stroke="currentColor" stroke-width="28" stroke-linecap="round"><path d="M260 305V335"/><path d="M320 280V360"/><path d="M380 220V420"/><path d="M440 150V490"/><path d="M500 90V550"/><path d="M560 150V490"/><path d="M600 220V420"/></svg>),
-    wave_paused: %(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="none" stroke="currentColor" stroke-width="48" stroke-linecap="round"><path d="M96 320H544"/></svg>)
+    wave_paused: %(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="none" stroke="currentColor" stroke-width="48" stroke-linecap="round"><path d="M96 320H544"/></svg>),
+    music: %(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>),
+    image: %(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>),
+    chevron_right: %(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6V6z"/></svg>)
   }.freeze
 
   def icon(name, size: DEFAULT_ICON_SIZE, **options)

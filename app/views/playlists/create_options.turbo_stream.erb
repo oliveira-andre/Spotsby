@@ -1,0 +1,19 @@
+<%= turbo_stream.replace "bottom-modal" do %>
+  <%= render "shared/modal", id: "bottom-modal", title: "Create", auto_open: true do %>
+    <ul class="create-options__list">
+      <li>
+        <%= link_to new_playlist_path,
+                    class: "create-options__option",
+                    data: { turbo_stream: true, turbo_action: :advance } do %>
+          <span class="create-options__icon" aria-hidden="true">
+            <%= icon :music, size: 22 %>
+          </span>
+          <span class="create-options__name">Playlists</span>
+          <span class="create-options__chevron" aria-hidden="true">
+            <%= icon :chevron_right, size: 18 %>
+          </span>
+        <% end %>
+      </li>
+    </ul>
+  <% end %>
+<% end %>

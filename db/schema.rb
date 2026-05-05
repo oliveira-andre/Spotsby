@@ -150,9 +150,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_02_202010) do
     t.uuid "song_id", null: false
     t.integer "position", default: 1
     t.string "source"
+    t.uuid "source_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["song_id"], name: "index_song_queues_on_song_id"
+    t.index ["source_id"], name: "index_song_queues_on_source_id"
     t.index ["user_id"], name: "index_song_queues_on_user_id"
   end
 

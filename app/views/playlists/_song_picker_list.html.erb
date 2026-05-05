@@ -1,0 +1,29 @@
+<ul class="song-picker__list" id="song-picker-list">
+  <% if songs.any? %>
+    <% songs.each do |song| %>
+      <li class="song-picker__item">
+        <% if song.image.attached? %>
+          <%= image_tag song.image, class: "song-picker__art", loading: "lazy", alt: "" %>
+        <% else %>
+          <div class="song-picker__art song-picker__art--placeholder"></div>
+        <% end %>
+        <div class="song-picker__meta">
+          <p class="song-picker__name"><%= song.name %></p>
+          <p class="song-picker__authors"><%= song.authors.map(&:name).join(", ") %></p>
+        </div>
+        <% saved = playlist_song_ids.include?(song.id) %>
+        <%= button_to add_song_to_playlist_favorites_path(song, playlist_id: playlist.id, picker: 1),
+                      method: :post,
+                      form: { class: "heart-form", data: { turbo_stream: true } },
+                      id: dom_id(song, "picker_heart"),
+                      class: "song-picker__heart #{'heart-active' if saved}",
+                      disabled: saved,
+                      aria: { label: saved ? "Already in playlist" : "Add to playlist" } do %>
+          <%= icon :heart, size: 20 %>
+        <% end %>
+      </li>
+    <% end %>
+  <% else %>
+    <li class="song-picker__empty">No songs found.</li>
+  <% end %>
+</ul>

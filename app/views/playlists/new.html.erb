@@ -1,0 +1,57 @@
+<div class="playlist-new">
+  <header class="playlist-new__header">
+    <%= link_to library_path,
+                class: "playlist-new__back",
+                data: { turbo_stream: true, controller: "back-link" },
+                aria: { label: "Back" } do %>
+      <%= icon :chevron_left, size: 24 %>
+    <% end %>
+    <h1 class="playlist-new__title">New playlist</h1>
+  </header>
+
+  <% if flash.now[:alert] %>
+    <div class="flash flash--alert" role="alert"><%= flash.now[:alert] %></div>
+  <% end %>
+
+  <%= form_with model: @playlist, class: "playlist-new__form", multipart: true,
+                data: { controller: "image-preview", turbo_action: :advance } do |form| %>
+    <div class="playlist-new__grid">
+      <label class="playlist-new__cover" data-image-preview-target="dropzone">
+        <%= form.file_field :image,
+                            accept: "image/png,image/jpeg,image/webp",
+                            class: "playlist-new__file",
+                            data: { image_preview_target: "input", action: "change->image-preview#preview" } %>
+        <img class="playlist-new__preview" data-image-preview-target="preview" alt="" hidden>
+        <span class="playlist-new__placeholder" data-image-preview-target="placeholder">
+          <%= icon :image, size: 36 %>
+          <span>Choose photo</span>
+        </span>
+      </label>
+
+      <div class="playlist-new__fields">
+        <div class="form-field">
+          <%= form.label :name, "Name", class: "label" %>
+          <%= form.text_field :name, class: "input", required: true, placeholder: "My playlist" %>
+        </div>
+
+        <label class="playlist-new__toggle">
+          <span class="playlist-new__toggle-meta">
+            <span class="playlist-new__toggle-title">Public</span>
+            <span class="playlist-new__toggle-sub">Anyone can find this playlist</span>
+          </span>
+          <span class="toggle">
+            <%= form.check_box :status,
+                              { class: "toggle__input" },
+                              "public",
+                              "private" %>
+            <span class="toggle__slider" aria-hidden="true"></span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <div class="playlist-new__actions">
+      <%= form.submit "Save", class: "btn btn--primary btn--block btn--uppercase btn--lg" %>
+    </div>
+  <% end %>
+</div>

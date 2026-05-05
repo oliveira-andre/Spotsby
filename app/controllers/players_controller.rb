@@ -8,7 +8,8 @@ class PlayersController < ApplicationController
     return unless @song
 
     source = params[:source].presence
-    record_queue_entry!(@song, source)
+    source_id = source_id_for(source)
+    record_queue_entry!(@song, source, source_id)
     record_play_history!(@song, source)
   end
 
@@ -32,29 +33,55 @@ class PlayersController < ApplicationController
     @song = nil
   end
 
+  def source_id_for(source)
+    case source
+    when SongQueue::SOURCE_PLAYLIST then params[:playlist_id].presence
+    end
+  end
+
   def advance(direction:)
     latest = SongQueue.where(user: current_user).recent.first
     current_song = latest&.song
     return redirect_back_or_to(root_path) unless current_song
 
-    next_song, source = resolve_next(current_song, latest.source, direction)
+    next_song, source, source_id = resolve_next(current_song, latest.source, latest.source_id, direction)
     return redirect_back_or_to(player_path(current_song)) unless next_song
 
-    record_queue_entry!(next_song, source)
+    record_queue_entry!(next_song, source, source_id)
     redirect_to player_path(next_song)
   end
 
-  def resolve_next(current_song, current_source, direction)
+  def resolve_next(current_song, current_source, current_source_id, direction)
     case current_source
+    when SongQueue::SOURCE_PLAYLIST
+      sibling = playlist_sibling(current_song, current_source_id, direction)
+      return [ sibling, SongQueue::SOURCE_PLAYLIST, current_source_id ] if sibling
     when SongQueue::SOURCE_ALBUM
       sibling = album_sibling(current_song, direction)
-      return [ sibling, SongQueue::SOURCE_ALBUM ] if sibling
+      return [ sibling, SongQueue::SOURCE_ALBUM, nil ] if sibling
     when SongQueue::SOURCE_POPULAR
       sibling = popular_sibling(current_song, direction)
-      return [ sibling, SongQueue::SOURCE_POPULAR ] if sibling
+      return [ sibling, SongQueue::SOURCE_POPULAR, nil ] if sibling
     end
 
-    [ sample_artist_song(current_song), SongQueue::SOURCE_ARTIST_SHUFFLE ]
+    [ sample_artist_song(current_song), SongQueue::SOURCE_ARTIST_SHUFFLE, nil ]
+  end
+
+  def playlist_sibling(song, playlist_id, direction)
+    return nil unless playlist_id
+
+    playlist = current_user.playlists.find_by(id: playlist_id)
+    return nil unless playlist
+
+    song_ids = playlist.playlist_songs.ordered.pluck(:song_id)
+    return nil if song_ids.empty?
+
+    index = song_ids.index(song.id)
+    return Song.find_by(id: song_ids.first) if index.nil?
+
+    offset = direction == :next ? 1 : -1
+    target_index = (index + offset) % song_ids.size
+    Song.find_by(id: song_ids[target_index])
   end
 
   def album_sibling(song, direction)
@@ -89,11 +116,16 @@ class PlayersController < ApplicationController
         .first
   end
 
-  def record_queue_entry!(song, source)
+  def record_queue_entry!(song, source, source_id = nil)
     return unless current_user
 
     effective_source = SongQueue::SOURCES.include?(source.to_s) ? source : SongQueue::SOURCE_DEFAULT
-    SongQueue.create!(user: current_user, song: song, source: effective_source)
+    SongQueue.create!(
+      user: current_user,
+      song: song,
+      source: effective_source,
+      source_id: source_id
+    )
     prune_song_queues!(effective_source)
   end
 

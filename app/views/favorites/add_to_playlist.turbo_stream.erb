@@ -1,11 +1,29 @@
-<%= turbo_stream.update dom_id(@song, :heart) do %>
-  <%= render "shared/song_heart_button",
-             song: @song,
-             saved: @saved,
-             size: @size,
-             button_class: @button_class %>
-<% end %>
+<% if params[:picker].present? %>
+  <%= turbo_stream.prepend "playlist_songs_#{@playlist.id}" do %>
+    <%= render "playlists/song_row", playlist: @playlist, song: @song %>
+  <% end %>
 
-<%= turbo_stream.replace "playlists-modal" do %>
-  <%= render "shared/modal", id: "playlists-modal", title: "Select a playlist" %>
+  <%= turbo_stream.remove "playlist_empty_#{@playlist.id}" %>
+
+  <%= turbo_stream.replace dom_id(@song, "picker_heart") do %>
+    <button type="button"
+            class="song-picker__heart heart-active"
+            id="<%= dom_id(@song, "picker_heart") %>"
+            aria-label="Already in playlist"
+            disabled>
+      <%= icon :heart, size: 20 %>
+    </button>
+  <% end %>
+<% else %>
+  <%= turbo_stream.update dom_id(@song, :heart) do %>
+    <%= render "shared/song_heart_button",
+               song: @song,
+               saved: @saved,
+               size: @size,
+               button_class: @button_class %>
+  <% end %>
+
+  <%= turbo_stream.replace "bottom-modal" do %>
+    <%= render "shared/modal", id: "bottom-modal" %>
+  <% end %>
 <% end %>

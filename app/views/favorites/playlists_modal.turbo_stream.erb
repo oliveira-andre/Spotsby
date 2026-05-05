@@ -1,5 +1,5 @@
-<%= turbo_stream.replace "playlists-modal" do %>
-  <%= render "shared/modal", id: "playlists-modal", title: "Select a playlist", auto_open: true do %>
+<%= turbo_stream.replace "bottom-modal" do %>
+  <%= render "shared/modal", id: "bottom-modal", title: "Select a playlist", auto_open: true do %>
     <% if @playlists.any? %>
       <ul class="playlists-modal__list">
         <% @playlists.each do |playlist| %>
