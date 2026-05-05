@@ -34,6 +34,43 @@ RSpec.describe PlaylistsController, type: :request do
         expect(response).to have_http_status(:ok)
       end
     end
+
+    describe 'PATCH /playlists/:id/update_position' do
+      let!(:playlist_a) { create(:playlist, user: user) }
+      let!(:playlist_b) { create(:playlist, user: user) }
+      let!(:playlist_c) { create(:playlist, user: user) }
+
+      it 'reorders the playlist within the user scope' do
+        patch update_position_playlist_path(playlist_a.id), params: { position: 3 }
+
+        expect(response).to have_http_status(:ok)
+        ordered_ids = user.playlists.where.not(position: 0).ordered.pluck(:id)
+        expect(ordered_ids).to eq([ playlist_b.id, playlist_c.id, playlist_a.id ])
+      end
+
+      it 'forbids moving the pinned saved-songs playlist (position 0)' do
+        saved = user.saved_songs_playlist
+        expect {
+          patch update_position_playlist_path(saved.id), params: { position: 2 }
+        }.not_to change { saved.reload.position }
+
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'rejects positions below 1' do
+        patch update_position_playlist_path(playlist_a.id), params: { position: 0 }
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'returns not found when the playlist belongs to another user' do
+        intruder = create(:user)
+        sign_in(intruder)
+
+        patch update_position_playlist_path(playlist_a.id), params: { position: 2 }
+        expect(response).to have_http_status(:not_found)
+      end
+    end
   end
 end
 

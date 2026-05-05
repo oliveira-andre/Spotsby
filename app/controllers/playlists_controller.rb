@@ -2,9 +2,19 @@
 
 # PlaylistsController
 class PlaylistsController < ApplicationController
-  before_action :load_playlist, only: %i[show song_picker]
+  before_action :load_playlist, only: %i[show song_picker update_position]
 
   def show; end
+
+  def update_position
+    return head :forbidden if @playlist.position.to_i.zero?
+
+    position = params[:position].to_i
+    return head :unprocessable_content if position < 1
+
+    @playlist.insert_at(position)
+    head :ok
+  end
 
   def create_options
     respond_to do |format|

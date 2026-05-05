@@ -4,14 +4,14 @@ import Sortable from "sortablejs"
 export default class extends Controller {
   static values = {
     urlTemplate: String,
-    delay: { type: Number, default: 2000 }
+    delay: { type: Number, default: 100 }
   }
 
   connect() {
     this.sortable = Sortable.create(this.element, {
       animation: 150,
       delay: this.delayValue,
-      delayOnTouchOnly: false,
+      delayOnTouchOnly: true,
       touchStartThreshold: 5,
       ghostClass: "sortable-ghost",
       chosenClass: "sortable-chosen",

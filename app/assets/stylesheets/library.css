@@ -27,6 +27,27 @@
   gap: var(--space-1);
 }
 
+.library__list[data-controller~="sortable"] .library__item {
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.library__item.sortable-chosen .library-item {
+  background-color: var(--color-bg-elevated);
+  box-shadow: var(--shadow-medium);
+}
+
+.library__item.sortable-ghost .library-item {
+  opacity: 0.35;
+  background-color: var(--color-bg-surface);
+}
+
+.library__item.sortable-drag .library-item {
+  background-color: var(--color-bg-card);
+  box-shadow: var(--shadow-heavy);
+  border-radius: var(--radius-standard);
+}
+
 .library-item {
   display: flex;
   align-items: center;

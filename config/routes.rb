@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   resources :playlists, only: %i[show new create] do
     member do
       get :song_picker
+      patch :update_position
     end
     collection do
       get :create_options
