@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Authentication
+  include Pundit::Authorization
   include Pagy::Method
 
   DEFAULT_PER_PAGE = 10

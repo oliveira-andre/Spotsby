@@ -68,11 +68,17 @@
   </div>
 
   <% if @album.songs.any? %>
-    <ul class="album-show__songs">
+    <% owner = @album.author.user_id.present? && @album.author.user_id == current_user.id %>
+    <ul class="album-show__songs"
+        <% if owner %>
+          data-controller="sortable"
+          data-sortable-url-template-value="<%= update_position_album_song_path(@album, ":id") %>"
+        <% end %>>
       <% @album.songs.each do |song| %>
         <li class="album-song"
             data-album-show-target="songRow"
-            data-song-id="<%= song.id %>">
+            data-song-id="<%= song.id %>"
+            data-sortable-id="<%= song.id %>">
           <span class="album-song__wave" aria-hidden="true">
             <span class="album-song__wave-frame album-song__wave-frame--a"><%= icon :wave_a, size: 18 %></span>
             <span class="album-song__wave-frame album-song__wave-frame--paused"><%= icon :wave_paused, size: 18 %></span>

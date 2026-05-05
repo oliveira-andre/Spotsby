@@ -166,6 +166,27 @@
   background-color: var(--color-bg-surface);
 }
 
+.album-show__songs[data-controller~="sortable"] .album-song {
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.album-song.sortable-chosen {
+  background-color: var(--color-bg-elevated);
+  box-shadow: var(--shadow-medium);
+}
+
+.album-song.sortable-ghost {
+  opacity: 0.35;
+  background-color: var(--color-bg-surface);
+}
+
+.album-song.sortable-drag {
+  background-color: var(--color-bg-card);
+  box-shadow: var(--shadow-heavy);
+  border-radius: var(--radius-standard);
+}
+
 .album-song__wave {
   display: none;
   position: relative;

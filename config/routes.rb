@@ -38,7 +38,13 @@ Rails.application.routes.draw do
       end
     end
   end
-  resources :albums, only: %i[show]
+  resources :albums, only: %i[show] do
+    resources :songs, only: [], controller: "album_songs" do
+      member do
+        patch :update_position
+      end
+    end
+  end
   resources :authors, only: %i[show] do
     member do
       get :all_songs
