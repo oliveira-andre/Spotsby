@@ -1,6 +1,9 @@
 require "capybara/rspec"
 require "selenium-webdriver"
 
+Capybara.enable_aria_label = true
+Capybara.default_max_wait_time = 5
+
 Capybara.register_driver :headless_chrome do |app|
   options = Selenium::WebDriver::Chrome::Options.new
   options.add_argument("--headless=new")
