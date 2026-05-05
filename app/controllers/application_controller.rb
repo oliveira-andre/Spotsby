@@ -10,6 +10,8 @@ class ApplicationController < ActionController::Base
 
   before_action :block_users
 
+  rescue_from Pundit::NotAuthorizedError, with: :forbidden
+
   helper_method :current_user
 
   def default_render(*args)
@@ -33,5 +35,13 @@ class ApplicationController < ActionController::Base
     return unless authenticated?
 
     redirect_to new_session_path, alert: "Your account has been blocked." if current_user.blocked?
+  end
+
+  def forbidden
+    head :forbidden
+  end
+
+  def pundit_user
+    current_user
   end
 end

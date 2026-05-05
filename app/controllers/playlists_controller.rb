@@ -7,8 +7,7 @@ class PlaylistsController < ApplicationController
   def show; end
 
   def update_position
-    return head :forbidden if @playlist.position.to_i.zero?
-
+    authorize @playlist
     position = params[:position].to_i
     return head :unprocessable_content if position < 1
 

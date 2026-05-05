@@ -3,9 +3,10 @@
 # AlbumSongsController
 class AlbumSongsController < ApplicationController
   before_action :load_album, only: %i[update_position]
-  before_action :authorize_owner, only: %i[update_position]
 
   def update_position
+    authorize @album, :sort_songs?
+
     song = @album.songs.find_by(id: params[:id])
     return head :not_found unless song
 
@@ -20,10 +21,5 @@ class AlbumSongsController < ApplicationController
 
   def load_album
     @album = Album.includes(:author).friendly.find(params[:album_id])
-  end
-
-  def authorize_owner
-    user_id = @album.author.user_id
-    head :forbidden if user_id.nil? || user_id != current_user.id
   end
 end
