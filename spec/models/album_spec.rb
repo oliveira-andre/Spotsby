@@ -16,7 +16,7 @@ RSpec.describe Album, type: :model do
     subject { create(:album) }
 
     it { is_expected.to validate_presence_of(:name) }
-    it { is_expected.to validate_uniqueness_of(:name) }
+    it { is_expected.to validate_uniqueness_of(:name).scoped_to(:author_id) }
     it { is_expected.to validate_presence_of(:release_date) }
     it { is_expected.to validate_presence_of(:category_id) }
     it { is_expected.to validate_presence_of(:author_id) }

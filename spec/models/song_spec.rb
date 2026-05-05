@@ -22,7 +22,7 @@ RSpec.describe Song, type: :model do
     subject { create(:song) }
 
     it { is_expected.to validate_presence_of(:name) }
-    it { is_expected.to validate_uniqueness_of(:name) }
+    it { is_expected.to validate_uniqueness_of(:name).scoped_to(:album_id) }
     it { is_expected.to validate_presence_of(:category_id) }
     it { is_expected.to validate_presence_of(:album_id) }
     it { is_expected.to validate_numericality_of(:duration_ms).is_greater_than_or_equal_to(0) }

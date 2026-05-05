@@ -21,7 +21,7 @@ RSpec.describe Playlist, type: :model do
     subject { create(:playlist) }
 
     it { is_expected.to validate_presence_of(:name) }
-    it { is_expected.to validate_uniqueness_of(:name) }
+    it { is_expected.to validate_uniqueness_of(:name).scoped_to(:user_id) }
     it { is_expected.to validate_presence_of(:user_id) }
 
     it 'rejects positions less than 0' do
@@ -33,11 +33,12 @@ RSpec.describe Playlist, type: :model do
   describe '.ordered' do
     it 'returns playlists ordered by position ascending' do
       user = create(:user)
+      saved_songs = user.saved_songs_playlist
       first = create(:playlist, user: user)
       second = create(:playlist, user: user)
       third = create(:playlist, user: user)
 
-      expect(user.playlists.ordered).to eq([first, second, third])
+      expect(user.playlists.ordered).to eq([saved_songs, first, second, third])
     end
   end
 end

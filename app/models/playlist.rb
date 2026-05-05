@@ -24,7 +24,7 @@ class Playlist < ApplicationRecord
       .group("playlists.id")
   }
 
-  validates :name, presence: true, uniqueness: true
+  validates :name, presence: true, uniqueness: { scope: :user_id }
   validates :user_id, presence: true
   validates_numericality_of :position, greater_than_or_equal_to: 0
 end
