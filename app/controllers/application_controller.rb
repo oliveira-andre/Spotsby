@@ -17,7 +17,7 @@ class ApplicationController < ActionController::Base
   def default_render(*args)
     if flash[:_full_render]
       render action_name, formats: :html
-    elsif request.format.turbo_stream?
+    elsif request.format.turbo_stream? && !turbo_stream_template_exists?
       body = render_to_string(action_name, layout: false)
       render turbo_stream: turbo_stream.update("page-content", body)
     else
@@ -43,5 +43,9 @@ class ApplicationController < ActionController::Base
 
   def pundit_user
     current_user
+  end
+
+  def turbo_stream_template_exists?
+    lookup_context.exists?(action_name, _prefixes, false, [], formats: [:turbo_stream])
   end
 end

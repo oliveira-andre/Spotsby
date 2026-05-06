@@ -1,6 +1,8 @@
 class AdminController < ApplicationController
   class Unauthorized < StandardError; end
 
+  layout "admin"
+
   rescue_from Unauthorized, with: :unauthorized
 
   before_action :require_admin

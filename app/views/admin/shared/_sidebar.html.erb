@@ -12,10 +12,12 @@
       <span>Dashboard</span>
     <% end %>
 
-    <a href="#" class="admin-sidebar__link" data-action="click->admin-sidebar#closeOnMobile">
+    <%= link_to admin_categories_path,
+                class: "admin-sidebar__link #{'is-active' if controller_path == 'admin/categories'}",
+                data: { turbo_stream: true, action: "click->admin-sidebar#closeOnMobile" } do %>
       <%= icon :folder, size: 20 %>
       <span>Categories</span>
-    </a>
+    <% end %>
 
     <a href="#" class="admin-sidebar__link" data-action="click->admin-sidebar#closeOnMobile">
       <%= icon :users, size: 20 %>

@@ -1,0 +1,53 @@
+<% content_for :title, "Categories" %>
+
+<section class="admin-categories">
+  <header class="admin-categories__header">
+    <%= form_with url: admin_categories_path,
+                  method: :get,
+                  class: "admin-categories__search",
+                  data: { turbo_frame: "categories-frame", controller: "auto-submit" } do |form| %>
+      <%= icon :magnifying_glass, size: 18 %>
+      <%= form.search_field :q,
+            value: params[:q],
+            placeholder: "Search categories",
+            class: "admin-categories__search-input",
+            data: { action: "input->auto-submit#submit" } %>
+    <% end %>
+
+    <%= link_to new_admin_category_path,
+                class: "admin-categories__new",
+                aria: { label: "New category" },
+                data: { turbo_frame: "category-form-modal" } do %>
+      <%= icon :plus, size: 18 %>
+    <% end %>
+  </header>
+
+  <%= turbo_frame_tag "categories-frame" do %>
+    <% if @categories.any? %>
+      <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
+        <ul class="admin-categories__list"
+            <%= 'id="categories-list"'.html_safe if @pagy.page == 1 %>
+            data-controller="sortable"
+            data-sortable-url-template-value="<%= update_position_admin_category_path(":id") %>"
+            data-sortable-group-value="categories">
+          <%= render partial: "admin/categories/category", collection: @categories, as: :category %>
+        </ul>
+
+        <% if @pagy.next %>
+          <%= turbo_frame_tag :page, @pagy.next,
+                              src: admin_categories_path(page: @pagy.next, q: params[:q]),
+                              loading: :lazy,
+                              target: :_top do %>
+            <p class="admin-categories__loading">Loading...</p>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="admin-categories__empty">
+        <%= params[:q].present? ? "No categories matched “#{params[:q]}”." : "No categories yet." %>
+      </p>
+    <% end %>
+  <% end %>
+
+  <%= turbo_frame_tag "category-form-modal" %>
+</section>

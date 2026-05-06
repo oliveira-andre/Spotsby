@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Admin · Spotsby" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Figtree:ital,wght@0,300..900;1,300..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+
+    <link rel="icon" href="/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/logo.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <div id="page-content">
+      <div class="admin" data-controller="admin-sidebar">
+        <header class="admin__topbar">
+          <button type="button"
+                  class="admin__burger"
+                  aria-label="Toggle navigation"
+                  data-action="click->admin-sidebar#toggle">
+            <%= icon :bars, size: 22 %>
+          </button>
+          <h1 class="admin__title"><%= content_for(:title) %></h1>
+        </header>
+
+        <div class="admin__layout">
+          <%= render "admin/shared/sidebar" %>
+          <main class="admin__main">
+            <%= yield %>
+          </main>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,4 +1,6 @@
 class Category < ApplicationRecord
+  PRESET_COLORS = %w[#006450 #dc148c #8d67ab #777777 #e61e32 #1e3264].freeze
+
   acts_as_list
 
   extend FriendlyId

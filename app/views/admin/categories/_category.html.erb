@@ -1,0 +1,37 @@
+<li class="admin-category"
+    id="<%= dom_id(category) %>"
+    data-sortable-id="<%= category.id %>"
+    style="--cat-color: <%= category.color %>;">
+  <% if category.image.attached? %>
+    <%= image_tag category.image, class: "admin-category__art", loading: "lazy", alt: "" %>
+  <% else %>
+    <span class="admin-category__art admin-category__art--placeholder">
+      <%= icon :folder, size: 18 %>
+    </span>
+  <% end %>
+
+  <div class="admin-category__meta">
+    <span class="admin-category__name"><%= category.name %></span>
+    <span class="admin-category__color">
+      <span class="admin-category__swatch" style="background-color: <%= category.color %>;"></span>
+      <%= category.color %>
+    </span>
+  </div>
+
+  <div class="admin-category__actions">
+    <%= link_to edit_admin_category_path(category),
+                class: "admin-category__icon-btn",
+                aria: { label: "Edit" },
+                data: { turbo_frame: "category-form-modal" } do %>
+      <%= icon :pencil, size: 18 %>
+    <% end %>
+
+    <%= button_to admin_category_path(category),
+                  method: :delete,
+                  form: { class: "admin-category__icon-form", data: { turbo_confirm: "Delete \"#{category.name}\"?" } },
+                  class: "admin-category__icon-btn admin-category__icon-btn--danger",
+                  aria: { label: "Delete" } do %>
+      <%= icon :trash, size: 18 %>
+    <% end %>
+  </div>
+</li>

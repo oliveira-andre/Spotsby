@@ -1,0 +1,26 @@
+<% if @reordered %>
+  <%= turbo_stream.replace "categories-frame" do %>
+    <%= turbo_frame_tag "categories-frame" do %>
+      <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
+        <ul class="admin-categories__list" id="categories-list" data-controller="sortable" data-sortable-url-template-value="<%= update_position_admin_category_path(":id") %>" data-sortable-group-value="categories">
+          <%= render partial: "admin/categories/category", collection: @categories, as: :category %>
+        </ul>
+
+        <% if @pagy.next %>
+          <%= turbo_frame_tag :page, @pagy.next,
+                              src: admin_categories_path(page: @pagy.next),
+                              loading: :lazy,
+                              target: :_top do %>
+            <p class="admin-categories__loading">Loading...</p>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% else %>
+  <%= turbo_stream.replace dom_id(@category) do %>
+    <%= render "admin/categories/category", category: @category %>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.update "category-form-modal" %>

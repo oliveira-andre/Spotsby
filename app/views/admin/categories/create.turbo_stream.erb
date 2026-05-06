@@ -1,0 +1,5 @@
+<%= turbo_stream.append "categories-list" do %>
+  <%= render "admin/categories/category", category: @category %>
+<% end %>
+
+<%= turbo_stream.update "category-form-modal" %>
