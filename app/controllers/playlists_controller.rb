@@ -2,7 +2,7 @@
 
 # PlaylistsController
 class PlaylistsController < ApplicationController
-  before_action :load_playlist, only: %i[show song_picker update_position]
+  before_action :load_playlist, only: %i[show song_picker update_position random_song]
 
   def show; end
 
@@ -13,6 +13,13 @@ class PlaylistsController < ApplicationController
 
     @playlist.insert_at(position)
     head :ok
+  end
+
+  def random_song
+    song = @playlist.songs.sample
+    return redirect_to playlist_path(@playlist) unless song
+
+    redirect_to player_path(song, source: SongQueue::SOURCE_PLAYLIST, playlist_id: @playlist.id)
   end
 
   def create_options
@@ -32,7 +39,7 @@ class PlaylistsController < ApplicationController
       redirect_to playlist_path(@playlist, picker: 1)
     else
       flash.now[:alert] = @playlist.errors.full_messages.to_sentence
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 

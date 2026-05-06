@@ -2,9 +2,16 @@
 
 # AlbumsController
 class AlbumsController < ApplicationController
-  before_action :load_album, only: %i[show]
+  before_action :load_album, only: %i[show random_song]
 
   def show; end
+
+  def random_song
+    song = @album.songs.sample
+    return redirect_to album_path(@album) unless song
+
+    redirect_to player_path(song, source: SongQueue::SOURCE_ALBUM)
+  end
 
   private
 

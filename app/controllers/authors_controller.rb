@@ -4,7 +4,7 @@
 class AuthorsController < ApplicationController
   POPULAR_SONGS_LIMIT = 10
 
-  before_action :load_author, only: %i[show all_songs]
+  before_action :load_author, only: %i[show all_songs random_song]
 
   def show
     @popular_songs = @author.popular_songs
@@ -23,6 +23,13 @@ class AuthorsController < ApplicationController
                 .includes(:authors, :album, image_attachment: :blob)
                 .order("albums.position ASC, songs.position ASC")
     @pagy, @songs = pagy(songs, limit: DEFAULT_PER_PAGE)
+  end
+
+  def random_song
+    song = @author.top_songs.limit(POPULAR_SONGS_LIMIT).sample
+    return redirect_to author_path(@author) unless song
+
+    redirect_to player_path(song, source: SongQueue::SOURCE_POPULAR)
   end
 
   private

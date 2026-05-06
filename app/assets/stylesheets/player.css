@@ -253,6 +253,10 @@
   transform: scale(0.96);
 }
 
+.player__ctrl.is-active {
+  color: var(--color-accent);
+}
+
 .player__ctrl--primary {
   background-color: var(--color-text-base);
   color: var(--color-bg-base);

@@ -35,6 +35,28 @@ RSpec.describe PlaylistsController, type: :request do
       end
     end
 
+    describe 'POST /playlists/:id/random_song' do
+      it 'redirects to the player for one of the playlist songs' do
+        playlist = create(:playlist, user: user)
+        song_a = create(:song)
+        song_b = create(:song)
+        create(:playlist_song, playlist: playlist, song: song_a)
+        create(:playlist_song, playlist: playlist, song: song_b)
+
+        post random_song_playlist_path(playlist)
+        expect(response).to be_redirect
+        expect(response.location).to match(
+          %r{/players/(#{song_a.slug}|#{song_b.slug})\?playlist_id=#{playlist.id}&source=#{SongQueue::SOURCE_PLAYLIST}}
+        )
+      end
+
+      it 'redirects back to the playlist when there are no songs' do
+        playlist = create(:playlist, user: user)
+        post random_song_playlist_path(playlist)
+        expect(response).to redirect_to(playlist_path(playlist))
+      end
+    end
+
     describe 'PATCH /playlists/:id/update_position' do
       let!(:playlist_a) { create(:playlist, user: user) }
       let!(:playlist_b) { create(:playlist, user: user) }

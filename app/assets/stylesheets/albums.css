@@ -115,6 +115,12 @@
   transform: scale(0.96);
 }
 
+.album-show__icon-form {
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
 .album-show__play {
   display: inline-flex;
   align-items: center;

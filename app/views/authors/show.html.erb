@@ -41,10 +41,15 @@
   </section>
 
   <div class="author-show__actions">
-    <div class="author-show__actions-right">
-      <button type="button" class="author-show__icon-btn" aria-label="Shuffle">
+    <div class="author-show__actions-left">
+      <%= button_to random_song_author_path(@author),
+                    form: { class: "author-show__icon-form", data: { turbo_stream: true } },
+                    class: "author-show__icon-btn",
+                    aria: { label: "Play a random song" } do %>
         <%= icon :shuffle, size: 22 %>
-      </button>
+      <% end %>
+    </div>
+    <div class="author-show__actions-right">
       <button type="button"
               class="author-show__play"
               aria-label="Play"

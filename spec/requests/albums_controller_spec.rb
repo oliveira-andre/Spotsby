@@ -32,6 +32,25 @@ RSpec.describe AlbumsController, type: :request do
         expect(response).to have_http_status(:not_found)
       end
     end
+
+    describe 'POST /albums/:id/random_song' do
+      it 'redirects to the player for one of the album songs' do
+        album_with_songs = create(:album)
+        song_a = create(:song, album: album_with_songs)
+        song_b = create(:song, album: album_with_songs)
+
+        post random_song_album_path(album_with_songs)
+        expect(response).to be_redirect
+        expect(response.location).to match(
+          %r{/players/(#{song_a.slug}|#{song_b.slug})\?source=#{SongQueue::SOURCE_ALBUM}}
+        )
+      end
+
+      it 'redirects back to the album when there are no songs' do
+        post random_song_album_path(album)
+        expect(response).to redirect_to(album_path(album))
+      end
+    end
   end
 end
 

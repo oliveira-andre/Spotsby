@@ -66,14 +66,21 @@
 .author-show__actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: var(--space-3);
 }
 
+.author-show__actions-left,
 .author-show__actions-right {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+.author-show__icon-form {
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
 }
 
 .author-show__icon-btn {

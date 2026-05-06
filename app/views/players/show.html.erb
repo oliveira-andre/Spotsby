@@ -92,9 +92,7 @@
     </div>
 
     <div class="player__controls">
-      <button type="button" class="player__ctrl" aria-label="Shuffle">
-        <%= icon :shuffle, size: 22 %>
-      </button>
+      <%= render "players/random_button" %>
       <%= button_to previous_players_path,
                     method: :post,
                     class: "player__ctrl",

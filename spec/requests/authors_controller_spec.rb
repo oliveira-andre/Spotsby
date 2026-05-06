@@ -39,5 +39,24 @@ RSpec.describe AuthorsController, type: :request do
         expect(response).to have_http_status(:ok)
       end
     end
+
+    describe 'POST /authors/:id/random_song' do
+      it 'redirects to the player for one of the popular songs' do
+        album = create(:album, author: author)
+        song_a = create(:song, album: album)
+        song_b = create(:song, album: album)
+        PopularSong.create!(author: author, song: song_a, position: 1)
+        PopularSong.create!(author: author, song: song_b, position: 2)
+
+        post random_song_author_path(author)
+        expect(response).to be_redirect
+        expect(response.location).to match(%r{/players/(#{song_a.slug}|#{song_b.slug})\?source=#{SongQueue::SOURCE_POPULAR}})
+      end
+
+      it 'redirects back to the author when there are no popular songs' do
+        post random_song_author_path(author)
+        expect(response).to redirect_to(author_path(author))
+      end
+    end
   end
 end

@@ -53,9 +53,12 @@
     <% album_saved = current_user.saved_album_names.include?(@album.name) %>
     <%= render "shared/album_heart", album: @album, saved: album_saved, button_class: "album-show__icon-btn", size: 24 %>
     <div class="album-show__actions-right">
-      <button type="button" class="album-show__icon-btn" aria-label="Shuffle">
+      <%= button_to random_song_album_path(@album),
+                    form: { class: "album-show__icon-form", data: { turbo_stream: true } },
+                    class: "album-show__icon-btn",
+                    aria: { label: "Play a random song" } do %>
         <%= icon :shuffle, size: 22 %>
-      </button>
+      <% end %>
       <button type="button"
               class="album-show__play"
               aria-label="Play"

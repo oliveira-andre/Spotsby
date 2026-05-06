@@ -1,0 +1,8 @@
+<%= button_to toggle_random_players_path,
+              id: "player_random_toggle",
+              form: { class: "player__ctrl-form", data: { turbo_stream: true } },
+              class: "player__ctrl #{'is-active' if current_user.random_mode?}",
+              aria: { label: current_user.random_mode? ? "Turn off random" : "Turn on random",
+                      pressed: current_user.random_mode? } do %>
+  <%= icon :shuffle, size: 22 %>
+<% end %>

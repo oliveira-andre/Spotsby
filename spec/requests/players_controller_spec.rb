@@ -65,6 +65,43 @@ RSpec.describe PlayersController, type: :request do
     end
   end
 
+  describe 'POST /players/toggle_random' do
+    it 'flips the random_mode flag and renders a turbo stream' do
+      expect {
+        post toggle_random_players_path, headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      }.to change { user.reload.random_mode }.from(false).to(true)
+
+      expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+      expect(response.body).to include("player_random_toggle")
+    end
+  end
+
+  describe 'POST /players/next when random_mode is on' do
+    it 'picks a random song from the current song category instead of an album sibling' do
+      user.update!(random_mode: true)
+      same_category_song = create(:song, album: album, position: 2, category: song.category)
+      create(:song_queue, user: user, song: song, source: SongQueue::SOURCE_ALBUM)
+
+      post next_players_path
+
+      latest = user.song_queues.unscope(:order).order(created_at: :desc).first
+      expect(latest.source).to eq(SongQueue::SOURCE_CATEGORY_SHUFFLE)
+      expect(latest.song).to eq(same_category_song)
+    end
+
+    it 'falls through to normal advancement when no other category song exists' do
+      user.update!(random_mode: true)
+      create(:song_queue, user: user, song: song, source: SongQueue::SOURCE_ALBUM)
+      next_song = create(:song, album: album, position: 2)
+
+      post next_players_path
+
+      latest = user.song_queues.unscope(:order).order(created_at: :desc).first
+      expect(latest.source).to eq(SongQueue::SOURCE_ALBUM)
+      expect(latest.song).to eq(next_song)
+    end
+  end
+
   describe 'POST /players/previous' do
     it 'goes to the previous album track when one exists' do
       first_song = song

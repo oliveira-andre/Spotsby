@@ -21,6 +21,14 @@ class PlayersController < ApplicationController
     advance(direction: :previous)
   end
 
+  def toggle_random
+    current_user.update!(random_mode: !current_user.random_mode)
+
+    respond_to do |format|
+      format.turbo_stream
+    end
+  end
+
   private
 
   def load_song
@@ -44,11 +52,26 @@ class PlayersController < ApplicationController
     current_song = latest&.song
     return redirect_back_or_to(root_path) unless current_song
 
+    if direction == :next && current_user.random_mode?
+      random_next = sample_category_song(current_song)
+      if random_next
+        record_queue_entry!(random_next, SongQueue::SOURCE_CATEGORY_SHUFFLE)
+        return redirect_to player_path(random_next)
+      end
+    end
+
     next_song, source, source_id = resolve_next(current_song, latest.source, latest.source_id, direction)
     return redirect_back_or_to(player_path(current_song)) unless next_song
 
     record_queue_entry!(next_song, source, source_id)
     redirect_to player_path(next_song)
+  end
+
+  def sample_category_song(current_song)
+    Song.where(category_id: current_song.category_id)
+        .where.not(id: current_song.id)
+        .order(Arel.sql("RANDOM()"))
+        .first
   end
 
   def resolve_next(current_song, current_source, current_source_id, direction)

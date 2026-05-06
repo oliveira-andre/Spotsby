@@ -28,6 +28,7 @@ Rails.application.routes.draw do
     member do
       get :song_picker
       patch :update_position
+      post :random_song
     end
     collection do
       get :create_options
@@ -39,6 +40,9 @@ Rails.application.routes.draw do
     end
   end
   resources :albums, only: %i[show] do
+    member do
+      post :random_song
+    end
     resources :songs, only: [], controller: "album_songs" do
       member do
         patch :update_position
@@ -48,12 +52,14 @@ Rails.application.routes.draw do
   resources :authors, only: %i[show] do
     member do
       get :all_songs
+      post :random_song
     end
   end
   resources :players, only: %i[show] do
     collection do
       post :next
       post :previous
+      post :toggle_random
     end
   end
 

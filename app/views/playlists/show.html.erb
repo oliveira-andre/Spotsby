@@ -51,9 +51,12 @@
                     aria: { label: "Add songs" } do %>
         <%= icon :plus, size: 22 %>
       <% end unless @playlist.position == 0 %>
-      <button type="button" class="playlist-show__icon-btn" aria-label="Shuffle">
+      <%= button_to random_song_playlist_path(@playlist),
+                    form: { class: "playlist-show__icon-form", data: { turbo_stream: true } },
+                    class: "playlist-show__icon-btn",
+                    aria: { label: "Play a random song" } do %>
         <%= icon :shuffle, size: 22 %>
-      </button>
+      <% end %>
     </div>
     <button type="button"
             class="playlist-show__play"
