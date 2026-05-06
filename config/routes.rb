@@ -7,11 +7,13 @@ Rails.application.routes.draw do
   get "search/results", to: "home#search_results", as: :search_results
   get "library", to: "home#library", as: :library
   get "manage", to: "home#manage", as: :manage
+  get "profile", to: "home#profile", as: :profile
   get "recent_albums", to: "home#recent_albums", as: :recent_albums
   get "recent_artists", to: "home#recent_artists", as: :recent_artists
   get "home_all", to: "home#all", as: :home_all
 
   resources :play_histories, only: %i[destroy]
+
   resources :favorites, only: %i[] do
     collection do
       post   "songs/:id",                        action: :create_song,          as: :song
@@ -23,38 +25,46 @@ Rails.application.routes.draw do
       delete "albums/:id",                       action: :destroy_album
     end
   end
+
   resources :categories, only: %i[show]
+
   resources :playlists, only: %i[show new create] do
     member do
       get :song_picker
       patch :update_position
       post :random_song
     end
+
     collection do
       get :create_options
     end
+
     resources :songs, only: [], controller: "playlist_songs" do
       member do
         patch :update_position
       end
     end
   end
+
   resources :albums, only: %i[show] do
     member do
       post :random_song
     end
+
     resources :songs, only: [], controller: "album_songs" do
       member do
         patch :update_position
       end
     end
   end
+
   resources :authors, only: %i[show] do
     member do
       get :all_songs
       post :random_song
     end
   end
+
   resources :players, only: %i[show] do
     collection do
       post :next

@@ -2,9 +2,13 @@
 
 # HomeController
 class HomeController < ApplicationController
+  before_action :load_profile_stats, only: :profile
+
   def index
     load_home_feed
   end
+
+  def profile; end
 
   def all
     load_home_feed
@@ -75,6 +79,36 @@ class HomeController < ApplicationController
   end
 
   private
+
+  def load_profile_stats
+    month_start = Time.current.beginning_of_month
+
+    @songs_played_this_month = current_user.play_histories
+                                            .where(created_at: month_start..)
+                                            .count
+
+    @playlists_count = current_user.playlists.where.not(position: 0).count
+
+    saved = current_user.saved_songs_playlist
+    @saved_songs_count = saved ? saved.playlist_songs.count : 0
+
+    @minutes_listened_this_month = current_user.play_histories
+                                                .joins(:song)
+                                                .where(created_at: month_start..)
+                                                .sum("songs.duration_ms")
+                                                .to_i / 60_000
+
+    @top_artist = Author.with_attached_image
+                        .joins(songs: :play_histories)
+                        .where(play_histories: { user_id: current_user.id, created_at: month_start.. })
+                        .group("authors.id")
+                        .order(Arel.sql("COUNT(play_histories.id) DESC"))
+                        .first
+
+    author_ids = current_user.authors.ids
+    @owned_albums_count = author_ids.any? ? Album.where(author_id: author_ids).count : 0
+    @owned_songs_count  = author_ids.any? ? Song.joins(:song_authors).where(song_authors: { author_id: author_ids }).distinct.count : 0
+  end
 
   def load_home_feed
     queue_includes = {

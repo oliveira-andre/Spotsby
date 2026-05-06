@@ -27,10 +27,10 @@
 
   <ul class="sidebar__menu">
     <li>
-      <a href="#" class="sidebar__link">
+      <%= link_to profile_path, class: "sidebar__link", data: { turbo_stream: true } do %>
         <%= icon :user, size: 20 %>
         <span>View profile</span>
-      </a>
+      <% end %>
     </li>
     <li>
       <a href="#" class="sidebar__link">

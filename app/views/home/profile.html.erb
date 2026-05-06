@@ -1,0 +1,90 @@
+<div class="profile">
+  <header class="profile__header">
+    <%= link_to root_path,
+                class: "profile__back",
+                data: { turbo_stream: true, controller: "back-link" },
+                aria: { label: "Back" } do %>
+      <%= icon :chevron_left, size: 24 %>
+    <% end %>
+    <h1 class="profile__title">Profile</h1>
+  </header>
+
+  <section class="profile__hero">
+    <% if current_user.avatar.attached? %>
+      <%= image_tag current_user.avatar, class: "avatar avatar--xl", loading: "lazy" %>
+    <% else %>
+      <div class="avatar avatar--xl avatar--initials">
+        <%= user_initials(current_user) %>
+      </div>
+    <% end %>
+
+    <div class="profile__identity">
+      <p class="profile__name"><%= user_display_name(current_user) %></p>
+      <p class="profile__email"><%= current_user.email_address %></p>
+      <p class="profile__since">Member since <%= current_user.created_at.strftime("%B %Y") %></p>
+    </div>
+  </section>
+
+  <section class="profile__section">
+    <h2 class="profile__section-title">This month</h2>
+    <ul class="profile-stats">
+      <li class="profile-stat">
+        <span class="profile-stat__value"><%= number_with_delimiter(@songs_played_this_month) %></span>
+        <span class="profile-stat__label">Songs played</span>
+      </li>
+      <li class="profile-stat">
+        <span class="profile-stat__value"><%= number_with_delimiter(@minutes_listened_this_month) %></span>
+        <span class="profile-stat__label">Minutes listened</span>
+      </li>
+    </ul>
+
+    <% if @top_artist %>
+      <%= link_to author_path(@top_artist), class: "profile-top-artist" do %>
+        <% if @top_artist.image.attached? %>
+          <%= image_tag @top_artist.image, class: "profile-top-artist__art", loading: "lazy" %>
+        <% else %>
+          <div class="profile-top-artist__art profile-top-artist__art--placeholder"></div>
+        <% end %>
+        <div class="profile-top-artist__meta">
+          <span class="profile-top-artist__label">Top artist</span>
+          <span class="profile-top-artist__name"><%= @top_artist.name %></span>
+        </div>
+        <%= icon :chevron_right, size: 20 %>
+      <% end %>
+    <% end %>
+  </section>
+
+  <section class="profile__section">
+    <h2 class="profile__section-title">Your library</h2>
+    <ul class="profile-stats">
+      <li class="profile-stat">
+        <span class="profile-stat__value"><%= number_with_delimiter(@playlists_count) %></span>
+        <span class="profile-stat__label">Playlists</span>
+      </li>
+      <li class="profile-stat">
+        <span class="profile-stat__value"><%= number_with_delimiter(@saved_songs_count) %></span>
+        <span class="profile-stat__label">Saved songs</span>
+      </li>
+    </ul>
+  </section>
+
+  <% if @owned_albums_count.positive? || @owned_songs_count.positive? %>
+    <section class="profile__section">
+      <h2 class="profile__section-title">As an artist</h2>
+      <ul class="profile-stats">
+        <% if @owned_albums_count.positive? %>
+          <li class="profile-stat">
+            <span class="profile-stat__value"><%= number_with_delimiter(@owned_albums_count) %></span>
+            <span class="profile-stat__label">Albums</span>
+          </li>
+        <% end %>
+        <% if @owned_songs_count.positive? %>
+          <li class="profile-stat">
+            <span class="profile-stat__value"><%= number_with_delimiter(@owned_songs_count) %></span>
+            <span class="profile-stat__label">Songs</span>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+</div>
