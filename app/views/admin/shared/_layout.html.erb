@@ -1,0 +1,18 @@
+<div class="admin" data-controller="admin-sidebar">
+  <header class="admin__topbar">
+    <button type="button"
+            class="admin__burger"
+            aria-label="Toggle navigation"
+            data-action="click->admin-sidebar#toggle">
+      <%= icon :bars, size: 22 %>
+    </button>
+    <h1 class="admin__title"><%= title %></h1>
+  </header>
+
+  <div class="admin__layout">
+    <%= render "admin/shared/sidebar" %>
+    <main class="admin__main">
+      <%= yield %>
+    </main>
+  </div>
+</div>

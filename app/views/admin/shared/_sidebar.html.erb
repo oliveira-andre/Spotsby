@@ -1,0 +1,47 @@
+<aside class="admin-sidebar" aria-label="Admin navigation">
+  <div class="admin-sidebar__brand">
+    <%= icon :admin, size: 22 %>
+    <span class="admin-sidebar__brand-text">Admin</span>
+  </div>
+
+  <nav class="admin-sidebar__nav">
+    <%= link_to admin_dashboard_path,
+                class: "admin-sidebar__link #{'is-active' if current_page?(admin_dashboard_path)}",
+                data: { turbo_stream: true, action: "click->admin-sidebar#closeOnMobile" } do %>
+      <%= icon :grid, size: 20 %>
+      <span>Dashboard</span>
+    <% end %>
+
+    <a href="#" class="admin-sidebar__link" data-action="click->admin-sidebar#closeOnMobile">
+      <%= icon :folder, size: 20 %>
+      <span>Categories</span>
+    </a>
+
+    <a href="#" class="admin-sidebar__link" data-action="click->admin-sidebar#closeOnMobile">
+      <%= icon :users, size: 20 %>
+      <span>Users</span>
+    </a>
+
+    <a href="#" class="admin-sidebar__link" data-action="click->admin-sidebar#closeOnMobile">
+      <%= icon :microphone, size: 20 %>
+      <span>Authors</span>
+    </a>
+
+    <a href="#" class="admin-sidebar__link" data-action="click->admin-sidebar#closeOnMobile">
+      <%= icon :disc, size: 20 %>
+      <span>Albums</span>
+    </a>
+
+    <a href="#" class="admin-sidebar__link" data-action="click->admin-sidebar#closeOnMobile">
+      <%= icon :music, size: 20 %>
+      <span>Songs</span>
+    </a>
+
+    <a href="#" class="admin-sidebar__link" data-action="click->admin-sidebar#closeOnMobile">
+      <%= icon :heart, size: 20 %>
+      <span>Playlists</span>
+    </a>
+  </nav>
+</aside>
+
+<div class="admin-sidebar__backdrop" data-action="click->admin-sidebar#close"></div>

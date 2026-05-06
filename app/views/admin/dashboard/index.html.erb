@@ -1,1 +1,150 @@
-<h1>Admin Dashboard</h1>
+<%= render "admin/shared/layout", title: "Dashboard" do %>
+  <section class="admin-dashboard">
+    <ul class="admin-stats">
+      <li class="admin-stat">
+        <span class="admin-stat__icon"><%= icon :users, size: 20 %></span>
+        <span class="admin-stat__value"><%= number_with_delimiter(@stats[:users]) %></span>
+        <span class="admin-stat__label">Users</span>
+      </li>
+      <li class="admin-stat">
+        <span class="admin-stat__icon"><%= icon :folder, size: 20 %></span>
+        <span class="admin-stat__value"><%= number_with_delimiter(@stats[:categories]) %></span>
+        <span class="admin-stat__label">Categories</span>
+      </li>
+      <li class="admin-stat">
+        <span class="admin-stat__icon"><%= icon :microphone, size: 20 %></span>
+        <span class="admin-stat__value"><%= number_with_delimiter(@stats[:authors]) %></span>
+        <span class="admin-stat__label">Authors</span>
+      </li>
+      <li class="admin-stat">
+        <span class="admin-stat__icon"><%= icon :disc, size: 20 %></span>
+        <span class="admin-stat__value"><%= number_with_delimiter(@stats[:albums]) %></span>
+        <span class="admin-stat__label">Albums</span>
+      </li>
+      <li class="admin-stat">
+        <span class="admin-stat__icon"><%= icon :music, size: 20 %></span>
+        <span class="admin-stat__value"><%= number_with_delimiter(@stats[:songs]) %></span>
+        <span class="admin-stat__label">Songs</span>
+      </li>
+      <li class="admin-stat">
+        <span class="admin-stat__icon"><%= icon :heart, size: 20 %></span>
+        <span class="admin-stat__value"><%= number_with_delimiter(@stats[:playlists]) %></span>
+        <span class="admin-stat__label">Playlists</span>
+      </li>
+    </ul>
+
+    <div class="admin-latest">
+      <section class="admin-panel">
+        <header class="admin-panel__header">
+          <h2 class="admin-panel__title">Latest users</h2>
+        </header>
+        <% if @latest_users.any? %>
+          <ul class="admin-list">
+            <% @latest_users.each do |user| %>
+              <li class="admin-list__row">
+                <% if user.avatar.attached? %>
+                  <%= image_tag user.avatar, class: "admin-list__art admin-list__art--round", loading: "lazy", alt: "" %>
+                <% else %>
+                  <span class="admin-list__art admin-list__art--round admin-list__art--initials">
+                    <%= user_initials(user) %>
+                  </span>
+                <% end %>
+                <div class="admin-list__meta">
+                  <span class="admin-list__name"><%= user_display_name(user) %></span>
+                  <span class="admin-list__sub"><%= user.email_address %></span>
+                </div>
+                <span class="admin-list__date"><%= time_ago_in_words(user.created_at) %> ago</span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="admin-list__empty">No users yet</p>
+        <% end %>
+      </section>
+
+      <section class="admin-panel">
+        <header class="admin-panel__header">
+          <h2 class="admin-panel__title">Latest authors</h2>
+        </header>
+        <% if @latest_authors.any? %>
+          <ul class="admin-list">
+            <% @latest_authors.each do |author| %>
+              <li class="admin-list__row">
+                <% if author.image.attached? %>
+                  <%= image_tag author.image, class: "admin-list__art admin-list__art--round", loading: "lazy", alt: "" %>
+                <% else %>
+                  <span class="admin-list__art admin-list__art--round admin-list__art--placeholder">
+                    <%= icon :microphone, size: 18 %>
+                  </span>
+                <% end %>
+                <div class="admin-list__meta">
+                  <span class="admin-list__name"><%= author.name %></span>
+                  <span class="admin-list__sub">Author</span>
+                </div>
+                <span class="admin-list__date"><%= time_ago_in_words(author.created_at) %> ago</span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="admin-list__empty">No authors yet</p>
+        <% end %>
+      </section>
+
+      <section class="admin-panel">
+        <header class="admin-panel__header">
+          <h2 class="admin-panel__title">Latest albums</h2>
+        </header>
+        <% if @latest_albums.any? %>
+          <ul class="admin-list">
+            <% @latest_albums.each do |album| %>
+              <li class="admin-list__row">
+                <% if album.image.attached? %>
+                  <%= image_tag album.image, class: "admin-list__art", loading: "lazy", alt: "" %>
+                <% else %>
+                  <span class="admin-list__art admin-list__art--placeholder">
+                    <%= icon :disc, size: 18 %>
+                  </span>
+                <% end %>
+                <div class="admin-list__meta">
+                  <span class="admin-list__name"><%= album.name %></span>
+                  <span class="admin-list__sub"><%= album.author.name %></span>
+                </div>
+                <span class="admin-list__date"><%= time_ago_in_words(album.created_at) %> ago</span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="admin-list__empty">No albums yet</p>
+        <% end %>
+      </section>
+
+      <section class="admin-panel">
+        <header class="admin-panel__header">
+          <h2 class="admin-panel__title">Latest songs</h2>
+        </header>
+        <% if @latest_songs.any? %>
+          <ul class="admin-list">
+            <% @latest_songs.each do |song| %>
+              <li class="admin-list__row">
+                <% if song.image.attached? %>
+                  <%= image_tag song.image, class: "admin-list__art", loading: "lazy", alt: "" %>
+                <% else %>
+                  <span class="admin-list__art admin-list__art--placeholder">
+                    <%= icon :music, size: 18 %>
+                  </span>
+                <% end %>
+                <div class="admin-list__meta">
+                  <span class="admin-list__name"><%= song.name %></span>
+                  <span class="admin-list__sub"><%= song.authors.map(&:name).join(", ").presence || song.album&.name %></span>
+                </div>
+                <span class="admin-list__date"><%= time_ago_in_words(song.created_at) %> ago</span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="admin-list__empty">No songs yet</p>
+        <% end %>
+      </section>
+    </div>
+  </section>
+<% end %>
