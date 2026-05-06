@@ -3,6 +3,10 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["panel", "backdrop"]
 
+  disconnect() {
+    document.body.style.overflow = ""
+  }
+
   open() {
     this.element.dataset.sidebarOpen = "true"
     document.body.style.overflow = "hidden"

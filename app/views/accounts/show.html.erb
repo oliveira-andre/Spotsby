@@ -1,0 +1,116 @@
+<div class="account">
+  <header class="account__header">
+    <%= link_to root_path,
+                class: "account__back",
+                data: { turbo_stream: true, controller: "back-link" },
+                aria: { label: "Back" } do %>
+      <%= icon :chevron_left, size: 24 %>
+    <% end %>
+    <h1 class="account__title">Account</h1>
+  </header>
+
+  <% if flash[:notice] %>
+    <div class="flash flash--notice" role="status"><%= flash[:notice] %></div>
+  <% end %>
+  <% if flash.now[:alert] || flash[:alert] %>
+    <div class="flash flash--alert" role="alert"><%= flash.now[:alert] || flash[:alert] %></div>
+  <% end %>
+
+  <section class="account__section">
+    <h2 class="account__section-title">Profile</h2>
+    <%= form_with model: current_user, url: account_path, method: :patch, class: "form", data: { turbo_frame: "_top" } do |form| %>
+      <div class="account__row">
+        <div class="form-field">
+          <%= form.label :first_name, "First name", class: "label" %>
+          <%= form.text_field :first_name, class: "input", autocomplete: "given-name" %>
+        </div>
+        <div class="form-field">
+          <%= form.label :last_name, "Last name", class: "label" %>
+          <%= form.text_field :last_name, class: "input", autocomplete: "family-name" %>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <%= form.label :email_address, "Email address", class: "label" %>
+        <%= form.email_field :email_address,
+              value: current_user.email_address,
+              class: "input",
+              disabled: true,
+              autocomplete: "username" %>
+        <span class="field-hint">Email cannot be changed.</span>
+      </div>
+
+      <%= form.submit "Save changes", class: "btn btn--primary btn--uppercase" %>
+    <% end %>
+  </section>
+
+  <hr class="divider">
+
+  <section class="account__section">
+    <h2 class="account__section-title">Password</h2>
+    <%= form_with model: current_user, url: account_path, method: :patch, class: "form", data: { turbo_frame: "_top" } do |form| %>
+      <div class="form-field">
+        <%= form.label :current_password, "Current password", class: "label" %>
+        <%= form.password_field :current_password,
+              class: "input",
+              required: true,
+              autocomplete: "current-password",
+              maxlength: 72 %>
+      </div>
+
+      <div class="form-field" data-controller="password-strength">
+        <%= form.label :password, "New password", class: "label" %>
+        <%= form.password_field :password,
+              class: "input",
+              required: true,
+              autocomplete: "new-password",
+              maxlength: 72,
+              data: {
+                password_strength_target: "input",
+                action: "input->password-strength#evaluate"
+              } %>
+
+        <div class="password-strength"
+             data-password-strength-target="meter"
+             data-strength="0">
+          <div class="password-strength__bar" aria-hidden="true">
+            <span class="password-strength__segment"></span>
+            <span class="password-strength__segment"></span>
+            <span class="password-strength__segment"></span>
+            <span class="password-strength__segment"></span>
+          </div>
+          <div class="password-strength__label">
+            <span>Password strength</span>
+            <span class="password-strength__label-value"
+                  data-password-strength-target="label">Too short</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <%= form.label :password_confirmation, "Confirm new password", class: "label" %>
+        <%= form.password_field :password_confirmation,
+              class: "input",
+              required: true,
+              autocomplete: "new-password",
+              maxlength: 72 %>
+      </div>
+
+      <%= form.submit "Update password", class: "btn btn--primary btn--uppercase" %>
+    <% end %>
+  </section>
+
+  <hr class="divider">
+
+  <section class="account__section account__section--danger">
+    <h2 class="account__section-title">Danger zone</h2>
+    <p class="account__danger-copy">
+      Deleting your account is permanent. Your playlists, history and saved songs will be removed and cannot be recovered.
+    </p>
+    <%= button_to "Delete account",
+                  account_path,
+                  method: :delete,
+                  class: "btn btn--outlined btn--uppercase account__delete",
+                  form: { data: { turbo_confirm: "This will permanently delete your account. Continue?", turbo_frame: "_top" } } %>
+  </section>
+</div>

@@ -33,10 +33,10 @@
       <% end %>
     </li>
     <li>
-      <a href="#" class="sidebar__link">
+      <%= link_to account_path, class: "sidebar__link", data: { turbo_stream: true } do %>
         <%= icon :gear, size: 20 %>
         <span>Account</span>
-      </a>
+      <% end %>
     </li>
   </ul>
 

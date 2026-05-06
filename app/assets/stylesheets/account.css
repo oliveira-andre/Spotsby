@@ -1,0 +1,91 @@
+.account {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  padding: var(--space-4) var(--space-5) var(--space-9);
+  min-height: 100vh;
+  background-color: var(--color-bg-base);
+}
+
+.account__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.account__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-circle);
+  color: var(--color-text-base);
+  background-color: transparent;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.account__back:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+}
+
+.account__title {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-base);
+  margin: 0;
+}
+
+.account__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.account__section-title {
+  font-family: var(--font-ui);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-base);
+  margin: 0;
+}
+
+.account__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.account__section--danger .account__section-title {
+  color: var(--color-negative);
+}
+
+.account__danger-copy {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.account__delete.btn--outlined {
+  border-color: var(--color-negative);
+  color: var(--color-negative);
+  align-self: flex-start;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.account__delete.btn--outlined:hover {
+  background-color: rgba(243, 114, 127, 0.12);
+  color: var(--color-negative);
+}
+
+@media (max-width: 575px) {
+  .account__row {
+    grid-template-columns: 1fr;
+  }
+}

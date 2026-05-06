@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   resource :session
   resource :registration, only: %i[new create]
+  resource :account, only: %i[show update destroy]
   resources :passwords, param: :token
 
   get "search", to: "home#search", as: :search
