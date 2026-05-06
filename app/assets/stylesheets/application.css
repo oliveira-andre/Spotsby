@@ -1,32 +1,4 @@
 /*
- * Application stylesheet manifest.
- * Shared tokens/components live in shared/, page-specific files sit
- * alongside this one. Imports are resolved by Propshaft from the
- * stylesheets load path.
+ * Stylesheet manifest. Each .css file in app/assets/stylesheets/ is loaded
+ * individually by `stylesheet_link_tag :app`, so no @imports are needed here.
  */
-
-@import "shared/variables.css";
-@import "shared/reset.css";
-@import "shared/typography.css";
-@import "shared/buttons.css";
-@import "shared/inputs.css";
-@import "shared/forms.css";
-@import "shared/auth.css";
-@import "shared/avatar.css";
-@import "shared/filters.css";
-@import "shared/sidebar.css";
-@import "shared/footer-nav.css";
-@import "shared/modal.css";
-
-@import "registrations.css";
-@import "home.css";
-@import "search.css";
-@import "player.css";
-@import "categories.css";
-@import "albums.css";
-@import "authors.css";
-@import "library.css";
-@import "playlists.css";
-@import "profile.css";
-@import "account.css";
-@import "admin.css";
