@@ -2,24 +2,29 @@
 service: spotsby
 
 # Name of the container image.
-image: your-user/spotsby
+image: oliveiraandre/spotsby
 
 # Deploy to these servers.
+# TLS and host routing are handled by Caddy on the host (see Caddyfile snippet
+# below); Kamal just publishes the app container to 127.0.0.1:3050.
 servers:
   web:
-    - 192.168.0.1
+    hosts:
+      - <%= ENV.fetch("SPOTSBY_HOST") %>
+    options:
+      publish: ["127.0.0.1:3050:80"]
   # job:
   #   hosts:
   #     - 192.168.0.1
   #   cmd: bin/jobs
 
-# Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
-# Remove this section when using multiple web servers and ensure you terminate SSL at your load balancer.
+# Caddy on the host terminates TLS and proxies to the container, so disable
+# kamal-proxy. Caddyfile entry to add on the server:
 #
-# Note: If using Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
-proxy:
-  ssl: true
-  host: app.example.com
+#   music.codeline.online {
+#     reverse_proxy localhost:3050
+#   }
+proxy: false
 
 # Credentials for your image host.
 registry:

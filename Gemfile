@@ -47,6 +47,10 @@ gem "pagy"
 gem "pundit"
 
 group :development, :test do
+  # Loads environment variables from .env files (also provides the `dotenv` CLI
+  # used to wrap kamal: `dotenv -- bin/kamal deploy`).
+  gem "dotenv-rails"
+
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
