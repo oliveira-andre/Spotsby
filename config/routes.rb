@@ -87,7 +87,11 @@ Rails.application.routes.draw do
         resources :songs, only: %i[new create], controller: "album_songs"
       end
     end
-    resources :albums, only: %i[edit update destroy]
+    resources :albums, only: %i[index new edit update destroy] do
+      collection do
+        post :select_author
+      end
+    end
     resources :songs, only: %i[edit update destroy] do
       member do
         patch :update_position

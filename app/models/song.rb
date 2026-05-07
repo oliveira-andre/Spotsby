@@ -14,14 +14,14 @@ class Song < ApplicationRecord
   belongs_to :category
   belongs_to :album
 
-  has_many :song_authors
-  has_many :authors, through: :song_authors
+  has_many :song_authors, dependent: :destroy
+  has_many :authors, through: :song_authors, dependent: :destroy
 
-  has_many :playlist_songs
-  has_many :playlists, through: :playlist_songs
+  has_many :playlist_songs, dependent: :nullify
+  has_many :playlists, through: :playlist_songs, dependent: :destroy
 
-  has_many :play_histories
-  has_many :users, through: :play_histories
+  has_many :play_histories, dependent: :destroy
+  has_many :users, through: :play_histories, dependent: :destroy
 
   has_many :popular_songs, dependent: :destroy
 

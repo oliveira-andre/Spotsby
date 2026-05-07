@@ -1,0 +1,50 @@
+<% content_for :title, "Albums" %>
+
+<section class="admin-albums">
+  <header class="admin-albums__header">
+    <%= form_with url: admin_albums_path,
+                  method: :get,
+                  class: "admin-albums__search",
+                  data: { turbo_frame: "albums-frame", controller: "auto-submit" } do |form| %>
+      <%= icon :magnifying_glass, size: 18 %>
+      <%= form.search_field :q,
+            value: params[:q],
+            placeholder: "Search albums",
+            class: "admin-albums__search-input",
+            data: { action: "input->auto-submit#submit" } %>
+    <% end %>
+
+    <%= link_to new_admin_album_path,
+                class: "admin-albums__new",
+                aria: { label: "New album" },
+                data: { turbo_frame: "album-form-modal" } do %>
+      <%= icon :plus, size: 18 %>
+    <% end %>
+  </header>
+
+  <%= turbo_frame_tag "albums-frame" do %>
+    <% if @albums.any? %>
+      <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
+        <ul class="admin-albums__list"
+            <%= 'id="albums-list"'.html_safe if @pagy.page == 1 %>>
+          <%= render partial: "admin/albums/album", collection: @albums, as: :album %>
+        </ul>
+
+        <% if @pagy.next %>
+          <%= turbo_frame_tag :page, @pagy.next,
+                              src: admin_albums_path(page: @pagy.next, q: params[:q]),
+                              loading: :lazy,
+                              target: :_top do %>
+            <p class="admin-albums__loading">Loading...</p>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="admin-albums__empty">
+        <%= params[:q].present? ? "No albums matched “#{params[:q]}”." : "No albums yet." %>
+      </p>
+    <% end %>
+  <% end %>
+
+  <%= turbo_frame_tag "album-form-modal" %>
+</section>

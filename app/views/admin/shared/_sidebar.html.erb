@@ -33,10 +33,12 @@
       <span>Authors</span>
     <% end %>
 
-    <a href="#" class="admin-sidebar__link" data-action="click->admin-sidebar#closeOnMobile">
+    <%= link_to admin_albums_path,
+                class: "admin-sidebar__link #{'is-active' if controller_path == 'admin/albums'}",
+                data: { action: "click->admin-sidebar#closeOnMobile" } do %>
       <%= icon :disc, size: 20 %>
       <span>Albums</span>
-    </a>
+    <% end %>
 
     <a href="#" class="admin-sidebar__link" data-action="click->admin-sidebar#closeOnMobile">
       <%= icon :music, size: 20 %>

@@ -1,0 +1,5 @@
+<%= turbo_stream.replace dom_id(@album) do %>
+  <%= render "admin/albums/album", album: @album %>
+<% end %>
+
+<%= turbo_stream.update "album-form-modal" %>

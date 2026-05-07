@@ -19,7 +19,7 @@ module Admin
         end
       else
         render turbo_stream: turbo_stream.update(
-          "author-wizard-step",
+          "wizard-step",
           partial: "admin/authors/wizard_song",
           locals: { author: @author, album: @album, song: @song }
         ), status: :unprocessable_content

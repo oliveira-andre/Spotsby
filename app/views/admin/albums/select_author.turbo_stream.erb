@@ -1,0 +1,7 @@
+<%= turbo_stream.update "wizard-summary" do %>
+  <%= render "admin/authors/wizard_summary", author: @author, album: nil, songs: [], step: :album %>
+<% end %>
+
+<%= turbo_stream.update "wizard-step" do %>
+  <%= render "admin/authors/wizard_album", author: @author, album: @album %>
+<% end %>

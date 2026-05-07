@@ -1,0 +1,37 @@
+<li class="admin-album" id="<%= dom_id(album) %>">
+  <% if album.image.attached? %>
+    <%= image_tag album.image, class: "admin-album__art", loading: "lazy", alt: "" %>
+  <% else %>
+    <span class="admin-album__art admin-album__art--placeholder">
+      <%= icon :disc, size: 22 %>
+    </span>
+  <% end %>
+
+  <div class="admin-album__meta">
+    <span class="admin-album__name"><%= album.name %></span>
+    <span class="admin-album__sub">
+      <%= album.author.name %>
+      <% if album.release_date %>
+        <span class="admin-album__dot">·</span>
+        <%= album.release_date.year %>
+      <% end %>
+    </span>
+  </div>
+
+  <div class="admin-album__actions">
+    <%= link_to edit_admin_album_path(album),
+                class: "admin-author__icon-btn",
+                aria: { label: "Edit" },
+                data: { turbo_frame: "album-form-modal" } do %>
+      <%= icon :pencil, size: 18 %>
+    <% end %>
+
+    <%= button_to admin_album_path(album),
+                  method: :delete,
+                  form: { class: "admin-author__icon-form", data: { turbo_confirm: "Delete \"#{album.name}\"?" } },
+                  class: "admin-author__icon-btn admin-author__icon-btn--danger",
+                  aria: { label: "Delete" } do %>
+      <%= icon :trash, size: 18 %>
+    <% end %>
+  </div>
+</li>

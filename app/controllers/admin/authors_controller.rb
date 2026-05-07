@@ -26,7 +26,7 @@ module Admin
         end
       else
         render turbo_stream: turbo_stream.update(
-          "author-wizard-step",
+          "wizard-step",
           partial: "admin/authors/wizard_author",
           locals: { author: @author }
         ), status: :unprocessable_content

@@ -1,0 +1,36 @@
+<%= form_with url: select_author_admin_albums_path,
+              method: :post,
+              class: "admin-modal__form" do %>
+
+  <% if authors.any? %>
+    <ul class="author-picker">
+      <% authors.each do |author| %>
+        <li>
+          <label class="author-picker__item">
+            <input type="radio"
+                   name="author_id"
+                   value="<%= author.id %>"
+                   required
+                   class="author-picker__input">
+            <% if author.image.attached? %>
+              <%= image_tag author.image, class: "author-picker__art", loading: "lazy", alt: "" %>
+            <% else %>
+              <span class="author-picker__art author-picker__art--placeholder">
+                <%= icon :microphone, size: 18 %>
+              </span>
+            <% end %>
+            <span class="author-picker__name"><%= author.name %></span>
+            <span class="author-picker__check" aria-hidden="true"></span>
+          </label>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="author-picker__empty">No authors yet. Create one before adding an album.</p>
+  <% end %>
+
+  <div class="admin-modal__actions">
+    <%= submit_tag "Continue", class: "btn btn--primary btn--uppercase", disabled: authors.empty? %>
+    <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close">Cancel</button>
+  </div>
+<% end %>

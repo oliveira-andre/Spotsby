@@ -1,10 +1,10 @@
 <% songs = @album.songs.ordered.to_a %>
 <% next_song = @album.songs.build %>
 
-<%= turbo_stream.update "author-wizard-summary" do %>
+<%= turbo_stream.update "wizard-summary" do %>
   <%= render "admin/authors/wizard_summary", author: @author, album: @album, songs: songs, step: :song %>
 <% end %>
 
-<%= turbo_stream.update "author-wizard-step" do %>
+<%= turbo_stream.update "wizard-step" do %>
   <%= render "admin/authors/wizard_song", author: @author, album: @album, song: next_song %>
 <% end %>
