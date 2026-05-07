@@ -46,6 +46,12 @@
   align-items: center;
   gap: var(--space-3);
   min-width: 0;
+  flex: 1;
+}
+
+.sidebar__user-meta {
+  flex: 1;
+  min-width: 0;
 }
 
 .sidebar__name {
