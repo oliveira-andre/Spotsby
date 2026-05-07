@@ -11,6 +11,7 @@ servers:
   web:
     hosts:
       - <%= ENV.fetch("SPOTSBY_HOST") %>
+    proxy: false
     options:
       publish: ["127.0.0.1:3050:80"]
   # job:
@@ -18,15 +19,6 @@ servers:
   #     - 192.168.0.1
   #   cmd: bin/jobs
 
-# Caddy on the host terminates TLS and proxies to the container, so disable
-# kamal-proxy. Caddyfile entry to add on the server:
-#
-#   music.codeline.online {
-#     reverse_proxy localhost:3050
-#   }
-# proxy: false
-
-# Credentials for your image host.
 registry:
   # Specify the registry server, if you're not using Docker Hub
   # server: registry.digitalocean.com / ghcr.io / ...
