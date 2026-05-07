@@ -10,7 +10,7 @@ class Album < ApplicationRecord
   belongs_to :category
   belongs_to :author
 
-  has_many :songs, -> { ordered }
+  has_many :songs, -> { ordered }, dependent: :destroy
   scope :ordered, -> { order(position: :asc) }
 
   validates :name, presence: true, uniqueness: { scope: :author_id }

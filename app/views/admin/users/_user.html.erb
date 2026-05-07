@@ -1,0 +1,37 @@
+<li class="admin-user" id="<%= dom_id(user) %>">
+  <% if user.avatar.attached? %>
+    <%= image_tag user.avatar, class: "admin-user__art", loading: "lazy", alt: "" %>
+  <% else %>
+    <span class="admin-user__art admin-user__art--initials">
+      <%= user_initials(user) %>
+    </span>
+  <% end %>
+
+  <div class="admin-user__meta">
+    <span class="admin-user__name"><%= user_display_name(user) %></span>
+    <span class="admin-user__email"><%= user.email_address %></span>
+  </div>
+
+  <span class="admin-user__status admin-user__status--<%= user.status %>">
+    <%= user.status.capitalize %>
+  </span>
+
+  <div class="admin-user__actions">
+    <%= link_to edit_admin_user_path(user),
+                class: "admin-user__icon-btn",
+                aria: { label: "Edit" },
+                data: { turbo_frame: "user-form-modal" } do %>
+      <%= icon :pencil, size: 18 %>
+    <% end %>
+
+    <% if user != current_user %>
+      <%= button_to admin_user_path(user),
+                    method: :delete,
+                    form: { class: "admin-user__icon-form", data: { turbo_confirm: "Delete \"#{user_display_name(user)}\"?" } },
+                    class: "admin-user__icon-btn admin-user__icon-btn--danger",
+                    aria: { label: "Delete" } do %>
+        <%= icon :trash, size: 18 %>
+      <% end %>
+    <% end %>
+  </div>
+</li>

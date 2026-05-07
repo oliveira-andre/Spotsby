@@ -1,0 +1,5 @@
+<%= turbo_stream.append "users-list" do %>
+  <%= render "admin/users/user", user: @user %>
+<% end %>
+
+<%= turbo_stream.update "user-form-modal" %>

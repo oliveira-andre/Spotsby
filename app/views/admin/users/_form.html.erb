@@ -1,0 +1,101 @@
+<div class="admin-modal" id="user-form" data-controller="admin-modal" data-admin-modal-auto-open-value="true">
+  <div class="admin-modal__backdrop" data-action="click->admin-modal#close"></div>
+
+  <div class="admin-modal__panel" data-admin-modal-target="panel" role="dialog" aria-modal="true">
+    <header class="admin-modal__header">
+      <h2 class="admin-modal__title"><%= user.persisted? ? "Edit user" : "New user" %></h2>
+      <button type="button" class="admin-modal__close" aria-label="Close" data-action="click->admin-modal#close">
+        <%= icon :close, size: 18 %>
+      </button>
+    </header>
+
+    <% if user.errors.any? %>
+      <div class="flash flash--alert" role="alert">
+        <%= user.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <%= form_with model: [:admin, user],
+                  multipart: true,
+                  class: "admin-modal__form",
+                  data: { controller: "image-preview" } do |form| %>
+      <div class="admin-modal__grid">
+        <label class="admin-modal__cover admin-modal__cover--round" data-image-preview-target="dropzone">
+          <%= form.file_field :avatar,
+                              accept: "image/png,image/jpeg,image/gif",
+                              class: "admin-modal__file",
+                              data: { image_preview_target: "input", action: "change->image-preview#preview" } %>
+          <% if user.avatar.attached? %>
+            <%= image_tag user.avatar, class: "admin-modal__preview", data: { image_preview_target: "preview" }, alt: "" %>
+            <span class="admin-modal__placeholder" data-image-preview-target="placeholder" hidden>
+              <%= icon :user, size: 36 %>
+              <span>Choose photo</span>
+            </span>
+          <% else %>
+            <img class="admin-modal__preview" data-image-preview-target="preview" alt="" hidden>
+            <span class="admin-modal__placeholder" data-image-preview-target="placeholder">
+              <%= icon :user, size: 36 %>
+              <span>Choose photo</span>
+            </span>
+          <% end %>
+        </label>
+
+        <div class="admin-modal__fields">
+          <div class="admin-modal__row">
+            <div class="form-field">
+              <%= form.label :first_name, "First name", class: "label" %>
+              <%= form.text_field :first_name, class: "input", autofocus: true %>
+            </div>
+            <div class="form-field">
+              <%= form.label :last_name, "Last name", class: "label" %>
+              <%= form.text_field :last_name, class: "input" %>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <%= form.label :email_address, "Email", class: "label" %>
+            <%= form.email_field :email_address, class: "input", required: true %>
+          </div>
+
+          <div class="admin-modal__row">
+            <div class="form-field">
+              <%= form.label :status, "Status", class: "label" %>
+              <%= form.select :status,
+                              User.statuses.keys.map { |s| [s.capitalize, s] },
+                              {},
+                              class: "input" %>
+            </div>
+            <div class="form-field">
+              <%= form.label :birthdate, "Birthdate", class: "label" %>
+              <%= form.date_field :birthdate, class: "input" %>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <%= form.label :password, "Password", class: "label" %>
+            <%= form.password_field :password,
+                                    class: "input",
+                                    autocomplete: "new-password",
+                                    required: !user.persisted? %>
+            <% if user.persisted? %>
+              <span class="form-field__hint">Leave blank to keep current password.</span>
+            <% end %>
+          </div>
+
+          <div class="form-field">
+            <%= form.label :password_confirmation, "Confirm password", class: "label" %>
+            <%= form.password_field :password_confirmation,
+                                    class: "input",
+                                    autocomplete: "new-password",
+                                    required: !user.persisted? %>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-modal__actions">
+        <%= form.submit "Save", class: "btn btn--primary btn--uppercase" %>
+        <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close">Cancel</button>
+      </div>
+    <% end %>
+  </div>
+</div>

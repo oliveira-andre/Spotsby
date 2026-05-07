@@ -1,0 +1,5 @@
+<%= turbo_stream.replace dom_id(@author) do %>
+  <%= render "admin/authors/author", author: @author %>
+<% end %>
+
+<%= turbo_stream.update "author-form-modal" %>

@@ -23,7 +23,9 @@ module Admin
       @category = Category.new(category_params)
 
       if @category.save
-        respond_to(&:turbo_stream)
+        respond_to do |format|
+          format.turbo_stream
+        end
       else
         render turbo_stream: turbo_stream.replace(
           "category-form",
@@ -46,7 +48,9 @@ module Admin
           @reordered = true
           @pagy, @categories = pagy(Category.with_attached_image.ordered, limit: DEFAULT_PER_PAGE)
         end
-        respond_to(&:turbo_stream)
+        respond_to do |format|
+          format.turbo_stream
+        end
       else
         render turbo_stream: turbo_stream.replace(
           "category-form",
@@ -58,7 +62,9 @@ module Admin
 
     def destroy
       @category.destroy
-      respond_to(&:turbo_stream)
+      respond_to do |format|
+        format.turbo_stream
+      end
     end
 
     def update_position

@@ -50,7 +50,7 @@ class AccountsController < ApplicationController
   end
 
   def profile_params
-    params.require(:user).permit(:first_name, :last_name)
+    params.require(:user).permit(:first_name, :last_name, :birthdate)
   end
 
   def password_params

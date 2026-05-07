@@ -1,0 +1,33 @@
+<li class="admin-author" id="<%= dom_id(author) %>">
+  <% if author.image.attached? %>
+    <%= image_tag author.image, class: "admin-author__art", loading: "lazy", alt: "" %>
+  <% else %>
+    <span class="admin-author__art admin-author__art--placeholder">
+      <%= icon :microphone, size: 22 %>
+    </span>
+  <% end %>
+
+  <div class="admin-author__meta">
+    <span class="admin-author__name"><%= author.name %></span>
+    <% if author.description.present? %>
+      <span class="admin-author__desc"><%= truncate(author.description, length: 80) %></span>
+    <% end %>
+  </div>
+
+  <div class="admin-author__actions">
+    <%= link_to edit_admin_author_path(author),
+                class: "admin-author__icon-btn",
+                aria: { label: "Edit" },
+                data: { turbo_frame: "author-form-modal" } do %>
+      <%= icon :pencil, size: 18 %>
+    <% end %>
+
+    <%= button_to admin_author_path(author),
+                  method: :delete,
+                  form: { class: "admin-author__icon-form", data: { turbo_confirm: "Delete \"#{author.name}\"?" } },
+                  class: "admin-author__icon-btn admin-author__icon-btn--danger",
+                  aria: { label: "Delete" } do %>
+      <%= icon :trash, size: 18 %>
+    <% end %>
+  </div>
+</li>

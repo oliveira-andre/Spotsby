@@ -1,5 +1,6 @@
 class RegistrationsController < ApplicationController
   allow_unauthenticated_access only: %i[new create]
+  before_action :redirect_if_authenticated, only: %i[new]
   rate_limit to: 10, within: 3.minutes, only: :create,
              with: -> { redirect_to new_registration_url, alert: "Try again later." }
 

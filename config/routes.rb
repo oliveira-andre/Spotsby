@@ -81,6 +81,18 @@ Rails.application.routes.draw do
         patch :update_position
       end
     end
+    resources :users
+    resources :authors do
+      resources :albums, only: %i[new create], controller: "author_albums" do
+        resources :songs, only: %i[new create], controller: "album_songs"
+      end
+    end
+    resources :albums, only: %i[edit update destroy]
+    resources :songs, only: %i[edit update destroy] do
+      member do
+        patch :update_position
+      end
+    end
   end
 
   get "up" => "rails/health#show", as: :rails_health_check

@@ -1,0 +1,100 @@
+<% categories = Category.ordered.pluck(:name, :id) %>
+
+<% if song.errors.any? %>
+  <div class="flash flash--alert" role="alert">
+    <%= song.errors.full_messages.to_sentence %>
+  </div>
+<% end %>
+
+<%= form_with model: song,
+              url: admin_author_album_songs_path(author, album),
+              scope: :song,
+              multipart: true,
+              class: "admin-modal__form",
+              data: { controller: "image-preview" } do |form| %>
+  <div class="admin-modal__grid">
+    <label class="admin-modal__cover" data-image-preview-target="dropzone">
+      <%= form.file_field :image,
+                          accept: "image/png,image/jpeg,image/webp",
+                          class: "admin-modal__file",
+                          data: { image_preview_target: "input", action: "change->image-preview#preview" } %>
+      <% if song.image.attached? %>
+        <%= image_tag song.image, class: "admin-modal__preview", data: { image_preview_target: "preview" }, alt: "" %>
+        <span class="admin-modal__placeholder" data-image-preview-target="placeholder" hidden>
+          <%= icon :music, size: 36 %>
+          <span>Choose cover</span>
+        </span>
+      <% else %>
+        <img class="admin-modal__preview" data-image-preview-target="preview" alt="" hidden>
+        <span class="admin-modal__placeholder" data-image-preview-target="placeholder">
+          <%= icon :music, size: 36 %>
+          <span>Choose cover</span>
+        </span>
+      <% end %>
+    </label>
+
+    <div class="admin-modal__fields">
+      <div class="form-field">
+        <%= form.label :name, "Title", class: "label" %>
+        <%= form.text_field :name, class: "input", required: true, autofocus: true %>
+      </div>
+
+      <div class="admin-modal__row">
+        <div class="form-field">
+          <%= form.label :category_id, "Category", class: "label" %>
+          <%= form.select :category_id,
+                          categories,
+                          { include_blank: "Same as album" },
+                          class: "input" %>
+        </div>
+        <div class="form-field">
+          <%= form.label :duration_ms, "Duration (ms)", class: "label" %>
+          <%= form.number_field :duration_ms, class: "input", min: 0, value: song.duration_ms || 0 %>
+        </div>
+      </div>
+
+      <div class="admin-modal__row">
+        <div class="form-field">
+          <%= form.label :age, "Age rating", class: "label" %>
+          <%= form.number_field :age, class: "input", min: 0, value: song.age || 0 %>
+        </div>
+        <div class="form-field">
+          <%= form.label :monthly_listeners, "Monthly listeners", class: "label" %>
+          <%= form.number_field :monthly_listeners, class: "input", min: 0, value: song.monthly_listeners || 0 %>
+        </div>
+      </div>
+
+      <label class="form-field form-field--toggle">
+        <span class="form-field__toggle-meta">
+          <span class="label label--inline">Mark as popular</span>
+          <span class="form-field__hint">Show this song in the artist's popular tracks.</span>
+        </span>
+        <span class="toggle">
+          <%= form.check_box :popular, class: "toggle__input" %>
+          <span class="toggle__slider" aria-hidden="true"></span>
+        </span>
+      </label>
+
+      <div class="form-field">
+        <%= form.label :audio, "Audio file", class: "label" %>
+        <%= form.file_field :audio,
+                            accept: "audio/mpeg,audio/mp4,audio/ogg,audio/wav",
+                            class: "input" %>
+        <span class="form-field__hint">MP3, M4A, OGG, or WAV. Up to 100MB.</span>
+      </div>
+
+      <div class="form-field">
+        <%= form.label :lyrics, "Lyrics", class: "label" %>
+        <%= form.text_area :lyrics,
+                           class: "input input--autogrow",
+                           rows: 4,
+                           data: { controller: "textarea-autogrow" } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-modal__actions">
+    <%= form.submit "Save song", class: "btn btn--primary btn--uppercase" %>
+    <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close">Done</button>
+  </div>
+<% end %>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Admin · Spotsby" %></title>
+    <title><%= content_for(:title).present? ? "Admin · #{content_for(:title)}" : "Admin · Spotsby" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -20,24 +20,22 @@
   </head>
 
   <body>
-    <div id="page-content">
-      <div class="admin" data-controller="admin-sidebar">
-        <header class="admin__topbar">
-          <button type="button"
-                  class="admin__burger"
-                  aria-label="Toggle navigation"
-                  data-action="click->admin-sidebar#toggle">
-            <%= icon :bars, size: 22 %>
-          </button>
-          <h1 class="admin__title"><%= content_for(:title) %></h1>
-        </header>
+    <div class="admin" data-controller="admin-sidebar">
+      <header class="admin__topbar">
+        <button type="button"
+                class="admin__burger"
+                aria-label="Toggle navigation"
+                data-action="click->admin-sidebar#toggle">
+          <%= icon :bars, size: 22 %>
+        </button>
+        <h1 class="admin__title" id="admin-title"><%= content_for(:title) %></h1>
+      </header>
 
-        <div class="admin__layout">
-          <%= render "admin/shared/sidebar" %>
-          <main class="admin__main">
-            <%= yield %>
-          </main>
-        </div>
+      <div class="admin__layout">
+        <%= render "admin/shared/sidebar" %>
+        <main class="admin__main" id="page-content">
+          <%= yield %>
+        </main>
       </div>
     </div>
   </body>

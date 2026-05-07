@@ -1,0 +1,65 @@
+<div class="admin-modal" id="author-form" data-controller="admin-modal" data-admin-modal-auto-open-value="true">
+  <div class="admin-modal__backdrop" data-action="click->admin-modal#close"></div>
+
+  <div class="admin-modal__panel" data-admin-modal-target="panel" role="dialog" aria-modal="true">
+    <header class="admin-modal__header">
+      <h2 class="admin-modal__title">Edit author</h2>
+      <button type="button" class="admin-modal__close" aria-label="Close" data-action="click->admin-modal#close">
+        <%= icon :close, size: 18 %>
+      </button>
+    </header>
+
+    <% if author.errors.any? %>
+      <div class="flash flash--alert" role="alert">
+        <%= author.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <%= form_with model: [:admin, author],
+                  multipart: true,
+                  class: "admin-modal__form",
+                  data: { controller: "image-preview" } do |form| %>
+      <div class="admin-modal__grid">
+        <label class="admin-modal__cover admin-modal__cover--round" data-image-preview-target="dropzone">
+          <%= form.file_field :image,
+                              accept: "image/png,image/jpeg,image/webp",
+                              class: "admin-modal__file",
+                              data: { image_preview_target: "input", action: "change->image-preview#preview" } %>
+          <% if author.image.attached? %>
+            <%= image_tag author.image, class: "admin-modal__preview", data: { image_preview_target: "preview" }, alt: "" %>
+            <span class="admin-modal__placeholder" data-image-preview-target="placeholder" hidden>
+              <%= icon :microphone, size: 36 %>
+              <span>Choose photo</span>
+            </span>
+          <% else %>
+            <img class="admin-modal__preview" data-image-preview-target="preview" alt="" hidden>
+            <span class="admin-modal__placeholder" data-image-preview-target="placeholder">
+              <%= icon :microphone, size: 36 %>
+              <span>Choose photo</span>
+            </span>
+          <% end %>
+        </label>
+
+        <div class="admin-modal__fields">
+          <div class="form-field">
+            <%= form.label :name, "Name", class: "label" %>
+            <%= form.text_field :name, class: "input", required: true, autofocus: true %>
+          </div>
+
+          <div class="form-field">
+            <%= form.label :description, "Description", class: "label" %>
+            <%= form.text_area :description,
+                               class: "input input--autogrow",
+                               rows: 4,
+                               data: { controller: "textarea-autogrow" } %>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-modal__actions">
+        <%= form.submit "Save", class: "btn btn--primary btn--uppercase" %>
+        <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close">Cancel</button>
+      </div>
+    <% end %>
+  </div>
+</div>

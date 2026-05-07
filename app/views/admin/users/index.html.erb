@@ -1,0 +1,50 @@
+<% content_for :title, "Users" %>
+
+<section class="admin-users">
+  <header class="admin-users__header">
+    <%= form_with url: admin_users_path,
+                  method: :get,
+                  class: "admin-users__search",
+                  data: { turbo_frame: "users-frame", controller: "auto-submit" } do |form| %>
+      <%= icon :magnifying_glass, size: 18 %>
+      <%= form.search_field :q,
+            value: params[:q],
+            placeholder: "Search users",
+            class: "admin-users__search-input",
+            data: { action: "input->auto-submit#submit" } %>
+    <% end %>
+
+    <%= link_to new_admin_user_path,
+                class: "admin-users__new",
+                aria: { label: "New user" },
+                data: { turbo_frame: "user-form-modal" } do %>
+      <%= icon :plus, size: 18 %>
+    <% end %>
+  </header>
+
+  <%= turbo_frame_tag "users-frame" do %>
+    <% if @users.any? %>
+      <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
+        <ul class="admin-users__list"
+            <%= 'id="users-list"'.html_safe if @pagy.page == 1 %>>
+          <%= render partial: "admin/users/user", collection: @users, as: :user %>
+        </ul>
+
+        <% if @pagy.next %>
+          <%= turbo_frame_tag :page, @pagy.next,
+                              src: admin_users_path(page: @pagy.next, q: params[:q]),
+                              loading: :lazy,
+                              target: :_top do %>
+            <p class="admin-users__loading">Loading...</p>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="admin-users__empty">
+        <%= params[:q].present? ? "No users matched “#{params[:q]}”." : "No users yet." %>
+      </p>
+    <% end %>
+  <% end %>
+
+  <%= turbo_frame_tag "user-form-modal" %>
+</section>

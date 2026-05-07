@@ -1,0 +1,50 @@
+<% content_for :title, "Authors" %>
+
+<section class="admin-authors">
+  <header class="admin-authors__header">
+    <%= form_with url: admin_authors_path,
+                  method: :get,
+                  class: "admin-authors__search",
+                  data: { turbo_frame: "authors-frame", controller: "auto-submit" } do |form| %>
+      <%= icon :magnifying_glass, size: 18 %>
+      <%= form.search_field :q,
+            value: params[:q],
+            placeholder: "Search authors",
+            class: "admin-authors__search-input",
+            data: { action: "input->auto-submit#submit" } %>
+    <% end %>
+
+    <%= link_to new_admin_author_path,
+                class: "admin-authors__new",
+                aria: { label: "New author" },
+                data: { turbo_frame: "author-form-modal" } do %>
+      <%= icon :plus, size: 18 %>
+    <% end %>
+  </header>
+
+  <%= turbo_frame_tag "authors-frame" do %>
+    <% if @authors.any? %>
+      <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
+        <ul class="admin-authors__list"
+            <%= 'id="authors-list"'.html_safe if @pagy.page == 1 %>>
+          <%= render partial: "admin/authors/author", collection: @authors, as: :author %>
+        </ul>
+
+        <% if @pagy.next %>
+          <%= turbo_frame_tag :page, @pagy.next,
+                              src: admin_authors_path(page: @pagy.next, q: params[:q]),
+                              loading: :lazy,
+                              target: :_top do %>
+            <p class="admin-authors__loading">Loading...</p>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="admin-authors__empty">
+        <%= params[:q].present? ? "No authors matched “#{params[:q]}”." : "No authors yet." %>
+      </p>
+    <% end %>
+  <% end %>
+
+  <%= turbo_frame_tag "author-form-modal" %>
+</section>

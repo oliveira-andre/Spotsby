@@ -1,0 +1,62 @@
+<% categories = Category.ordered.pluck(:name, :id) %>
+
+<% if album.errors.any? %>
+  <div class="flash flash--alert" role="alert">
+    <%= album.errors.full_messages.to_sentence %>
+  </div>
+<% end %>
+
+<%= form_with model: album,
+              url: admin_author_albums_path(author),
+              scope: :album,
+              multipart: true,
+              class: "admin-modal__form",
+              data: { controller: "image-preview" } do |form| %>
+  <div class="admin-modal__grid">
+    <label class="admin-modal__cover" data-image-preview-target="dropzone">
+      <%= form.file_field :image,
+                          accept: "image/png,image/jpeg,image/webp",
+                          class: "admin-modal__file",
+                          data: { image_preview_target: "input", action: "change->image-preview#preview" } %>
+      <% if album.image.attached? %>
+        <%= image_tag album.image, class: "admin-modal__preview", data: { image_preview_target: "preview" }, alt: "" %>
+        <span class="admin-modal__placeholder" data-image-preview-target="placeholder" hidden>
+          <%= icon :disc, size: 36 %>
+          <span>Choose cover</span>
+        </span>
+      <% else %>
+        <img class="admin-modal__preview" data-image-preview-target="preview" alt="" hidden>
+        <span class="admin-modal__placeholder" data-image-preview-target="placeholder">
+          <%= icon :disc, size: 36 %>
+          <span>Choose cover</span>
+        </span>
+      <% end %>
+    </label>
+
+    <div class="admin-modal__fields">
+      <div class="form-field">
+        <%= form.label :name, "Name", class: "label" %>
+        <%= form.text_field :name, class: "input", required: true, autofocus: true %>
+      </div>
+
+      <div class="admin-modal__row">
+        <div class="form-field">
+          <%= form.label :release_date, "Release date", class: "label" %>
+          <%= form.date_field :release_date, class: "input", required: true %>
+        </div>
+        <div class="form-field">
+          <%= form.label :category_id, "Category", class: "label" %>
+          <%= form.select :category_id,
+                          categories,
+                          { include_blank: "Choose category" },
+                          class: "input", required: true %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-modal__actions">
+    <%= form.submit "Save and continue", class: "btn btn--primary btn--uppercase" %>
+    <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close">Skip</button>
+  </div>
+<% end %>
