@@ -1,6 +1,4 @@
-<%= form_with url: select_author_admin_albums_path,
-              method: :post,
-              class: "admin-modal__form" do %>
+<%= form_with url: url, method: :post, class: "admin-modal__form" do %>
 
   <% if authors.any? %>
     <ul class="author-picker">
@@ -26,7 +24,7 @@
       <% end %>
     </ul>
   <% else %>
-    <p class="author-picker__empty">No authors yet. Create one before adding an album.</p>
+    <p class="author-picker__empty">No authors yet. Create one before continuing.</p>
   <% end %>
 
   <div class="admin-modal__actions">

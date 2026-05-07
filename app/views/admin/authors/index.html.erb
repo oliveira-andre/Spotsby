@@ -27,7 +27,7 @@
       <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
         <ul class="admin-authors__list"
             <%= 'id="authors-list"'.html_safe if @pagy.page == 1 %>>
-          <%= render partial: "admin/authors/author", collection: @authors, as: :author %>
+          <%= render partial: "admin/authors/author", collection: @authors, as: :author, locals: { album_counts: @album_counts } %>
         </ul>
 
         <% if @pagy.next %>

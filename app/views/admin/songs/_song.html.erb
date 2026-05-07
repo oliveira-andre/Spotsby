@@ -1,0 +1,35 @@
+<li class="admin-song" id="<%= dom_id(song) %>">
+  <% if song.image.attached? %>
+    <%= image_tag song.image, class: "admin-song__art", loading: "lazy", alt: "" %>
+  <% else %>
+    <span class="admin-song__art admin-song__art--placeholder">
+      <%= icon :music, size: 22 %>
+    </span>
+  <% end %>
+
+  <div class="admin-song__meta">
+    <span class="admin-song__name"><%= song.name %></span>
+    <span class="admin-song__sub">
+      <span class="admin-song__author"><%= song.album.author.name %></span>
+      <span class="admin-album__dot">·</span>
+      <span class="admin-song__album"><%= song.album.name %></span>
+    </span>
+  </div>
+
+  <div class="admin-album__actions">
+    <%= link_to edit_admin_song_path(song),
+                class: "admin-author__icon-btn",
+                aria: { label: "Edit" },
+                data: { turbo_frame: "song-form-modal" } do %>
+      <%= icon :pencil, size: 18 %>
+    <% end %>
+
+    <%= button_to admin_song_path(song),
+                  method: :delete,
+                  form: { class: "admin-author__icon-form", data: { turbo_confirm: "Delete \"#{song.name}\"?" } },
+                  class: "admin-author__icon-btn admin-author__icon-btn--danger",
+                  aria: { label: "Delete" } do %>
+      <%= icon :trash, size: 18 %>
+    <% end %>
+  </div>
+</li>

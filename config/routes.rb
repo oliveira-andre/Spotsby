@@ -92,7 +92,11 @@ Rails.application.routes.draw do
         post :select_author
       end
     end
-    resources :songs, only: %i[edit update destroy] do
+    resources :songs, only: %i[index new edit update destroy] do
+      collection do
+        post :select_author
+        post :select_album
+      end
       member do
         patch :update_position
       end

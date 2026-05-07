@@ -1,10 +1,10 @@
-<%= turbo_frame_tag "album-form-modal" do %>
-  <div class="admin-modal admin-modal--wizard" id="album-wizard" data-controller="admin-modal" data-admin-modal-auto-open-value="true">
+<%= turbo_frame_tag "song-form-modal" do %>
+  <div class="admin-modal admin-modal--wizard" id="song-wizard" data-controller="admin-modal" data-admin-modal-auto-open-value="true">
     <div class="admin-modal__backdrop" data-action="click->admin-modal#close"></div>
 
     <div class="admin-modal__panel admin-modal__panel--wizard" data-admin-modal-target="panel" role="dialog" aria-modal="true">
       <header class="admin-modal__header">
-        <h2 class="admin-modal__title">New album</h2>
+        <h2 class="admin-modal__title">New song</h2>
         <button type="button" class="admin-modal__close" aria-label="Close" data-action="click->admin-modal#close">
           <%= icon :close, size: 18 %>
         </button>
@@ -15,7 +15,7 @@
       <% end %>
 
       <%= turbo_frame_tag "wizard-step" do %>
-        <%= render "admin/shared/wizard_select_author", authors: @authors, url: select_author_admin_albums_path %>
+        <%= render "admin/shared/wizard_select_author", authors: @authors, url: select_author_admin_songs_path %>
       <% end %>
     </div>
   </div>

@@ -1,0 +1,5 @@
+<%= turbo_stream.replace dom_id(@song) do %>
+  <%= render "admin/songs/song", song: @song %>
+<% end %>
+
+<%= turbo_stream.update "song-form-modal" %>

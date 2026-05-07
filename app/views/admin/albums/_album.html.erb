@@ -10,6 +10,8 @@
   <div class="admin-album__meta">
     <span class="admin-album__name"><%= album.name %></span>
     <span class="admin-album__sub">
+      <span class="admin-pill"><%= pluralize(local_assigns[:song_counts]&.[](album.id) || 0, "song") %></span>
+      <span class="admin-album__dot">·</span>
       <%= album.author.name %>
       <% if album.release_date %>
         <span class="admin-album__dot">·</span>

@@ -11,6 +11,7 @@ module Admin
       end
 
       @pagy, @albums = pagy(scope, limit: DEFAULT_PER_PAGE)
+      @song_counts = Song.where(album_id: @albums.map(&:id)).group(:album_id).count
     end
 
     def new

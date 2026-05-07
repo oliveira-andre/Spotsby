@@ -1,0 +1,98 @@
+<% content_for :title, "Songs" %>
+
+<% current_sort = params[:sort].presence_in(Admin::SongsController::SORTS) || "newest" %>
+<% current_dir = (params[:dir] == "asc") ? "asc" : "desc" %>
+<% next_dir_for = ->(name) { current_sort == name && current_dir == "asc" ? "desc" : "asc" } %>
+<% sort_arrow = ->(name) { current_sort == name ? (current_dir == "asc" ? " ↑" : " ↓") : "" } %>
+<% filter_params = params.permit(:q, :author_id, :album_id).to_h.compact_blank %>
+
+<section class="admin-songs">
+  <header class="admin-songs__header">
+    <%= form_with url: admin_songs_path,
+                  method: :get,
+                  class: "admin-songs__filters",
+                  data: {
+                    controller: "auto-submit filters-form album-filter",
+                    filters_form_frame_value: "songs-frame"
+                  } do |form| %>
+      <div class="admin-songs__search">
+        <%= icon :magnifying_glass, size: 18 %>
+        <%= form.search_field :q,
+              value: params[:q],
+              placeholder: "Search song, album, or author",
+              class: "admin-songs__search-input",
+              data: { action: "input->auto-submit#submit" } %>
+      </div>
+
+      <%= form.select :author_id,
+                      @authors_for_filter,
+                      { include_blank: "All authors", selected: params[:author_id] },
+                      class: "admin-songs__filter-select",
+                      data: {
+                        action: "change->album-filter#authorChanged change->auto-submit#submit",
+                        album_filter_target: "author"
+                      } %>
+
+      <%= form.select :album_id,
+                      options_for_select(
+                        @albums_for_filter.map { |a| ["#{a.name} — #{a.author.name}", a.id, { data: { author_id: a.author_id } }] },
+                        params[:album_id]
+                      ),
+                      { include_blank: "All albums" },
+                      class: "admin-songs__filter-select",
+                      data: {
+                        action: "change->auto-submit#submit",
+                        album_filter_target: "album"
+                      } %>
+
+      <% if filter_params.any? || params[:sort].present? %>
+        <%= link_to "Clear", admin_songs_path, class: "admin-songs__filter-clear" %>
+      <% end %>
+    <% end %>
+
+    <%= link_to new_admin_song_path,
+                class: "admin-songs__new",
+                aria: { label: "New song" },
+                data: { turbo_frame: "song-form-modal" } do %>
+      <%= icon :plus, size: 18 %>
+    <% end %>
+  </header>
+
+  <%= turbo_frame_tag "songs-frame", data: { turbo_action: "advance" } do %>
+    <div class="admin-songs__sort">
+      <span class="admin-songs__sort-label">Sort by</span>
+      <% [["newest", "Newest"], ["name", "Name"], ["album", "Album"], ["author", "Author"]].each do |key, label| %>
+        <%= link_to "#{label}#{sort_arrow.call(key)}",
+                    admin_songs_path(filter_params.merge(
+                      sort: (key == "newest" ? nil : key),
+                      dir: (key == "newest" ? nil : next_dir_for.call(key))
+                    ).compact),
+                    class: "admin-songs__sort-chip #{'is-active' if current_sort == key}" %>
+      <% end %>
+    </div>
+
+    <% if @songs.any? %>
+      <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
+        <ul class="admin-songs__list"
+            <%= 'id="songs-list"'.html_safe if @pagy.page == 1 %>>
+          <%= render partial: "admin/songs/song", collection: @songs, as: :song %>
+        </ul>
+
+        <% if @pagy.next %>
+          <%= turbo_frame_tag :page, @pagy.next,
+                              src: admin_songs_path(filter_params.merge(page: @pagy.next, sort: params[:sort], dir: params[:dir]).compact),
+                              loading: :lazy,
+                              target: :_top do %>
+            <p class="admin-songs__loading">Loading...</p>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="admin-songs__empty">
+        <%= filter_params.any? ? "No songs match the current filters." : "No songs yet." %>
+      </p>
+    <% end %>
+  <% end %>
+
+  <%= turbo_frame_tag "song-form-modal" %>
+</section>

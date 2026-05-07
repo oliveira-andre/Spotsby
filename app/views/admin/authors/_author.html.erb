@@ -9,9 +9,13 @@
 
   <div class="admin-author__meta">
     <span class="admin-author__name"><%= author.name %></span>
-    <% if author.description.present? %>
-      <span class="admin-author__desc"><%= truncate(author.description, length: 80) %></span>
-    <% end %>
+    <span class="admin-author__desc">
+      <span class="admin-pill"><%= pluralize(local_assigns[:album_counts]&.[](author.id) || 0, "album") %></span>
+      <% if author.description.present? %>
+        <span class="admin-author__dot">·</span>
+        <%= truncate(author.description, length: 60) %>
+      <% end %>
+    </span>
   </div>
 
   <div class="admin-author__actions">

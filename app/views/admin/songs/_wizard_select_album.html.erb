@@ -1,0 +1,45 @@
+<%= form_with url: select_album_admin_songs_path,
+              method: :post,
+              class: "admin-modal__form" do %>
+
+  <input type="hidden" name="author_id" value="<%= author.id %>">
+
+  <% if albums.any? %>
+    <ul class="album-picker">
+      <% albums.each do |album| %>
+        <li>
+          <label class="album-picker__item">
+            <input type="radio"
+                   name="album_id"
+                   value="<%= album.id %>"
+                   required
+                   class="album-picker__input">
+            <% if album.image.attached? %>
+              <%= image_tag album.image, class: "album-picker__art", loading: "lazy", alt: "" %>
+            <% else %>
+              <span class="album-picker__art album-picker__art--placeholder">
+                <%= icon :disc, size: 18 %>
+              </span>
+            <% end %>
+            <span class="album-picker__meta">
+              <span class="album-picker__name"><%= album.name %></span>
+              <% if album.release_date %>
+                <span class="album-picker__sub"><%= album.release_date.year %></span>
+              <% end %>
+            </span>
+            <span class="author-picker__check" aria-hidden="true"></span>
+          </label>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="author-picker__empty">
+      <%= author.name %> has no albums yet. Create one before adding songs.
+    </p>
+  <% end %>
+
+  <div class="admin-modal__actions">
+    <%= submit_tag "Continue", class: "btn btn--primary btn--uppercase", disabled: albums.empty? %>
+    <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close">Cancel</button>
+  </div>
+<% end %>

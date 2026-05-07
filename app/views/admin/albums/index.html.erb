@@ -27,7 +27,7 @@
       <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
         <ul class="admin-albums__list"
             <%= 'id="albums-list"'.html_safe if @pagy.page == 1 %>>
-          <%= render partial: "admin/albums/album", collection: @albums, as: :album %>
+          <%= render partial: "admin/albums/album", collection: @albums, as: :album, locals: { song_counts: @song_counts } %>
         </ul>
 
         <% if @pagy.next %>

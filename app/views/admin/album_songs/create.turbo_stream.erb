@@ -1,5 +1,12 @@
 <% songs = @album.songs.ordered.to_a %>
+<% last_song = songs.last %>
 <% next_song = @album.songs.build %>
+
+<% if last_song %>
+  <%= turbo_stream.append "songs-list" do %>
+    <%= render "admin/songs/song", song: last_song %>
+  <% end %>
+<% end %>
 
 <%= turbo_stream.update "wizard-summary" do %>
   <%= render "admin/authors/wizard_summary", author: @author, album: @album, songs: songs, step: :song %>
