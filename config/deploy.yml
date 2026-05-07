@@ -24,7 +24,7 @@ servers:
 #   music.codeline.online {
 #     reverse_proxy localhost:3050
 #   }
-proxy: false
+# proxy: false
 
 # Credentials for your image host.
 registry:
