@@ -1,0 +1,11 @@
+<%= turbo_stream.append "playlists-list" do %>
+  <%= render "admin/playlists/playlist", playlist: @playlist %>
+<% end %>
+
+<%= turbo_stream.update "wizard-summary" do %>
+  <%= render "admin/playlists/wizard_summary", playlist: @playlist, songs: [], step: :songs %>
+<% end %>
+
+<%= turbo_stream.update "wizard-step" do %>
+  <%= render "admin/playlists/wizard_songs", playlist: @playlist %>
+<% end %>

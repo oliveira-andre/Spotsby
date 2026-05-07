@@ -1,0 +1,37 @@
+<li class="admin-playlist" id="<%= dom_id(playlist) %>">
+  <% if playlist.image.attached? %>
+    <%= image_tag playlist.image, class: "admin-playlist__art", loading: "lazy", alt: "" %>
+  <% else %>
+    <span class="admin-playlist__art admin-playlist__art--placeholder">
+      <%= icon :heart, size: 22 %>
+    </span>
+  <% end %>
+
+  <div class="admin-playlist__meta">
+    <span class="admin-playlist__name"><%= playlist.name %></span>
+    <span class="admin-playlist__sub">
+      <span class="admin-pill"><%= pluralize(local_assigns[:song_counts]&.[](playlist.id) || 0, "song") %></span>
+      <span class="admin-album__dot">·</span>
+      <span class="admin-playlist__owner"><%= playlist.user&.email_address %></span>
+      <span class="admin-album__dot">·</span>
+      <%= playlist.status.to_s.capitalize %>
+    </span>
+  </div>
+
+  <div class="admin-album__actions">
+    <%= link_to edit_admin_playlist_path(playlist),
+                class: "admin-author__icon-btn",
+                aria: { label: "Edit" },
+                data: { turbo_frame: "playlist-form-modal" } do %>
+      <%= icon :pencil, size: 18 %>
+    <% end %>
+
+    <%= button_to admin_playlist_path(playlist),
+                  method: :delete,
+                  form: { class: "admin-author__icon-form", data: { turbo_confirm: "Delete \"#{playlist.name}\"?" } },
+                  class: "admin-author__icon-btn admin-author__icon-btn--danger",
+                  aria: { label: "Delete" } do %>
+      <%= icon :trash, size: 18 %>
+    <% end %>
+  </div>
+</li>

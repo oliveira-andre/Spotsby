@@ -1,0 +1,9 @@
+<% if songs.any? %>
+  <ul class="playlist-picker__list">
+    <% songs.each do |song| %>
+      <%= render "song", playlist: playlist, song: song, in_playlist: existing_song_ids.include?(song.id) %>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="playlist-picker__empty">No songs found.</p>
+<% end %>

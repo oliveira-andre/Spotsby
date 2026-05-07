@@ -101,6 +101,13 @@ Rails.application.routes.draw do
         patch :update_position
       end
     end
+    resources :playlists, only: %i[index new create edit update destroy] do
+      resources :songs, only: %i[create destroy], controller: "playlist_songs" do
+        collection do
+          get :picker
+        end
+      end
+    end
   end
 
   get "up" => "rails/health#show", as: :rails_health_check

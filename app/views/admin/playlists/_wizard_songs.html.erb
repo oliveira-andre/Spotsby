@@ -1,0 +1,23 @@
+<div class="playlist-picker">
+  <%= form_with url: picker_admin_playlist_songs_path(playlist),
+                method: :get,
+                class: "playlist-picker__search",
+                data: { turbo_frame: "playlist-picker-results", controller: "auto-submit" } do |form| %>
+    <%= icon :magnifying_glass, size: 18 %>
+    <%= form.search_field :q,
+          placeholder: "Search songs by name, album or author",
+          class: "playlist-picker__input",
+          autofocus: true,
+          data: { action: "input->auto-submit#submit" } %>
+  <% end %>
+
+  <%= turbo_frame_tag "playlist-picker-results",
+                      src: picker_admin_playlist_songs_path(playlist),
+                      loading: :lazy do %>
+    <p class="playlist-picker__loading">Loading songs...</p>
+  <% end %>
+</div>
+
+<div class="admin-modal__actions">
+  <button type="button" class="btn btn--primary btn--uppercase" data-action="click->admin-modal#close">Done</button>
+</div>

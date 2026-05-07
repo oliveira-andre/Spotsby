@@ -1,0 +1,3 @@
+<%= turbo_frame_tag "playlist-picker-results" do %>
+  <%= render "results", playlist: @playlist, songs: @songs, existing_song_ids: @existing_song_ids %>
+<% end %>

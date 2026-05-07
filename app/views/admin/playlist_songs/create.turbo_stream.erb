@@ -1,0 +1,14 @@
+<%= turbo_stream.replace dom_id(@song, :picker) do %>
+  <%= render "admin/playlist_songs/song", playlist: @playlist, song: @song, in_playlist: true %>
+<% end %>
+
+<%= turbo_stream.update "wizard-summary" do %>
+  <%= render "admin/playlists/wizard_summary",
+             playlist: @playlist,
+             songs: @playlist.songs.includes(:album).to_a,
+             step: :songs %>
+<% end %>
+
+<%= turbo_stream.replace dom_id(@playlist) do %>
+  <%= render "admin/playlists/playlist", playlist: @playlist %>
+<% end %>

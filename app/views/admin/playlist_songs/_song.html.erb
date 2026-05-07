@@ -1,0 +1,38 @@
+<li class="playlist-picker__item <%= 'is-added' if in_playlist %>" id="<%= dom_id(song, :picker) %>">
+  <% if song.image.attached? %>
+    <%= image_tag song.image, class: "playlist-picker__art", loading: "lazy", alt: "" %>
+  <% else %>
+    <span class="playlist-picker__art playlist-picker__art--placeholder">
+      <%= icon :music, size: 18 %>
+    </span>
+  <% end %>
+
+  <div class="playlist-picker__meta">
+    <span class="playlist-picker__name"><%= song.name %></span>
+    <span class="playlist-picker__sub">
+      <%= song.album.author.name %>
+      <span class="admin-album__dot">·</span>
+      <%= song.album.name %>
+    </span>
+  </div>
+
+  <% if in_playlist %>
+    <%= button_to admin_playlist_song_path(playlist, song),
+                  method: :delete,
+                  form: { class: "playlist-picker__form" },
+                  class: "playlist-picker__action playlist-picker__action--remove",
+                  aria: { label: "Remove from playlist" } do %>
+      <%= icon :close, size: 16 %>
+      Added
+    <% end %>
+  <% else %>
+    <%= button_to admin_playlist_songs_path(playlist, song_id: song.id),
+                  method: :post,
+                  form: { class: "playlist-picker__form" },
+                  class: "playlist-picker__action playlist-picker__action--add",
+                  aria: { label: "Add to playlist" } do %>
+      <%= icon :plus, size: 16 %>
+      Add
+    <% end %>
+  <% end %>
+</li>

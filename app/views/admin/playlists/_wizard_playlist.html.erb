@@ -1,0 +1,55 @@
+<% if playlist.errors.any? %>
+  <div class="flash flash--alert" role="alert">
+    <%= playlist.errors.full_messages.to_sentence %>
+  </div>
+<% end %>
+
+<%= form_with model: [:admin, playlist],
+              multipart: true,
+              class: "admin-modal__form",
+              data: { controller: "image-preview" } do |form| %>
+  <div class="admin-modal__grid">
+    <label class="admin-modal__cover" data-image-preview-target="dropzone">
+      <%= form.file_field :image,
+                          accept: "image/png,image/jpeg,image/webp",
+                          class: "admin-modal__file",
+                          data: { image_preview_target: "input", action: "change->image-preview#preview" } %>
+      <% if playlist.image.attached? %>
+        <%= image_tag playlist.image, class: "admin-modal__preview", data: { image_preview_target: "preview" }, alt: "" %>
+        <span class="admin-modal__placeholder" data-image-preview-target="placeholder" hidden>
+          <%= icon :heart, size: 36 %>
+          <span>Choose cover</span>
+        </span>
+      <% else %>
+        <img class="admin-modal__preview" data-image-preview-target="preview" alt="" hidden>
+        <span class="admin-modal__placeholder" data-image-preview-target="placeholder">
+          <%= icon :heart, size: 36 %>
+          <span>Choose cover</span>
+        </span>
+      <% end %>
+    </label>
+
+    <div class="admin-modal__fields">
+      <div class="form-field">
+        <%= form.label :name, "Name", class: "label" %>
+        <%= form.text_field :name, class: "input", required: true, autofocus: true %>
+      </div>
+
+      <div class="admin-modal__row">
+        <div class="form-field">
+          <%= form.label :user_id, "Owner", class: "label" %>
+          <%= form.select :user_id, users, { include_blank: "Choose user" }, class: "input", required: true %>
+        </div>
+        <div class="form-field">
+          <%= form.label :status, "Visibility", class: "label" %>
+          <%= form.select :status, [["Private", "private"], ["Public", "public"]], {}, class: "input" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-modal__actions">
+    <%= form.submit "Save and continue", class: "btn btn--primary btn--uppercase" %>
+    <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close">Cancel</button>
+  </div>
+<% end %>

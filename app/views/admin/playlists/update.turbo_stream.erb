@@ -1,0 +1,5 @@
+<%= turbo_stream.replace dom_id(@playlist) do %>
+  <%= render "admin/playlists/playlist", playlist: @playlist %>
+<% end %>
+
+<%= turbo_stream.update "playlist-form-modal" %>

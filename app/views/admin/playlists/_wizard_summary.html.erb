@@ -1,0 +1,44 @@
+<div class="wizard-progress">
+  <ol class="wizard-steps">
+    <li class="wizard-steps__item <%= 'is-current' if step == :playlist %> <%= 'is-done' if playlist&.persisted? && step != :playlist %>">
+      <span class="wizard-steps__num">1</span>
+      <span class="wizard-steps__name">Playlist</span>
+    </li>
+    <li class="wizard-steps__item <%= 'is-current' if step == :songs %>">
+      <span class="wizard-steps__num">2</span>
+      <span class="wizard-steps__name">Songs</span>
+    </li>
+  </ol>
+
+  <% if playlist&.persisted? %>
+    <div class="wizard-summary">
+      <div class="wizard-summary__row">
+        <% if playlist.image.attached? %>
+          <%= image_tag playlist.image, class: "wizard-summary__art", alt: "" %>
+        <% else %>
+          <span class="wizard-summary__art wizard-summary__art--placeholder">
+            <%= icon :heart, size: 16 %>
+          </span>
+        <% end %>
+        <div class="wizard-summary__info">
+          <span class="wizard-summary__label">Playlist</span>
+          <span class="wizard-summary__name"><%= playlist.name %></span>
+        </div>
+      </div>
+
+      <% if songs.any? %>
+        <div class="wizard-summary__songs">
+          <span class="wizard-summary__label">Songs (<%= songs.size %>)</span>
+          <ol class="wizard-summary__songs-list">
+            <% songs.each_with_index do |s, idx| %>
+              <li class="wizard-summary__song">
+                <span class="wizard-summary__song-num"><%= idx + 1 %></span>
+                <span class="wizard-summary__song-name"><%= s.name %></span>
+              </li>
+            <% end %>
+          </ol>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

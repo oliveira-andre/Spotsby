@@ -1,0 +1,50 @@
+<% content_for :title, "Playlists" %>
+
+<section class="admin-playlists">
+  <header class="admin-playlists__header">
+    <%= form_with url: admin_playlists_path,
+                  method: :get,
+                  class: "admin-playlists__search",
+                  data: { turbo_frame: "playlists-frame", controller: "auto-submit" } do |form| %>
+      <%= icon :magnifying_glass, size: 18 %>
+      <%= form.search_field :q,
+            value: params[:q],
+            placeholder: "Search playlists",
+            class: "admin-playlists__search-input",
+            data: { action: "input->auto-submit#submit" } %>
+    <% end %>
+
+    <%= link_to new_admin_playlist_path,
+                class: "admin-playlists__new",
+                aria: { label: "New playlist" },
+                data: { turbo_frame: "playlist-form-modal" } do %>
+      <%= icon :plus, size: 18 %>
+    <% end %>
+  </header>
+
+  <%= turbo_frame_tag "playlists-frame" do %>
+    <% if @playlists.any? %>
+      <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
+        <ul class="admin-playlists__list"
+            <%= 'id="playlists-list"'.html_safe if @pagy.page == 1 %>>
+          <%= render partial: "admin/playlists/playlist", collection: @playlists, as: :playlist, locals: { song_counts: @song_counts } %>
+        </ul>
+
+        <% if @pagy.next %>
+          <%= turbo_frame_tag :page, @pagy.next,
+                              src: admin_playlists_path(page: @pagy.next, q: params[:q]),
+                              loading: :lazy,
+                              target: :_top do %>
+            <p class="admin-playlists__loading">Loading...</p>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="admin-playlists__empty">
+        <%= params[:q].present? ? "No playlists matched “#{params[:q]}”." : "No playlists yet." %>
+      </p>
+    <% end %>
+  <% end %>
+
+  <%= turbo_frame_tag "playlist-form-modal" %>
+</section>
