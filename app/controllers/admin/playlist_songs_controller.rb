@@ -47,7 +47,7 @@ module Admin
 
     def load_song
       song_id = params[:song_id].presence || params[:id]
-      @song = Song.with_attached_image.includes(album: :author).find(song_id)
+      @song = Song.with_attached_image.includes(album: :author).friendly.find(song_id)
     end
   end
 end

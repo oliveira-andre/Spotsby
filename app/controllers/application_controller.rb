@@ -46,6 +46,6 @@ class ApplicationController < ActionController::Base
   end
 
   def turbo_stream_template_exists?
-    lookup_context.exists?(action_name, _prefixes, false, [], formats: [:turbo_stream])
+    lookup_context.exists?(action_name, _prefixes, false, [], formats: [ :turbo_stream ])
   end
 end
