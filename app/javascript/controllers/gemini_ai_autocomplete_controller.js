@@ -1,7 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
 
-const TEMPERATURE = 0.7
+const TEMPERATURE = 0.2
 const TOP_K = 8
+const UNKNOWN = "UNKNOWN"
+const NO_GUESS = `If you don't know the actual answer, reply with exactly "${UNKNOWN}" and nothing else. Do not guess, estimate, or invent.`
 
 export default class extends Controller {
   static targets = [
@@ -50,8 +52,10 @@ export default class extends Controller {
     const author = this.#name()
     if (!author) return
 
-    const prompt = `Write a short, factual biography for the music artist "${author}". 2-3 sentences. Plain text only, no markdown, no headings.`
-    await this.#stream(this.descriptionFieldTarget, prompt, this.descriptionButtonTarget)
+    const prompt = `Provide a short, factual biography for the real music artist "${author}" in 2-3 sentences. Plain text only, no markdown, no headings. ${NO_GUESS}`
+    const text = await this.#prompt(prompt, this.descriptionButtonTarget)
+    if (this.#isUnknown(text)) return
+    this.#setValue(this.descriptionFieldTarget, text.trim())
   }
 
   async fillReleaseDate(event) {
@@ -60,8 +64,9 @@ export default class extends Controller {
     const author = this.authorNameValue
     if (!album || !author) return
 
-    const prompt = `What is the original release date of the album "${album}" by "${author}"? Reply only with a single date in YYYY-MM-DD format. If unsure, give your best estimate. No other text.`
+    const prompt = `What is the original release date of the album "${album}" by the artist "${author}"? Reply only with a single date in YYYY-MM-DD format. ${NO_GUESS}`
     const text = await this.#prompt(prompt, this.releaseDateButtonTarget)
+    if (this.#isUnknown(text)) return
     const match = text && text.match(/\d{4}-\d{2}-\d{2}/)
     if (match) this.#setValue(this.releaseDateFieldTarget, match[0])
   }
@@ -75,10 +80,10 @@ export default class extends Controller {
 
     const categories = this.categoriesValue
     const names = categories.map(c => c[0])
-    const prompt = `Pick the most fitting music genre for the song "${song}" from the album "${album}" by "${author}". Choose ONE option exactly as written from this list: ${names.join(", ")}. Reply with ONLY the chosen genre name, nothing else.`
+    const prompt = `Pick the music genre for the real song "${song}" from the album "${album}" by the artist "${author}". Choose ONE option exactly as written from this list: ${names.join(", ")}. Reply with ONLY the chosen genre name. ${NO_GUESS}`
 
     const text = await this.#prompt(prompt, this.categoryButtonTarget)
-    if (!text) return
+    if (!text || this.#isUnknown(text)) return
 
     const cleaned = text.trim().toLowerCase()
     const match =
@@ -95,8 +100,9 @@ export default class extends Controller {
     const author = this.authorNameValue
     if (!song || !album || !author) return
 
-    const prompt = `What is a reasonable minimum age rating for the song "${song}" from the album "${album}" by "${author}"? Consider explicit lyrics and themes. Reply with only a single integer like 0, 13, 16, or 18. No other text.`
+    const prompt = `What is the minimum age rating for the real song "${song}" from the album "${album}" by the artist "${author}", based on its actual lyrics and themes? Reply with only a single integer like 0, 13, 16, or 18. ${NO_GUESS}`
     const text = await this.#prompt(prompt, this.ageButtonTarget)
+    if (this.#isUnknown(text)) return
     const match = text && text.match(/\d+/)
     if (match) this.#setValue(this.ageFieldTarget, parseInt(match[0], 10))
   }
@@ -108,8 +114,9 @@ export default class extends Controller {
     const author = this.authorNameValue
     if (!song || !album || !author) return
 
-    const prompt = `Estimate the monthly listeners on a streaming platform for the song "${song}" from the album "${album}" by "${author}". Reply with a single integer only — no commas, no words, no thousand separators.`
+    const prompt = `What are the monthly listeners on streaming platforms for the real song "${song}" from the album "${album}" by the artist "${author}"? Reply with a single integer only — no commas, no words, no thousand separators. ${NO_GUESS}`
     const text = await this.#prompt(prompt, this.listenersButtonTarget)
+    if (this.#isUnknown(text)) return
     const match = text && text.replace(/[,\s]/g, "").match(/\d+/)
     if (match) this.#setValue(this.listenersFieldTarget, parseInt(match[0], 10))
   }
@@ -121,8 +128,10 @@ export default class extends Controller {
     const author = this.authorNameValue
     if (!song || !album || !author) return
 
-    const prompt = `Write original song lyrics inspired by the style of "${author}" for a song titled "${song}" from the album "${album}". Include verses and a chorus. Plain text only, no markdown, no commentary, no title heading.`
-    await this.#stream(this.lyricsFieldTarget, prompt, this.lyricsButtonTarget)
+    const prompt = `Provide the actual published lyrics of the real song "${song}" from the album "${album}" by the artist "${author}". Reply with only the verbatim lyrics — plain text, no markdown, no commentary, no title heading, no translation. Do NOT write original or inspired lyrics. ${NO_GUESS}`
+    const text = await this.#prompt(prompt, this.lyricsButtonTarget)
+    if (this.#isUnknown(text)) return
+    this.#setValue(this.lyricsFieldTarget, text.trim())
   }
 
   #name() {
@@ -202,25 +211,8 @@ export default class extends Controller {
     }
   }
 
-  async #stream(field, prompt, button) {
-    if (this.busy) return
-    this.#setBusy(true, button)
-    field.value = ""
-    field.dispatchEvent(new Event("input", { bubbles: true }))
-
-    let session
-    try {
-      session = await this.#createSession()
-      const stream = await session.promptStreaming(prompt)
-      for await (const chunk of stream) {
-        field.value += chunk
-        field.dispatchEvent(new Event("input", { bubbles: true }))
-      }
-    } catch (e) {
-      console.error("AI generation failed", e)
-    } finally {
-      session?.destroy()
-      this.#setBusy(false, button)
-    }
+  #isUnknown(text) {
+    if (!text) return true
+    return text.trim().toUpperCase().startsWith(UNKNOWN)
   }
 }

@@ -27,13 +27,14 @@
                     gemini_ai_autocomplete_categories_value: categories.to_json
                   } do |form| %>
       <div class="admin-modal__grid">
+        <% cover = song.image.attached? ? song.image : (song.new_record? ? song.album&.image : nil) %>
         <label class="admin-modal__cover" data-image-preview-target="dropzone">
           <%= form.file_field :image,
                               accept: "image/png,image/jpeg,image/webp",
                               class: "admin-modal__file",
                               data: { image_preview_target: "input", action: "change->image-preview#preview" } %>
-          <% if song.image.attached? %>
-            <%= image_tag song.image, class: "admin-modal__preview", data: { image_preview_target: "preview" }, alt: "" %>
+          <% if cover&.attached? %>
+            <%= image_tag cover, class: "admin-modal__preview", data: { image_preview_target: "preview" }, alt: "" %>
             <span class="admin-modal__placeholder" data-image-preview-target="placeholder" hidden>
               <%= icon :music, size: 36 %>
               <span>Choose cover</span>

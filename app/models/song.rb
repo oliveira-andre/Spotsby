@@ -33,9 +33,18 @@ class Song < ApplicationRecord
   validates_numericality_of :duration_ms, greater_than_or_equal_to: 0
   validates_numericality_of :age, greater_than_or_equal_to: 0
 
+  before_validation :inherit_album_image, on: :create
+
   private
 
   def audio_attached?
     audio.attached?
+  end
+
+  def inherit_album_image
+    return if image.attached?
+    return unless album&.image&.attached?
+
+    image.attach(album.image.blob)
   end
 end

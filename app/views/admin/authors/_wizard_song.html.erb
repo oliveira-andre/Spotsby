@@ -12,19 +12,20 @@
               multipart: true,
               class: "admin-modal__form",
               data: {
-                controller: "image-preview gemini-ai-autocomplete",
+                controller: "image-preview audio-duration gemini-ai-autocomplete",
                 gemini_ai_autocomplete_author_name_value: author.name,
                 gemini_ai_autocomplete_album_name_value: album.name,
                 gemini_ai_autocomplete_categories_value: categories.to_json
               } do |form| %>
   <div class="admin-modal__grid">
+    <% cover = song.image.attached? ? song.image : (song.new_record? ? album.image : nil) %>
     <label class="admin-modal__cover" data-image-preview-target="dropzone">
       <%= form.file_field :image,
                           accept: "image/png,image/jpeg,image/webp",
                           class: "admin-modal__file",
                           data: { image_preview_target: "input", action: "change->image-preview#preview" } %>
-      <% if song.image.attached? %>
-        <%= image_tag song.image, class: "admin-modal__preview", data: { image_preview_target: "preview" }, alt: "" %>
+      <% if cover&.attached? %>
+        <%= image_tag cover, class: "admin-modal__preview", data: { image_preview_target: "preview" }, alt: "" %>
         <span class="admin-modal__placeholder" data-image-preview-target="placeholder" hidden>
           <%= icon :music, size: 36 %>
           <span>Choose cover</span>
@@ -65,7 +66,11 @@
         </div>
         <div class="form-field">
           <%= form.label :duration_ms, "Duration (ms)", class: "label" %>
-          <%= form.number_field :duration_ms, class: "input", min: 0, value: song.duration_ms || 0 %>
+          <%= form.number_field :duration_ms,
+                                class: "input",
+                                min: 0,
+                                value: song.duration_ms || 0,
+                                data: { audio_duration_target: "duration" } %>
         </div>
       </div>
 
@@ -115,7 +120,11 @@
         <%= form.label :audio, "Audio file", class: "label" %>
         <%= form.file_field :audio,
                             accept: "audio/mpeg,audio/mp4,audio/ogg,audio/wav",
-                            class: "input" %>
+                            class: "input",
+                            data: {
+                              audio_duration_target: "file",
+                              action: "change->audio-duration#read"
+                            } %>
         <span class="form-field__hint">MP3, M4A, OGG, or WAV. Up to 100MB.</span>
       </div>
 
