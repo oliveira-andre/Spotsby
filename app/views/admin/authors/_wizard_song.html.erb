@@ -11,7 +11,12 @@
               scope: :song,
               multipart: true,
               class: "admin-modal__form",
-              data: { controller: "image-preview" } do |form| %>
+              data: {
+                controller: "image-preview gemini-ai-autocomplete",
+                gemini_ai_autocomplete_author_name_value: author.name,
+                gemini_ai_autocomplete_album_name_value: album.name,
+                gemini_ai_autocomplete_categories_value: categories.to_json
+              } do |form| %>
   <div class="admin-modal__grid">
     <label class="admin-modal__cover" data-image-preview-target="dropzone">
       <%= form.file_field :image,
@@ -36,16 +41,27 @@
     <div class="admin-modal__fields">
       <div class="form-field">
         <%= form.label :name, "Title", class: "label" %>
-        <%= form.text_field :name, class: "input", required: true, autofocus: true %>
+        <%= form.text_field :name,
+                            class: "input",
+                            required: true,
+                            autofocus: true,
+                            data: { gemini_ai_autocomplete_target: "nameInput" } %>
       </div>
 
       <div class="admin-modal__row">
         <div class="form-field">
-          <%= form.label :category_id, "Category", class: "label" %>
+          <div class="label-row">
+            <%= form.label :category_id, "Category", class: "label" %>
+            <button type="button"
+                    class="ai-button"
+                    data-gemini-ai-autocomplete-target="categoryButton"
+                    data-action="click->gemini-ai-autocomplete#fillCategory">AI</button>
+          </div>
           <%= form.select :category_id,
                           categories,
                           { include_blank: "Same as album" },
-                          class: "input" %>
+                          class: "input",
+                          data: { gemini_ai_autocomplete_target: "categoryField" } %>
         </div>
         <div class="form-field">
           <%= form.label :duration_ms, "Duration (ms)", class: "label" %>
@@ -55,12 +71,32 @@
 
       <div class="admin-modal__row">
         <div class="form-field">
-          <%= form.label :age, "Age rating", class: "label" %>
-          <%= form.number_field :age, class: "input", min: 0, value: song.age || 0 %>
+          <div class="label-row">
+            <%= form.label :age, "Age rating", class: "label" %>
+            <button type="button"
+                    class="ai-button"
+                    data-gemini-ai-autocomplete-target="ageButton"
+                    data-action="click->gemini-ai-autocomplete#fillAge">AI</button>
+          </div>
+          <%= form.number_field :age,
+                                class: "input",
+                                min: 0,
+                                value: song.age || 0,
+                                data: { gemini_ai_autocomplete_target: "ageField" } %>
         </div>
         <div class="form-field">
-          <%= form.label :monthly_listeners, "Monthly listeners", class: "label" %>
-          <%= form.number_field :monthly_listeners, class: "input", min: 0, value: song.monthly_listeners || 0 %>
+          <div class="label-row">
+            <%= form.label :monthly_listeners, "Monthly listeners", class: "label" %>
+            <button type="button"
+                    class="ai-button"
+                    data-gemini-ai-autocomplete-target="listenersButton"
+                    data-action="click->gemini-ai-autocomplete#fillListeners">AI</button>
+          </div>
+          <%= form.number_field :monthly_listeners,
+                                class: "input",
+                                min: 0,
+                                value: song.monthly_listeners || 0,
+                                data: { gemini_ai_autocomplete_target: "listenersField" } %>
         </div>
       </div>
 
@@ -84,11 +120,20 @@
       </div>
 
       <div class="form-field">
-        <%= form.label :lyrics, "Lyrics", class: "label" %>
+        <div class="label-row">
+          <%= form.label :lyrics, "Lyrics", class: "label" %>
+          <button type="button"
+                  class="ai-button"
+                  data-gemini-ai-autocomplete-target="lyricsButton"
+                  data-action="click->gemini-ai-autocomplete#fillLyrics">AI</button>
+        </div>
         <%= form.text_area :lyrics,
                            class: "input input--autogrow",
                            rows: 4,
-                           data: { controller: "textarea-autogrow" } %>
+                           data: {
+                             controller: "textarea-autogrow",
+                             gemini_ai_autocomplete_target: "lyricsField"
+                           } %>
       </div>
     </div>
   </div>

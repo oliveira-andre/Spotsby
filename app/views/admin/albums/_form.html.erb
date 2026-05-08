@@ -20,7 +20,10 @@
     <%= form_with model: [:admin, album],
                   multipart: true,
                   class: "admin-modal__form",
-                  data: { controller: "image-preview" } do |form| %>
+                  data: {
+                    controller: "image-preview gemini-ai-autocomplete",
+                    gemini_ai_autocomplete_author_name_value: album.author&.name.to_s
+                  } do |form| %>
       <div class="admin-modal__grid">
         <label class="admin-modal__cover" data-image-preview-target="dropzone">
           <%= form.file_field :image,
@@ -45,13 +48,26 @@
         <div class="admin-modal__fields">
           <div class="form-field">
             <%= form.label :name, "Name", class: "label" %>
-            <%= form.text_field :name, class: "input", required: true, autofocus: true %>
+            <%= form.text_field :name,
+                                class: "input",
+                                required: true,
+                                autofocus: true,
+                                data: { gemini_ai_autocomplete_target: "nameInput" } %>
           </div>
 
           <div class="admin-modal__row">
             <div class="form-field">
-              <%= form.label :release_date, "Release date", class: "label" %>
-              <%= form.date_field :release_date, class: "input", required: true %>
+              <div class="label-row">
+                <%= form.label :release_date, "Release date", class: "label" %>
+                <button type="button"
+                        class="ai-button"
+                        data-gemini-ai-autocomplete-target="releaseDateButton"
+                        data-action="click->gemini-ai-autocomplete#fillReleaseDate">AI</button>
+              </div>
+              <%= form.date_field :release_date,
+                                  class: "input",
+                                  required: true,
+                                  data: { gemini_ai_autocomplete_target: "releaseDateField" } %>
             </div>
             <div class="form-field">
               <%= form.label :category_id, "Category", class: "label" %>

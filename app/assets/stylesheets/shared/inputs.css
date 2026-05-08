@@ -41,3 +41,31 @@
   padding-left: 20px;
   padding-right: 20px;
 }
+
+select.input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  padding-right: 40px;
+  background-image: linear-gradient(
+      45deg,
+      transparent 50%,
+      var(--color-text-muted) 50%
+    ),
+    linear-gradient(135deg, var(--color-text-muted) 50%, transparent 50%);
+  background-position: calc(100% - 20px) calc(50% - 2px),
+    calc(100% - 15px) calc(50% - 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+select.input::-ms-expand {
+  display: none;
+}
+
+select.input option,
+.admin-songs__filter-select option {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-base);
+}

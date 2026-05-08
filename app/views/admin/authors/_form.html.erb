@@ -18,7 +18,7 @@
     <%= form_with model: [:admin, author],
                   multipart: true,
                   class: "admin-modal__form",
-                  data: { controller: "image-preview" } do |form| %>
+                  data: { controller: "image-preview gemini-ai-autocomplete" } do |form| %>
       <div class="admin-modal__grid">
         <label class="admin-modal__cover admin-modal__cover--round" data-image-preview-target="dropzone">
           <%= form.file_field :image,
@@ -43,15 +43,28 @@
         <div class="admin-modal__fields">
           <div class="form-field">
             <%= form.label :name, "Name", class: "label" %>
-            <%= form.text_field :name, class: "input", required: true, autofocus: true %>
+            <%= form.text_field :name,
+                                class: "input",
+                                required: true,
+                                autofocus: true,
+                                data: { gemini_ai_autocomplete_target: "nameInput" } %>
           </div>
 
           <div class="form-field">
-            <%= form.label :description, "Description", class: "label" %>
+            <div class="label-row">
+              <%= form.label :description, "Description", class: "label" %>
+              <button type="button"
+                      class="ai-button"
+                      data-gemini-ai-autocomplete-target="descriptionButton"
+                      data-action="click->gemini-ai-autocomplete#fillDescription">AI</button>
+            </div>
             <%= form.text_area :description,
                                class: "input input--autogrow",
                                rows: 4,
-                               data: { controller: "textarea-autogrow" } %>
+                               data: {
+                                 controller: "textarea-autogrow",
+                                 gemini_ai_autocomplete_target: "descriptionField"
+                               } %>
           </div>
         </div>
       </div>
