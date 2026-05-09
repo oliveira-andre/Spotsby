@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 const STORAGE_KEY = "spotsby:now-playing"
+const REPEAT_KEY = "spotsby:repeat"
 const NAV_STACK_KEY = "spotsby:nav-stack"
 const NAV_STACK_MAX = 30
 
@@ -32,9 +33,16 @@ export default class extends Controller {
     this.element.addEventListener("now-playing:load", this.onLoadEvent)
     document.addEventListener("click", this.onDocumentClick, true)
 
+    this.repeat = readRepeat()
     this.seedNavStack()
     this.restoreFromStorage()
     this.setupMediaSession()
+  }
+
+  toggleRepeat() {
+    this.repeat = !this.repeat
+    writeRepeat(this.repeat)
+    this.dispatch("repeat", { detail: { repeat: this.repeat } })
   }
 
   seedNavStack() {
@@ -221,6 +229,11 @@ export default class extends Controller {
 
   handleEnded() {
     this.dispatch("ended")
+    if (this.repeat) {
+      this.audioTarget.currentTime = 0
+      this.safePlay()
+      return
+    }
     this.advanceToNext()
   }
 
@@ -312,4 +325,12 @@ function writeNavStack(stack) {
 
 function isPlayerPath(path) {
   return /^\/players(\/|$|\?)/.test(path)
+}
+
+function readRepeat() {
+  try { return localStorage.getItem(REPEAT_KEY) === "true" } catch (_) { return false }
+}
+
+function writeRepeat(on) {
+  try { localStorage.setItem(REPEAT_KEY, on ? "true" : "false") } catch (_) {}
 }

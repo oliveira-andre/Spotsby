@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 const FORCE_PLAY_KEY = "spotsby:force-play"
 
 export default class extends Controller {
-  static targets = ["playButton", "playIcon", "pauseIcon", "slider", "currentTime", "totalTime"]
+  static targets = ["playButton", "playIcon", "pauseIcon", "slider", "currentTime", "totalTime", "repeatButton"]
   static outlets = ["modal", "now-playing"]
   static values = {
     songId: String,
@@ -18,6 +18,7 @@ export default class extends Controller {
   initialize() {
     this.onState = this.handleState.bind(this)
     this.onTimeUpdate = this.handleTimeUpdate.bind(this)
+    this.onRepeat = this.handleRepeat.bind(this)
   }
 
   connect() {
@@ -28,6 +29,7 @@ export default class extends Controller {
     if (this.boundOutletElement) {
       this.boundOutletElement.removeEventListener("now-playing:state", this.onState)
       this.boundOutletElement.removeEventListener("now-playing:timeupdate", this.onTimeUpdate)
+      this.boundOutletElement.removeEventListener("now-playing:repeat", this.onRepeat)
       this.boundOutletElement = null
     }
     document.body.classList.remove("is-big-player")
@@ -37,6 +39,8 @@ export default class extends Controller {
     this.boundOutletElement = element
     element.addEventListener("now-playing:state", this.onState)
     element.addEventListener("now-playing:timeupdate", this.onTimeUpdate)
+    element.addEventListener("now-playing:repeat", this.onRepeat)
+    this.applyRepeatState(outlet.repeat)
 
     let autoplay = outlet.isPlaying
     try {
@@ -75,12 +79,28 @@ export default class extends Controller {
     if (element === this.boundOutletElement) {
       element.removeEventListener("now-playing:state", this.onState)
       element.removeEventListener("now-playing:timeupdate", this.onTimeUpdate)
+      element.removeEventListener("now-playing:repeat", this.onRepeat)
       this.boundOutletElement = null
     }
   }
 
   toggle() {
     if (this.hasNowPlayingOutlet) this.nowPlayingOutlet.toggle()
+  }
+
+  toggleRepeat() {
+    if (this.hasNowPlayingOutlet) this.nowPlayingOutlet.toggleRepeat()
+  }
+
+  handleRepeat(event) {
+    this.applyRepeatState(event.detail?.repeat)
+  }
+
+  applyRepeatState(on) {
+    if (!this.hasRepeatButtonTarget) return
+    this.repeatButtonTarget.classList.toggle("is-active", !!on)
+    this.repeatButtonTarget.setAttribute("aria-label", on ? "Turn off repeat" : "Turn on repeat")
+    this.repeatButtonTarget.setAttribute("aria-pressed", String(!!on))
   }
 
   seek(event) {

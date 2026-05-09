@@ -118,7 +118,12 @@
                     aria: { label: "Next" } do %>
         <%= icon :forward, size: 28 %>
       <% end %>
-      <button type="button" class="player__ctrl" aria-label="Repeat">
+      <button type="button"
+              class="player__ctrl"
+              aria-label="Turn on repeat"
+              aria-pressed="false"
+              data-player-target="repeatButton"
+              data-action="click->player#toggleRepeat">
         <%= icon :repeat, size: 22 %>
       </button>
     </div>
