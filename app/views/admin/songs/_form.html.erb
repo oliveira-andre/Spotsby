@@ -135,6 +135,13 @@
             </span>
           </label>
 
+          <% if song.persisted? %>
+            <div class="form-field">
+              <%= form.label :position, "Position", class: "label" %>
+              <%= form.number_field :position, class: "input", min: 1, value: song.position %>
+            </div>
+          <% end %>
+
           <div class="form-field">
             <div class="label-row">
               <%= form.label :lyrics, "Lyrics", class: "label" %>

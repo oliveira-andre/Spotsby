@@ -1,9 +1,5 @@
 <% content_for :title, "Songs" %>
 
-<% current_sort = params[:sort].presence_in(Admin::SongsController::SORTS) || "newest" %>
-<% current_dir = (params[:dir] == "asc") ? "asc" : "desc" %>
-<% next_dir_for = ->(name) { current_sort == name && current_dir == "asc" ? "desc" : "asc" } %>
-<% sort_arrow = ->(name) { current_sort == name ? (current_dir == "asc" ? " ↑" : " ↓") : "" } %>
 <% filter_params = params.permit(:q, :author_id, :album_id).to_h.compact_blank %>
 
 <section class="admin-songs">
@@ -45,7 +41,7 @@
                         album_filter_target: "album"
                       } %>
 
-      <% if filter_params.any? || params[:sort].present? %>
+      <% if filter_params.any? %>
         <%= link_to "Clear", admin_songs_path, class: "admin-songs__filter-clear" %>
       <% end %>
     <% end %>
@@ -59,28 +55,41 @@
   </header>
 
   <%= turbo_frame_tag "songs-frame", data: { turbo_action: "advance" } do %>
-    <div class="admin-songs__sort">
-      <span class="admin-songs__sort-label">Sort by</span>
-      <% [["newest", "Newest"], ["name", "Name"], ["album", "Album"], ["author", "Author"]].each do |key, label| %>
-        <%= link_to "#{label}#{sort_arrow.call(key)}",
-                    admin_songs_path(filter_params.merge(
-                      sort: (key == "newest" ? nil : key),
-                      dir: (key == "newest" ? nil : next_dir_for.call(key))
-                    ).compact),
-                    class: "admin-songs__sort-chip #{'is-active' if current_sort == key}" %>
-      <% end %>
-    </div>
-
-    <% if @songs.any? %>
+    <% if @albums.any? %>
       <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
-        <ul class="admin-songs__list"
-            <%= 'id="songs-list"'.html_safe if @pagy.page == 1 %>>
-          <%= render partial: "admin/songs/song", collection: @songs, as: :song %>
-        </ul>
+        <div class="admin-songs__groups">
+          <% @albums.each do |album| %>
+            <% album_songs = @songs_by_album[album.id] || [] %>
+            <% next if album_songs.empty? %>
+
+            <section class="admin-songs__group" id="<%= dom_id(album, :songs) %>">
+              <header class="admin-songs__group-header">
+                <% if album.image.attached? %>
+                  <%= image_tag album.image, class: "admin-songs__group-art", loading: "lazy", alt: "" %>
+                <% else %>
+                  <span class="admin-songs__group-art admin-songs__group-art--placeholder">
+                    <%= icon :disc, size: 18 %>
+                  </span>
+                <% end %>
+                <div class="admin-songs__group-meta">
+                  <span class="admin-songs__group-name"><%= album.name %></span>
+                  <span class="admin-songs__group-sub"><%= album.author.name %></span>
+                </div>
+                <span class="admin-pill"><%= pluralize(album_songs.size, "song") %></span>
+              </header>
+
+              <ul class="admin-songs__list"
+                  data-controller="sortable"
+                  data-sortable-url-template-value="<%= update_position_admin_song_path(":id") %>">
+                <%= render partial: "admin/songs/song", collection: album_songs, as: :song %>
+              </ul>
+            </section>
+          <% end %>
+        </div>
 
         <% if @pagy.next %>
           <%= turbo_frame_tag :page, @pagy.next,
-                              src: admin_songs_path(filter_params.merge(page: @pagy.next, sort: params[:sort], dir: params[:dir]).compact),
+                              src: admin_songs_path(filter_params.merge(page: @pagy.next).compact),
                               loading: :lazy,
                               target: :_top do %>
             <p class="admin-songs__loading">Loading...</p>

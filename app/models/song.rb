@@ -34,7 +34,7 @@ class Song < ApplicationRecord
   validates_numericality_of :age, greater_than_or_equal_to: 0
 
   before_validation :inherit_album_image, on: :create
-  after_commit :sync_popular_songs, on: [:create, :update], if: :saved_change_to_popular?
+  after_commit :sync_popular_songs, on: [ :create, :update ], if: :saved_change_to_popular?
 
   private
 

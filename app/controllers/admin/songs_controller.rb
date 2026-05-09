@@ -1,32 +1,42 @@
 module Admin
   class SongsController < AdminController
-    SORTS = %w[newest name album author].freeze
-
     before_action :load_song, only: %i[edit update destroy update_position]
 
     def index
-      scope = Song.with_attached_image.includes(album: :author)
-
-      needs_join = params[:q].present? || %w[album author].include?(params[:sort])
-      scope = scope.left_joins(album: :author) if needs_join
+      matching_album_ids = Album.joins(:songs)
 
       if params[:q].present?
         like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"
-        scope = scope.where(
+        matching_album_ids = matching_album_ids.left_joins(:author).where(
           "songs.name ILIKE :q OR albums.name ILIKE :q OR authors.name ILIKE :q",
           q: like
-        ).distinct
+        )
       end
 
-      if params[:author_id].present?
-        scope = scope.where(album_id: Album.where(author_id: params[:author_id]))
+      matching_album_ids = matching_album_ids.where(author_id: params[:author_id]) if params[:author_id].present?
+      matching_album_ids = matching_album_ids.where(id: params[:album_id]) if params[:album_id].present?
+
+      album_scope = Album.with_attached_image
+                         .includes(:author)
+                         .where(id: matching_album_ids.select("albums.id").distinct)
+                         .order("LOWER(albums.name)")
+
+      @pagy, @albums = pagy(album_scope, limit: DEFAULT_PER_PAGE)
+
+      songs_scope = Song.with_attached_image
+                        .where(album_id: @albums.map(&:id))
+                        .order(:position)
+
+      if params[:q].present?
+        like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"
+        songs_scope = songs_scope.where(
+          "songs.name ILIKE :q OR album_id IN (SELECT id FROM albums WHERE name ILIKE :q)" \
+          " OR album_id IN (SELECT albums.id FROM albums JOIN authors ON authors.id = albums.author_id WHERE authors.name ILIKE :q)",
+          q: like
+        )
       end
 
-      scope = scope.where(album_id: params[:album_id]) if params[:album_id].present?
-
-      scope = sort_scope(scope, params[:sort], params[:dir])
-
-      @pagy, @songs = pagy(scope, limit: DEFAULT_PER_PAGE)
+      @songs_by_album = songs_scope.group_by(&:album_id)
 
       @authors_for_filter = Author.order(:name).pluck(:name, :id)
       @albums_for_filter = Album.includes(:author).order("LOWER(albums.name)").to_a
@@ -58,7 +68,18 @@ module Admin
     def edit; end
 
     def update
-      if @song.update(song_params)
+      attrs = song_params
+      new_position = attrs.delete(:position).presence&.to_i
+      @reordered = false
+
+      if @song.update(attrs)
+        if new_position && new_position != @song.position
+          @song.insert_at(new_position)
+          @reordered = true
+          @album_songs = Song.with_attached_image
+                             .where(album_id: @song.album_id)
+                             .order(:position)
+        end
         respond_to do |format|
           format.turbo_stream
         end
@@ -88,21 +109,6 @@ module Admin
 
     private
 
-    def sort_scope(scope, sort, dir)
-      direction = (dir == "asc") ? "asc" : "desc"
-
-      case sort
-      when "name"
-        scope.reorder("songs.name #{direction}")
-      when "album"
-        scope.reorder("albums.name #{direction}, songs.name asc")
-      when "author"
-        scope.reorder("authors.name #{direction}, albums.name asc, songs.name asc")
-      else
-        scope.reorder("songs.created_at desc")
-      end
-    end
-
     def load_song
       @song = Song.with_attached_image.friendly.find(params[:id])
     end
@@ -110,7 +116,7 @@ module Admin
     def song_params
       params.require(:song).permit(
         :name, :category_id, :lyrics, :duration_ms, :age,
-        :monthly_listeners, :popular, :image, :audio
+        :monthly_listeners, :popular, :image, :audio, :position
       )
     end
   end

@@ -77,6 +77,13 @@
                               class: "input", required: true %>
             </div>
           </div>
+
+          <% if album.persisted? %>
+            <div class="form-field">
+              <%= form.label :position, "Position", class: "label" %>
+              <%= form.number_field :position, class: "input", min: 1, value: album.position %>
+            </div>
+          <% end %>
         </div>
       </div>
 

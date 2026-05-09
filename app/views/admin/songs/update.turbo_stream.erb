@@ -1,5 +1,32 @@
-<%= turbo_stream.replace dom_id(@song) do %>
-  <%= render "admin/songs/song", song: @song %>
+<% if @reordered %>
+  <%= turbo_stream.replace dom_id(@song.album, :songs) do %>
+    <section class="admin-songs__group" id="<%= dom_id(@song.album, :songs) %>">
+      <header class="admin-songs__group-header">
+        <% if @song.album.image.attached? %>
+          <%= image_tag @song.album.image, class: "admin-songs__group-art", loading: "lazy", alt: "" %>
+        <% else %>
+          <span class="admin-songs__group-art admin-songs__group-art--placeholder">
+            <%= icon :disc, size: 18 %>
+          </span>
+        <% end %>
+        <div class="admin-songs__group-meta">
+          <span class="admin-songs__group-name"><%= @song.album.name %></span>
+          <span class="admin-songs__group-sub"><%= @song.album.author.name %></span>
+        </div>
+        <span class="admin-pill"><%= pluralize(@album_songs.size, "song") %></span>
+      </header>
+
+      <ul class="admin-songs__list"
+          data-controller="sortable"
+          data-sortable-url-template-value="<%= update_position_admin_song_path(":id") %>">
+        <%= render partial: "admin/songs/song", collection: @album_songs, as: :song %>
+      </ul>
+    </section>
+  <% end %>
+<% else %>
+  <%= turbo_stream.replace dom_id(@song) do %>
+    <%= render "admin/songs/song", song: @song %>
+  <% end %>
 <% end %>
 
 <%= turbo_stream.update "song-form-modal" %>

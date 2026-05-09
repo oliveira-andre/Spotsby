@@ -1,4 +1,4 @@
-<li class="admin-song" id="<%= dom_id(song) %>">
+<li class="admin-song" id="<%= dom_id(song) %>" data-sortable-id="<%= song.id %>">
   <% if song.image.attached? %>
     <%= image_tag song.image, class: "admin-song__art", loading: "lazy", alt: "" %>
   <% else %>
@@ -10,6 +10,8 @@
   <div class="admin-song__meta">
     <span class="admin-song__name"><%= song.name %></span>
     <span class="admin-song__sub">
+      <span class="admin-pill">#<%= song.position %></span>
+      <span class="admin-album__dot">·</span>
       <span class="admin-song__author"><%= song.album.author.name %></span>
       <span class="admin-album__dot">·</span>
       <span class="admin-song__album"><%= song.album.name %></span>

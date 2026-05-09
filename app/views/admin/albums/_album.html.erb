@@ -1,4 +1,4 @@
-<li class="admin-album" id="<%= dom_id(album) %>">
+<li class="admin-album" id="<%= dom_id(album) %>" data-sortable-id="<%= album.id %>">
   <% if album.image.attached? %>
     <%= image_tag album.image, class: "admin-album__art", loading: "lazy", alt: "" %>
   <% else %>
@@ -10,6 +10,7 @@
   <div class="admin-album__meta">
     <span class="admin-album__name"><%= album.name %></span>
     <span class="admin-album__sub">
+      <span class="admin-pill">#<%= album.position %></span>
       <span class="admin-pill"><%= pluralize(local_assigns[:song_counts]&.[](album.id) || 0, "song") %></span>
       <span class="admin-album__dot">·</span>
       <%= album.author.name %>

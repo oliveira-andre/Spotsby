@@ -91,6 +91,9 @@ Rails.application.routes.draw do
       collection do
         post :select_author
       end
+      member do
+        patch :update_position
+      end
     end
     resources :songs, only: %i[index new edit update destroy] do
       collection do

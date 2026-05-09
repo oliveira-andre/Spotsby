@@ -1,17 +1,35 @@
 module Admin
   class AlbumsController < AdminController
-    before_action :load_album, only: %i[edit update destroy]
+    before_action :load_album, only: %i[edit update destroy update_position]
 
     def index
-      scope = Album.with_attached_image.includes(:author, :category).order(created_at: :desc)
+      author_scope = Author.with_attached_image
+                           .joins(:albums)
+                           .distinct
+                           .order(:name)
 
       if params[:q].present?
         like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"
-        scope = scope.where("albums.name ILIKE :q OR authors.name ILIKE :q", q: like).references(:author)
+        author_scope = author_scope.where("authors.name ILIKE :q OR albums.name ILIKE :q", q: like)
       end
 
-      @pagy, @albums = pagy(scope, limit: DEFAULT_PER_PAGE)
-      @song_counts = Song.where(album_id: @albums.map(&:id)).group(:album_id).count
+      @pagy, @authors = pagy(author_scope, limit: DEFAULT_PER_PAGE)
+
+      albums_scope = Album.with_attached_image
+                          .includes(:category)
+                          .where(author_id: @authors.map(&:id))
+                          .order(:position)
+
+      if params[:q].present?
+        like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"
+        albums_scope = albums_scope.where(
+          "albums.name ILIKE :q OR author_id IN (SELECT id FROM authors WHERE name ILIKE :q)",
+          q: like
+        )
+      end
+
+      @albums_by_author = albums_scope.group_by(&:author_id)
+      @song_counts = Song.where(album_id: albums_scope.map(&:id)).group(:album_id).count
     end
 
     def new
@@ -30,7 +48,20 @@ module Admin
     def edit; end
 
     def update
-      if @album.update(album_params)
+      attrs = album_params
+      new_position = attrs.delete(:position).presence&.to_i
+      @reordered = false
+
+      if @album.update(attrs)
+        if new_position && new_position != @album.position
+          @album.insert_at(new_position)
+          @reordered = true
+          @author_albums = Album.with_attached_image
+                                .includes(:category)
+                                .where(author_id: @album.author_id)
+                                .order(:position)
+          @song_counts = Song.where(album_id: @author_albums.map(&:id)).group(:album_id).count
+        end
         respond_to do |format|
           format.turbo_stream
         end
@@ -50,6 +81,14 @@ module Admin
       end
     end
 
+    def update_position
+      position = params[:position].to_i
+      return head :unprocessable_content if position < 1
+
+      @album.insert_at(position)
+      head :ok
+    end
+
     private
 
     def load_album
@@ -57,7 +96,7 @@ module Admin
     end
 
     def album_params
-      params.require(:album).permit(:name, :release_date, :category_id, :image)
+      params.require(:album).permit(:name, :release_date, :category_id, :image, :position)
     end
   end
 end

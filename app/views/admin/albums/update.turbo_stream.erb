@@ -1,5 +1,29 @@
-<%= turbo_stream.replace dom_id(@album) do %>
-  <%= render "admin/albums/album", album: @album %>
+<% if @reordered %>
+  <%= turbo_stream.replace dom_id(@album.author, :albums) do %>
+    <section class="admin-albums__group" id="<%= dom_id(@album.author, :albums) %>">
+      <header class="admin-albums__group-header">
+        <% if @album.author.image.attached? %>
+          <%= image_tag @album.author.image, class: "admin-albums__group-art", loading: "lazy", alt: "" %>
+        <% else %>
+          <span class="admin-albums__group-art admin-albums__group-art--placeholder">
+            <%= icon :microphone, size: 16 %>
+          </span>
+        <% end %>
+        <span class="admin-albums__group-name"><%= @album.author.name %></span>
+        <span class="admin-pill"><%= pluralize(@author_albums.size, "album") %></span>
+      </header>
+
+      <ul class="admin-albums__list"
+          data-controller="sortable"
+          data-sortable-url-template-value="<%= update_position_admin_album_path(":id") %>">
+        <%= render partial: "admin/albums/album", collection: @author_albums, as: :album, locals: { song_counts: @song_counts } %>
+      </ul>
+    </section>
+  <% end %>
+<% else %>
+  <%= turbo_stream.replace dom_id(@album) do %>
+    <%= render "admin/albums/album", album: @album %>
+  <% end %>
 <% end %>
 
 <%= turbo_stream.update "album-form-modal" %>
