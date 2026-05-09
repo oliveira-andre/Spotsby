@@ -38,8 +38,10 @@ export default class extends Controller {
   }
 
   seedNavStack() {
-    let stack = readNavStack()
     const here = window.location.pathname + window.location.search + window.location.hash
+    if (isPlayerPath(here)) return
+
+    let stack = readNavStack()
     if (stack.length === 0 || stack[stack.length - 1] !== here) {
       stack.push(here)
       writeNavStack(stack)
@@ -306,4 +308,8 @@ function readNavStack() {
 
 function writeNavStack(stack) {
   try { sessionStorage.setItem(NAV_STACK_KEY, JSON.stringify(stack)) } catch (_) {}
+}
+
+function isPlayerPath(path) {
+  return /^\/players(\/|$|\?)/.test(path)
 }
