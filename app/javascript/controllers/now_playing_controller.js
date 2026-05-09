@@ -34,6 +34,7 @@ export default class extends Controller {
 
     this.seedNavStack()
     this.restoreFromStorage()
+    this.setupMediaSession()
   }
 
   seedNavStack() {
@@ -95,6 +96,7 @@ export default class extends Controller {
       slug: data.slug,
       name: data.name,
       authors: data.authors,
+      album: data.album,
       imageUrl: data.imageUrl,
       audioUrl: data.audioUrl
     }
@@ -125,6 +127,38 @@ export default class extends Controller {
       const slug = data.slug || data.id
       this.linkTarget.href = slug ? `/players/${slug}` : "#"
     }
+
+    this.updateMediaSessionMetadata(data)
+  }
+
+  setupMediaSession() {
+    if (!("mediaSession" in navigator)) return
+
+    navigator.mediaSession.setActionHandler("play", () => this.safePlay())
+    navigator.mediaSession.setActionHandler("pause", () => this.audioTarget.pause())
+    navigator.mediaSession.setActionHandler("seekto", (details) => {
+      if (typeof details.seekTime === "number") this.audioTarget.currentTime = details.seekTime
+    })
+    navigator.mediaSession.setActionHandler("nexttrack", () => this.advanceToNext())
+  }
+
+  updateMediaSessionMetadata(data) {
+    if (!("mediaSession" in navigator) || typeof MediaMetadata === "undefined") return
+
+    const artwork = data.imageUrl
+      ? [
+          { src: data.imageUrl, sizes: "96x96", type: "image/png" },
+          { src: data.imageUrl, sizes: "192x192", type: "image/png" },
+          { src: data.imageUrl, sizes: "512x512", type: "image/png" }
+        ]
+      : []
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: data.name || "Unknown",
+      artist: data.authors || "Unknown",
+      album: data.album || "",
+      artwork
+    })
   }
 
   toggle() {
@@ -155,6 +189,7 @@ export default class extends Controller {
     if (this.hasPlayIconTarget) this.playIconTarget.hidden = true
     if (this.hasPauseIconTarget) this.pauseIconTarget.hidden = false
     if (this.hasPlayButtonTarget) this.playButtonTarget.setAttribute("aria-label", "Pause")
+    if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "playing"
     this.dispatch("state", { detail: { playing: true } })
   }
 
@@ -162,15 +197,23 @@ export default class extends Controller {
     if (this.hasPlayIconTarget) this.playIconTarget.hidden = false
     if (this.hasPauseIconTarget) this.pauseIconTarget.hidden = true
     if (this.hasPlayButtonTarget) this.playButtonTarget.setAttribute("aria-label", "Play")
+    if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused"
     this.dispatch("state", { detail: { playing: false } })
   }
 
   handleTimeUpdate() {
+    const { currentTime, duration } = this.audioTarget
+    if ("mediaSession" in navigator && Number.isFinite(duration) && duration > 0) {
+      try {
+        navigator.mediaSession.setPositionState({
+          duration,
+          position: Math.min(currentTime, duration),
+          playbackRate: this.audioTarget.playbackRate || 1
+        })
+      } catch (_) { /* ignore — some browsers throw on invalid state */ }
+    }
     this.dispatch("timeupdate", {
-      detail: {
-        currentTime: this.audioTarget.currentTime,
-        duration: this.audioTarget.duration
-      }
+      detail: { currentTime, duration }
     })
   }
 

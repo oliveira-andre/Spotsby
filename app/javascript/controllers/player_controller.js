@@ -10,6 +10,7 @@ export default class extends Controller {
     slug: String,
     name: String,
     authors: String,
+    album: String,
     imageUrl: String,
     audioUrl: String
   }
@@ -52,6 +53,7 @@ export default class extends Controller {
           slug: this.slugValue,
           name: this.nameValue,
           authors: this.authorsValue,
+          album: this.albumValue,
           imageUrl: this.imageUrlValue,
           audioUrl: this.audioUrlValue,
           autoplay
