@@ -10,6 +10,7 @@ export default class extends Controller {
     firstName: String,
     firstAuthors: String,
     firstImageUrl: String,
+    firstImageContentType: String,
     firstAudioUrl: String
   }
 
@@ -49,6 +50,7 @@ export default class extends Controller {
         name: this.firstNameValue,
         authors: this.firstAuthorsValue,
         imageUrl: this.firstImageUrlValue,
+        imageContentType: this.firstImageContentTypeValue,
         audioUrl: this.firstAudioUrlValue,
         autoplay: true
       }

@@ -108,9 +108,11 @@ export default class extends Controller {
       authors: data.authors,
       album: data.album,
       imageUrl: data.imageUrl,
+      imageContentType: data.imageContentType,
       audioUrl: data.audioUrl
     }
     this.renderMeta(this.state)
+    this.updateMediaSessionMetadata(this.state)
     this.audioTarget.src = data.audioUrl
     this.audioTarget.load()
     this.persist()
@@ -138,10 +140,19 @@ export default class extends Controller {
       this.linkTarget.href = slug ? `/players/${slug}` : "#"
     }
 
-    this.updateMediaSessionMetadata(data)
+    this.updateDocumentTitle(data)
+  }
+
+  updateDocumentTitle(data) {
+    const parts = [data?.name, data?.authors].filter((p) => p && p.length > 0)
+    document.title = parts.length ? parts.join(" — ") : "Spotsby"
   }
 
   setupMediaSession() {
+    if ("audioSession" in navigator) {
+      try { navigator.audioSession.type = "playback" } catch (_) { /* ignore — iOS-only */ }
+    }
+
     if (!("mediaSession" in navigator)) return
 
     navigator.mediaSession.setActionHandler("play", () => this.safePlay())
@@ -153,13 +164,14 @@ export default class extends Controller {
   }
 
   updateMediaSessionMetadata(data) {
-    if (!("mediaSession" in navigator) || typeof MediaMetadata === "undefined") return
+    if (!data || !("mediaSession" in navigator) || typeof MediaMetadata === "undefined") return
 
+    const type = data.imageContentType || "image/jpeg"
     const artwork = data.imageUrl
       ? [
-          { src: data.imageUrl, sizes: "96x96", type: "image/png" },
-          { src: data.imageUrl, sizes: "192x192", type: "image/png" },
-          { src: data.imageUrl, sizes: "512x512", type: "image/png" }
+          { src: data.imageUrl, sizes: "96x96", type },
+          { src: data.imageUrl, sizes: "192x192", type },
+          { src: data.imageUrl, sizes: "512x512", type }
         ]
       : []
 
@@ -200,6 +212,7 @@ export default class extends Controller {
     if (this.hasPauseIconTarget) this.pauseIconTarget.hidden = false
     if (this.hasPlayButtonTarget) this.playButtonTarget.setAttribute("aria-label", "Pause")
     if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "playing"
+    this.updateMediaSessionMetadata(this.state)
     this.dispatch("state", { detail: { playing: true } })
   }
 
@@ -266,6 +279,7 @@ export default class extends Controller {
   hide() {
     this.element.hidden = true
     document.body.classList.remove("has-minimal-player")
+    document.title = "Spotsby"
   }
 
   persist() {

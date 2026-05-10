@@ -12,6 +12,7 @@ export default class extends Controller {
     authors: String,
     album: String,
     imageUrl: String,
+    imageContentType: String,
     audioUrl: String
   }
 
@@ -59,6 +60,7 @@ export default class extends Controller {
           authors: this.authorsValue,
           album: this.albumValue,
           imageUrl: this.imageUrlValue,
+          imageContentType: this.imageContentTypeValue,
           audioUrl: this.audioUrlValue,
           autoplay
         }

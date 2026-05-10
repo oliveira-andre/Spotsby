@@ -1,12 +1,14 @@
 <%
   album_song_ids = @album.songs.map { |s| s.id.to_s }
   first_song = @album.songs.first
-  first_song_image_url =
+  first_song_image_blob =
     if first_song&.image&.attached?
-      url_for(first_song.image)
+      first_song.image
     elsif @album.image.attached?
-      url_for(@album.image)
+      @album.image
     end
+  first_song_image_url = first_song_image_blob ? rails_storage_proxy_url(first_song_image_blob) : nil
+  first_song_image_content_type = first_song_image_blob&.blob&.content_type
   first_song_audio_url = first_song&.audio&.attached? ? url_for(first_song.audio) : nil
   first_song_authors = first_song ? first_song.authors.map(&:name).join(", ") : nil
 %>
@@ -20,6 +22,7 @@
      data-album-show-first-name-value="<%= first_song&.name %>"
      data-album-show-first-authors-value="<%= first_song_authors %>"
      data-album-show-first-image-url-value="<%= first_song_image_url %>"
+     data-album-show-first-image-content-type-value="<%= first_song_image_content_type %>"
      data-album-show-first-audio-url-value="<%= first_song_audio_url %>">
   <header class="album-show__header">
     <%= link_to category_path(@album.category),

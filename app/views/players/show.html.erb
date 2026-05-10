@@ -1,10 +1,12 @@
 <%
-  song_image_url =
+  song_image_blob =
     if @song&.image&.attached?
-      url_for(@song.image)
+      @song.image
     elsif @song&.album&.image&.attached?
-      url_for(@song.album.image)
+      @song.album.image
     end
+  song_image_url = song_image_blob ? rails_storage_proxy_url(song_image_blob) : nil
+  song_image_content_type = song_image_blob&.blob&.content_type
   song_audio_url = @song&.audio&.attached? ? url_for(@song.audio) : nil
   song_authors = @song ? @song.authors.map(&:name).join(", ") : nil
   song_author_links =
@@ -16,6 +18,8 @@
     end
 %>
 
+<% content_for(:title, [@song&.name, song_authors].compact_blank.join(" — ").presence || "Spotsby") %>
+
 <div class="player"
      data-controller="player"
      data-player-modal-outlet="#song-details"
@@ -26,6 +30,7 @@
      data-player-authors-value="<%= song_authors %>"
      data-player-album-value="<%= @song&.album&.name %>"
      data-player-image-url-value="<%= song_image_url %>"
+     data-player-image-content-type-value="<%= song_image_content_type %>"
      data-player-audio-url-value="<%= song_audio_url %>">
   <header class="player__header">
     <%= link_to root_path,
