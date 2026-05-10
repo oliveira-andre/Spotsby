@@ -54,17 +54,19 @@ class PlayersController < ApplicationController
 
     if direction == :next && current_user.random_mode?
       random_next = sample_category_song(current_song)
-      if random_next
-        record_queue_entry!(random_next, SongQueue::SOURCE_CATEGORY_SHUFFLE)
-        return redirect_to player_path(random_next)
-      end
+      return redirect_to player_path(random_next, source: SongQueue::SOURCE_CATEGORY_SHUFFLE) if random_next
     end
 
     next_song, source, source_id = resolve_next(current_song, latest.source, latest.source_id, direction)
     return redirect_back_or_to(player_path(current_song)) unless next_song
 
-    record_queue_entry!(next_song, source, source_id)
-    redirect_to player_path(next_song)
+    redirect_to player_path(next_song, **redirect_source_params(source, source_id))
+  end
+
+  def redirect_source_params(source, source_id)
+    params = { source: source }
+    params[:playlist_id] = source_id if source == SongQueue::SOURCE_PLAYLIST && source_id.present?
+    params
   end
 
   def sample_category_song(current_song)
