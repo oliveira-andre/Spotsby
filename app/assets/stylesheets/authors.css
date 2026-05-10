@@ -145,12 +145,14 @@
 }
 
 .author-song {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-2);
   border-radius: var(--radius-standard);
   transition: background-color 0.15s ease;
+  cursor: pointer;
 }
 
 .author-song:hover {
@@ -225,6 +227,14 @@
   gap: 2px;
   text-decoration: none;
   color: inherit;
+}
+
+.author-song__link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
 }
 
 .author-song__link:hover {
