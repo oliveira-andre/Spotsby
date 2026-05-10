@@ -15,7 +15,11 @@
       <% end %>
 
       <%= turbo_frame_tag "wizard-step" do %>
-        <%= render "admin/shared/wizard_select_author", authors: @authors, url: select_author_admin_albums_path %>
+        <%= render "admin/shared/wizard_select_author",
+                   authors: @authors,
+                   pagy: @pagy,
+                   url: select_author_admin_albums_path,
+                   search_url: new_admin_album_path %>
       <% end %>
     </div>
   </div>

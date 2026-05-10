@@ -1,34 +1,62 @@
-<%= form_with url: url, method: :post, class: "admin-modal__form" do %>
+<%= form_with url: search_url,
+              method: :get,
+              class: "author-picker__search",
+              data: { turbo_frame: "wizard-authors-list", controller: "auto-submit" } do |form| %>
+  <%= icon :magnifying_glass, size: 18 %>
+  <%= form.search_field :q,
+        value: params[:q],
+        placeholder: "Search authors",
+        class: "author-picker__search-input",
+        autocomplete: "off",
+        data: { action: "input->auto-submit#submit" } %>
+<% end %>
 
-  <% if authors.any? %>
-    <ul class="author-picker">
-      <% authors.each do |author| %>
-        <li>
-          <label class="author-picker__item">
-            <input type="radio"
-                   name="author_id"
-                   value="<%= author.id %>"
-                   required
-                   class="author-picker__input">
-            <% if author.image.attached? %>
-              <%= image_tag author.image, class: "author-picker__art", loading: "lazy", alt: "" %>
-            <% else %>
-              <span class="author-picker__art author-picker__art--placeholder">
-                <%= icon :microphone, size: 18 %>
-              </span>
-            <% end %>
-            <span class="author-picker__name"><%= author.name %></span>
-            <span class="author-picker__check" aria-hidden="true"></span>
-          </label>
-        </li>
+<%= turbo_frame_tag "wizard-authors-list" do %>
+  <%= form_with url: url, method: :post, class: "admin-modal__form" do %>
+    <% if authors.any? %>
+      <%= turbo_frame_tag :page, pagy.page, target: :_top do %>
+        <ul class="author-picker"
+            <%= 'id="wizard-authors"'.html_safe if pagy.page == 1 %>>
+          <% authors.each do |author| %>
+            <li>
+              <label class="author-picker__item">
+                <input type="radio"
+                       name="author_id"
+                       value="<%= author.id %>"
+                       required
+                       class="author-picker__input">
+                <% if author.image.attached? %>
+                  <%= image_tag author.image, class: "author-picker__art", loading: "lazy", alt: "" %>
+                <% else %>
+                  <span class="author-picker__art author-picker__art--placeholder">
+                    <%= icon :microphone, size: 18 %>
+                  </span>
+                <% end %>
+                <span class="author-picker__name"><%= author.name %></span>
+                <span class="author-picker__check" aria-hidden="true"></span>
+              </label>
+            </li>
+          <% end %>
+        </ul>
+
+        <% if pagy.next %>
+          <%= turbo_frame_tag :page, pagy.next,
+                              src: "#{search_url}?#{ { page: pagy.next, q: params[:q] }.compact_blank.to_query }",
+                              loading: :lazy,
+                              target: :_top do %>
+            <p class="author-picker__loading">Loading...</p>
+          <% end %>
+        <% end %>
       <% end %>
-    </ul>
-  <% else %>
-    <p class="author-picker__empty">No authors yet. Create one before continuing.</p>
-  <% end %>
+    <% else %>
+      <p class="author-picker__empty">
+        <%= params[:q].present? ? "No authors matched “#{params[:q]}”." : "No authors yet. Create one before continuing." %>
+      </p>
+    <% end %>
 
-  <div class="admin-modal__actions">
-    <%= submit_tag "Continue", class: "btn btn--primary btn--uppercase", disabled: authors.empty? %>
-    <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close">Cancel</button>
-  </div>
+    <div class="admin-modal__actions">
+      <%= submit_tag "Continue", class: "btn btn--primary btn--uppercase", disabled: authors.empty? %>
+      <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close">Cancel</button>
+    </div>
+  <% end %>
 <% end %>

@@ -43,7 +43,14 @@ module Admin
     end
 
     def new
-      @authors = Author.with_attached_image.order(:name)
+      scope = Author.with_attached_image.order(:name)
+
+      if params[:q].present?
+        like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"
+        scope = scope.where("name ILIKE :q", q: like)
+      end
+
+      @pagy, @authors = pagy(scope, limit: DEFAULT_PER_PAGE)
     end
 
     def select_author
