@@ -119,7 +119,6 @@ UI work follows `DESIGN.md` — color tokens, type scale, spacing, and component
 
 ## Contrib ideas
 
-- Track better the next song, is choosing too much random
 - Share song on player, share album and share author
 - Create a System Based user for attaching public Playlists. Create Playlists for all categories
 - Make Public Playlists searchable
