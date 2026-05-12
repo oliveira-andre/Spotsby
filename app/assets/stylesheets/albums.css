@@ -86,6 +86,7 @@
   gap: var(--space-3);
 }
 
+.album-show__actions-left,
 .album-show__actions-right {
   display: flex;
   align-items: center;

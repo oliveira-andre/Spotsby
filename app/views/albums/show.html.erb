@@ -53,8 +53,13 @@
   </section>
 
   <div class="album-show__actions">
-    <% album_saved = current_user.saved_album_names.include?(@album.name) %>
-    <%= render "shared/album_heart", album: @album, saved: album_saved, button_class: "album-show__icon-btn", size: 24 %>
+    <div class="album-show__actions-left">
+      <% album_saved = current_user.saved_album_names.include?(@album.name) %>
+      <%= render "shared/album_heart", album: @album, saved: album_saved, button_class: "album-show__icon-btn", size: 24 %>
+      <%= render "shared/share_button",
+                 url: album_url(@album),
+                 btn_class: "album-show__icon-btn" %>
+    </div>
     <div class="album-show__actions-right">
       <%= button_to random_song_album_path(@album),
                     form: { class: "album-show__icon-form", data: { turbo_stream: true } },

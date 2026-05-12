@@ -1,0 +1,68 @@
+.share-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.share-button__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-circle);
+  transition: color 0.15s ease, transform 0.1s ease;
+}
+
+.share-button__btn:hover {
+  color: var(--color-text-base);
+}
+
+.share-button__btn:active {
+  transform: scale(0.96);
+}
+
+.share-button__tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  background-color: var(--color-bg-card);
+  color: var(--color-text-base);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-subtle);
+  box-shadow: var(--shadow-heavy);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+  z-index: 10;
+}
+
+.share-button__tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--color-bg-card);
+}
+
+.share-button:hover .share-button__tooltip,
+.share-button:focus-within .share-button__tooltip,
+.share-button.is-copied .share-button__tooltip {
+  opacity: 1;
+}
+
+.share-button.is-copied .share-button__tooltip {
+  color: var(--color-accent);
+}

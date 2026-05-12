@@ -1,0 +1,24 @@
+<%#
+  Icon-only copy-link button using @stimulus-components/clipboard.
+
+  Locals:
+    url        - absolute URL to copy
+    btn_class  - CSS class applied to the icon button (defaults to share-button__btn)
+    size       - icon size in px (default 22)
+%>
+<% btn_class ||= "share-button__btn" %>
+<% size_v = local_assigns[:size] || 22 %>
+<div class="share-button"
+     data-controller="share-button clipboard"
+     data-clipboard-success-content-value="Copied!"
+     data-clipboard-success-duration-value="2000"
+     data-share-button-duration-value="2000">
+  <input type="hidden" data-clipboard-target="source" value="<%= url %>">
+  <button type="button"
+          class="<%= btn_class %>"
+          aria-label="Copy link"
+          data-action="click->clipboard#copy click->share-button#flash">
+    <%= icon :share, size: size_v %>
+  </button>
+  <span class="share-button__tooltip" data-clipboard-target="button" role="status">Click to copy</span>
+</div>

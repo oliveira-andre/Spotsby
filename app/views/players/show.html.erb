@@ -147,6 +147,9 @@
         <p class="player__details-artist"><%= @song.authors.map(&:name).join(", ") %></p>
         <p class="player__details-album"><%= @song.album&.name %></p>
       </div>
+      <%= render "shared/share_button",
+                 url: player_url(@song),
+                 btn_class: "player__details-share" %>
     </div>
   <% else %>
     <p class="player__details-empty">No song playing.</p>
