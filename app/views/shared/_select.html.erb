@@ -1,0 +1,45 @@
+<%#
+  Searchable select component.
+  Yields the underlying native <select>. Required attributes on the yielded select:
+    class: "select__native"
+    data: { select_target: "select" }
+
+  Locals:
+    placeholder: text shown when nothing is selected
+    variant:     "input" (default, full-width form field) or "pill" (compact filter)
+    search_placeholder: text shown inside the search input (default "Search…")
+%>
+<% variant ||= "input" %>
+<% search_placeholder ||= "Search…" %>
+<div class="select select--<%= variant %>"
+     data-controller="select"
+     data-select-placeholder-value="<%= placeholder %>">
+  <%= yield %>
+  <div class="select__trigger"
+       role="button"
+       tabindex="0"
+       data-select-target="trigger"
+       data-action="click->select#toggle keydown.enter->select#toggle keydown.space->select#toggle">
+    <span class="select__trigger-text placeholder"
+          data-select-target="triggerText"><%= placeholder %></span>
+    <button type="button"
+            class="select__clear"
+            hidden
+            data-select-target="clearButton"
+            data-action="click->select#clear"
+            aria-label="Clear">&times;</button>
+    <svg class="select__chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+    </svg>
+  </div>
+  <div class="select__dropdown" data-select-target="dropdown">
+    <div class="select__search">
+      <input type="text"
+             placeholder="<%= search_placeholder %>"
+             autocomplete="off"
+             data-select-target="searchInput"
+             data-action="input->select#search">
+    </div>
+    <div class="select__options" data-select-target="optionsList"></div>
+  </div>
+</div>

@@ -79,12 +79,17 @@
                         data-gemini-ai-autocomplete-target="categoryButton"
                         data-action="click->gemini-ai-autocomplete#fillCategory">AI</button>
               </div>
-              <%= form.select :category_id,
-                              categories,
-                              {},
-                              class: "input",
-                              required: true,
-                              data: { gemini_ai_autocomplete_target: "categoryField" } %>
+              <%= render "shared/select", placeholder: "Choose category", search_placeholder: "Search categories…" do %>
+                <%= form.select :category_id,
+                                categories,
+                                {},
+                                class: "select__native",
+                                required: true,
+                                data: {
+                                  select_target: "select",
+                                  gemini_ai_autocomplete_target: "categoryField"
+                                } %>
+              <% end %>
             </div>
             <div class="form-field">
               <%= form.label :duration_ms, "Duration (ms)", class: "label" %>
