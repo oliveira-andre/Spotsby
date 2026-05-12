@@ -80,6 +80,11 @@ export default class extends Controller {
     if (url.origin !== window.location.origin) return
 
     const dest = url.pathname + url.search + url.hash
+    // Autoplay/next/previous land us on a player path via a server redirect,
+    // bypassing trackLastPage. Keep the stack as a breadcrumb of non-player
+    // contexts only, so back always points to where the user was browsing.
+    if (isPlayerPath(dest)) return
+
     let stack = readNavStack()
     if (stack[stack.length - 1] !== dest) stack.push(dest)
     if (stack.length > NAV_STACK_MAX) stack = stack.slice(-NAV_STACK_MAX)

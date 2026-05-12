@@ -18,9 +18,15 @@ export default class extends Controller {
 
   applyHref() {
     const stack = readNavStack()
-    if (stack.length < 2) return
+    if (stack.length === 0) return
 
-    const back = stack[stack.length - 2]
+    // Player paths are not tracked in the stack (autoplay redirects bypass
+    // trackLastPage), so on a player page the current URL is not the top of
+    // the stack — back is just stack[length-1]. On other pages, the current
+    // URL is on top and back is stack[length-2].
+    const back = isPlayerPath(currentPath())
+      ? stack[stack.length - 1]
+      : stack[stack.length - 2]
     if (!back) return
 
     let url
@@ -35,11 +41,23 @@ export default class extends Controller {
   }
 
   handleClick() {
+    // On player pages the stack's top is the page we're navigating back to,
+    // not the current page — don't pop, or we'd lose our destination.
+    if (isPlayerPath(currentPath())) return
+
     const stack = readNavStack()
     if (stack.length === 0) return
     stack.pop()
     writeNavStack(stack)
   }
+}
+
+function currentPath() {
+  return window.location.pathname + window.location.search + window.location.hash
+}
+
+function isPlayerPath(path) {
+  return /^\/players(\/|$|\?)/.test(path)
 }
 
 function readNavStack() {
