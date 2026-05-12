@@ -49,11 +49,15 @@
           <div class="admin-modal__row">
             <div class="form-field">
               <%= form.label :user_id, "Owner", class: "label" %>
-              <%= form.select :user_id, users, {}, class: "input", required: true %>
+              <%= render "shared/select", placeholder: "Choose owner", search_placeholder: "Search users…" do %>
+                <%= form.select :user_id, users, {}, class: "select__native", required: true, data: { select_target: "select" } %>
+              <% end %>
             </div>
             <div class="form-field">
               <%= form.label :status, "Visibility", class: "label" %>
-              <%= form.select :status, [["Private", "private"], ["Public", "public"]], {}, class: "input" %>
+              <%= render "shared/select", placeholder: "Choose visibility" do %>
+                <%= form.select :status, [["Private", "private"], ["Public", "public"]], {}, class: "select__native", data: { select_target: "select" } %>
+              <% end %>
             </div>
           </div>
         </div>

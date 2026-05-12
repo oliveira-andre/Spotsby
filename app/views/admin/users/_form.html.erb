@@ -60,10 +60,13 @@
           <div class="admin-modal__row">
             <div class="form-field">
               <%= form.label :status, "Status", class: "label" %>
-              <%= form.select :status,
-                              User.statuses.keys.map { |s| [s.capitalize, s] },
-                              {},
-                              class: "input" %>
+              <%= render "shared/select", placeholder: "Choose status" do %>
+                <%= form.select :status,
+                                User.statuses.keys.map { |s| [s.capitalize, s] },
+                                {},
+                                class: "select__native",
+                                data: { select_target: "select" } %>
+              <% end %>
             </div>
             <div class="form-field">
               <%= form.label :birthdate, "Birthdate", class: "label" %>

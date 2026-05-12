@@ -62,10 +62,13 @@
         </div>
         <div class="form-field">
           <%= form.label :category_id, "Category", class: "label" %>
-          <%= form.select :category_id,
-                          categories,
-                          { include_blank: "Choose category" },
-                          class: "input", required: true %>
+          <%= render "shared/select", placeholder: "Choose category", search_placeholder: "Search categories…" do %>
+            <%= form.select :category_id,
+                            categories,
+                            { include_blank: "Choose category" },
+                            class: "select__native", required: true,
+                            data: { select_target: "select" } %>
+          <% end %>
         </div>
       </div>
     </div>

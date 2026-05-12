@@ -31,6 +31,7 @@ export default class extends Controller {
 
     if (cleared) {
       this.albumTarget.value = ""
+      this.albumTarget.dispatchEvent(new Event("change", { bubbles: true }))
     }
   }
 }
