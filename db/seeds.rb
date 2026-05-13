@@ -11,6 +11,7 @@ if result == "y" || result == "Y"
     PopularSong.destroy_all
     PlaylistSong.destroy_all
     SongAuthor.destroy_all
+    SongQueue.destroy_all
     Song.destroy_all
     Album.destroy_all
     Author.destroy_all
@@ -20,7 +21,6 @@ if result == "y" || result == "Y"
     Playlist.destroy_all
     PlaylistSong.destroy_all
     PlayHistory.destroy_all
-    SongQueue.destroy_all
     ActiveStorage::Attachment.destroy_all
     ActiveStorage::Blob.destroy_all
   end
@@ -103,6 +103,11 @@ queen.image.attach(io: File.open(Rails.root.join('tmp/images/queen.jpg')), filen
 
 katy_perry = Author.create(name: 'Katy Perry')
 katy_perry.image.attach(io: File.open(Rails.root.join('tmp/images/katy_perry.webp')), filename: 'katy_perry.webp')
+
+(1..20).each do |i|
+  author = Author.create(name: "Author #{i}")
+  author.image.attach(io: File.open(Rails.root.join('tmp/images/katy_perry.webp')), filename: "author_#{i}.jpg")
+end
 
 michael = Author.create(name: 'Michael Jackson')
 michael.image.attach(io: File.open(Rails.root.join('tmp/images/michael.jpg')), filename: 'michael.jpg')
