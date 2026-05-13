@@ -14,40 +14,42 @@
 <%= turbo_frame_tag "wizard-authors-list" do %>
   <%= form_with url: url, method: :post, class: "admin-modal__form" do %>
     <% if authors.any? %>
-      <%= turbo_frame_tag :page, pagy.page, target: :_top do %>
-        <ul class="author-picker"
-            <%= 'id="wizard-authors"'.html_safe if pagy.page == 1 %>>
-          <% authors.each do |author| %>
-            <li>
-              <label class="author-picker__item">
-                <input type="radio"
-                       name="author_id"
-                       value="<%= author.id %>"
-                       required
-                       class="author-picker__input">
-                <% if author.image.attached? %>
-                  <%= image_tag author.image, class: "author-picker__art", loading: "lazy", alt: "" %>
-                <% else %>
-                  <span class="author-picker__art author-picker__art--placeholder">
-                    <%= icon :microphone, size: 18 %>
-                  </span>
-                <% end %>
-                <span class="author-picker__name"><%= author.name %></span>
-                <span class="author-picker__check" aria-hidden="true"></span>
-              </label>
-            </li>
-          <% end %>
-        </ul>
+      <div class="author-picker" id="wizard-authors">
+        <%= turbo_frame_tag :page, pagy.page, target: :_top, class: "author-picker__page" do %>
+          <ul class="author-picker__list">
+            <% authors.each do |author| %>
+              <li>
+                <label class="author-picker__item">
+                  <input type="radio"
+                         name="author_id"
+                         value="<%= author.id %>"
+                         required
+                         class="author-picker__input">
+                  <% if author.image.attached? %>
+                    <%= image_tag author.image, class: "author-picker__art", loading: "lazy", alt: "" %>
+                  <% else %>
+                    <span class="author-picker__art author-picker__art--placeholder">
+                      <%= icon :microphone, size: 18 %>
+                    </span>
+                  <% end %>
+                  <span class="author-picker__name"><%= author.name %></span>
+                  <span class="author-picker__check" aria-hidden="true"></span>
+                </label>
+              </li>
+            <% end %>
+          </ul>
 
-        <% if pagy.next %>
-          <%= turbo_frame_tag :page, pagy.next,
-                              src: "#{search_url}?#{ { page: pagy.next, q: params[:q] }.compact_blank.to_query }",
-                              loading: :lazy,
-                              target: :_top do %>
-            <p class="author-picker__loading">Loading...</p>
+          <% if pagy.next %>
+            <%= turbo_frame_tag :page, pagy.next,
+                                src: "#{search_url}?#{ { page: pagy.next, q: params[:q] }.compact_blank.to_query }",
+                                loading: :lazy,
+                                target: :_top,
+                                class: "author-picker__page" do %>
+              <p class="author-picker__loading">Loading...</p>
+            <% end %>
           <% end %>
         <% end %>
-      <% end %>
+      </div>
     <% else %>
       <p class="author-picker__empty">
         <%= params[:q].present? ? "No authors matched “#{params[:q]}”." : "No authors yet. Create one before continuing." %>

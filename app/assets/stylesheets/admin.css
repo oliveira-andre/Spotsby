@@ -1576,9 +1576,6 @@
 }
 
 .author-picker {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -1587,6 +1584,21 @@
   padding: var(--space-1);
   background-color: var(--color-bg-elevated);
   border-radius: var(--radius-comfortable);
+}
+
+.author-picker__page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.author-picker__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
 .author-picker__item {
