@@ -119,8 +119,11 @@ UI work follows `DESIGN.md` — color tokens, type scale, spacing, and component
 
 ## Contrib ideas
 
-- Share song on player, share album and share author
-- Searchable Select
+- User can add music to a queue meaning next song
+- Show queue on 3 dots up right details modal.
+- Download Songs
+- Download Albums
+- Download Playlists
 - Keep Playing session between logged user on different devices.
 - Create a System Based user for attaching public Playlists. Create Playlists for all categories
 - Make Public Playlists searchable
