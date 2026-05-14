@@ -64,6 +64,12 @@ Rails.application.routes.draw do
       get :all_songs
       post :random_song
     end
+
+    resources :popular_songs, only: [] do
+      member do
+        patch :update_position
+      end
+    end
   end
 
   resources :players, only: %i[show] do
