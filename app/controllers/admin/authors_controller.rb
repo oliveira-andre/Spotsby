@@ -11,7 +11,9 @@ module Admin
       end
 
       @pagy, @authors = pagy(scope, limit: DEFAULT_PER_PAGE)
-      @album_counts = Album.where(author_id: @authors.map(&:id)).group(:author_id).count
+      @album_counts = Rails.cache.fetch([ "admin/album_counts", Album.count, Album.maximum(:updated_at)&.to_i ]) do
+        Album.group(:author_id).count
+      end
     end
 
     def new

@@ -9,11 +9,12 @@ module Admin
 
     def create
       attrs = song_params
+      additional_author_ids = Array(attrs.delete(:additional_author_ids))
       attrs[:category_id] = @album.category_id if attrs[:category_id].blank?
       @song = @album.songs.build(attrs)
 
       if @song.save
-        @song.authors << @author unless @song.authors.include?(@author)
+        @song.author_ids = [ @author.id, *additional_author_ids ].compact_blank.uniq
         respond_to do |format|
           format.turbo_stream
         end
@@ -21,7 +22,12 @@ module Admin
         render turbo_stream: turbo_stream.update(
           "wizard-step",
           partial: "admin/authors/wizard_song",
-          locals: { author: @author, album: @album, song: @song }
+          locals: {
+            author: @author,
+            album: @album,
+            song: @song,
+            additional_author_ids: additional_author_ids.compact_blank
+          }
         ), status: :unprocessable_content
       end
     end
@@ -39,7 +45,8 @@ module Admin
     def song_params
       params.require(:song).permit(
         :name, :category_id, :lyrics, :duration_ms, :age,
-        :monthly_listeners, :popular, :image, :audio
+        :monthly_listeners, :popular, :image, :audio,
+        additional_author_ids: []
       )
     end
   end

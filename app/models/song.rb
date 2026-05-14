@@ -12,7 +12,7 @@ class Song < ApplicationRecord
   validates :audio, size: { less_than: 100.megabytes }
 
   belongs_to :category
-  belongs_to :album
+  belongs_to :album, touch: true
 
   has_many :song_authors, dependent: :destroy
   has_many :authors, through: :song_authors, dependent: :destroy

@@ -8,7 +8,7 @@ class Album < ApplicationRecord
   validates :image, content_type: %w[image/jpeg image/png image/webp]
 
   belongs_to :category
-  belongs_to :author
+  belongs_to :author, touch: true
 
   has_many :songs, -> { ordered }, dependent: :destroy
   scope :ordered, -> { order(position: :asc) }

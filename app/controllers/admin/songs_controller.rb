@@ -38,8 +38,12 @@ module Admin
 
       @songs_by_album = songs_scope.group_by(&:album_id)
 
-      @authors_for_filter = Author.order(:name).pluck(:name, :id)
-      @albums_for_filter = Album.includes(:author).order("LOWER(albums.name)").to_a
+      @authors_for_filter = Rails.cache.fetch([ "admin/authors_for_filter", Author.count, Author.maximum(:updated_at)&.to_i ]) do
+        Author.order(:name).pluck(:name, :id)
+      end
+      @albums_for_filter = Rails.cache.fetch([ "admin/albums_for_filter", Album.count, Album.maximum(:updated_at)&.to_i ]) do
+        Album.includes(:author).order("LOWER(albums.name)").to_a
+      end
     end
 
     def new
@@ -77,9 +81,14 @@ module Admin
     def update
       attrs = song_params
       new_position = attrs.delete(:position).presence&.to_i
+      additional_author_ids = attrs.delete(:additional_author_ids)
       @reordered = false
 
       if @song.update(attrs)
+        if additional_author_ids
+          album_author_id = @song.album&.author_id
+          @song.author_ids = [ album_author_id, *additional_author_ids ].compact_blank.uniq
+        end
         if new_position && new_position != @song.position
           @song.insert_at(new_position)
           @reordered = true
@@ -123,7 +132,8 @@ module Admin
     def song_params
       params.require(:song).permit(
         :name, :category_id, :lyrics, :duration_ms, :age,
-        :monthly_listeners, :popular, :image, :audio, :position
+        :monthly_listeners, :popular, :image, :audio, :position,
+        additional_author_ids: []
       )
     end
   end

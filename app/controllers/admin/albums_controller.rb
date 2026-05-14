@@ -29,7 +29,9 @@ module Admin
       end
 
       @albums_by_author = albums_scope.group_by(&:author_id)
-      @song_counts = Song.where(album_id: albums_scope.map(&:id)).group(:album_id).count
+      @song_counts = Rails.cache.fetch([ "admin/song_counts", Song.count, Song.maximum(:updated_at)&.to_i ]) do
+        Song.group(:album_id).count
+      end
     end
 
     def new

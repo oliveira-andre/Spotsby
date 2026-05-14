@@ -159,6 +159,27 @@
   background-color: var(--color-bg-surface);
 }
 
+.author-show__songs--sortable .author-song {
+  cursor: grab;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.author-show__songs--sortable .author-song.sortable-chosen {
+  background-color: var(--color-bg-elevated);
+  box-shadow: var(--shadow-medium);
+}
+
+.author-show__songs--sortable .author-song.sortable-ghost {
+  opacity: 0.35;
+}
+
+.author-show__songs--sortable .author-song.sortable-drag {
+  background-color: var(--color-bg-card);
+  box-shadow: var(--shadow-heavy);
+  cursor: grabbing;
+}
+
 .author-song__index {
   display: inline-flex;
   align-items: center;
