@@ -1,6 +1,7 @@
 <%
-  popular_song_ids = @popular_songs.map { |s| s.id.to_s }
-  first_song = @popular_songs.first
+  popular_songs = @popular_entries.map(&:song)
+  popular_song_ids = popular_songs.map { |s| s.id.to_s }
+  first_song = popular_songs.first
   first_song_image_blob =
     if first_song&.image&.attached?
       first_song.image
@@ -11,6 +12,7 @@
   first_song_image_content_type = first_song_image_blob&.blob&.content_type
   first_song_audio_url = first_song&.audio&.attached? ? url_for(first_song.audio) : nil
   first_song_authors = first_song ? first_song.authors.map(&:name).join(", ") : nil
+  can_sort_popular = policy(@author).sort_popular_songs?
 %>
 
 <div class="author-show"
@@ -67,14 +69,20 @@
     </div>
   </div>
 
-  <% if @popular_songs.any? %>
+  <% if @popular_entries.any? %>
     <section class="author-show__popular" data-controller="reveal">
       <h2 class="author-show__section-title">Popular</h2>
-      <ul class="author-show__songs">
-        <% @popular_songs.each_with_index do |song, idx| %>
+      <ul class="author-show__songs<%= ' author-show__songs--sortable' if can_sort_popular %>"
+          <% if can_sort_popular %>
+            data-controller="sortable"
+            data-sortable-url-template-value="<%= update_position_author_popular_song_path(@author, ':id') %>"
+          <% end %>>
+        <% @popular_entries.each_with_index do |entry, idx| %>
+          <% song = entry.song %>
           <li class="author-song <%= 'hidden' if idx >= 5 %>"
               data-author-show-target="songRow"
               data-song-id="<%= song.id %>"
+              <% if can_sort_popular %>data-sortable-id="<%= entry.id %>"<% end %>
               <% if idx >= 5 %>data-reveal-target="item"<% end %>>
             <span class="author-song__index" aria-hidden="true"><%= idx + 1 %></span>
             <span class="author-song__wave" aria-hidden="true">
@@ -100,7 +108,7 @@
         <% end %>
       </ul>
 
-      <% if @popular_songs.size > 5 %>
+      <% if @popular_entries.size > 5 %>
         <div class="author-show__popular-actions">
           <button type="button"
                   class="author-show__link-btn"

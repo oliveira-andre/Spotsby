@@ -121,6 +121,10 @@
         </span>
       </label>
 
+      <%= render "admin/shared/song_authors_picker",
+                 exclude_author_id: author.id,
+                 selected_ids: local_assigns[:additional_author_ids] || Array(song.author_ids - [author.id]) %>
+
       <div class="form-field">
         <%= form.label :audio, "Audio file", class: "label" %>
         <%= form.file_field :audio,

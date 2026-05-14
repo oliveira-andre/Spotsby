@@ -1,0 +1,40 @@
+<%
+  exclude_id = local_assigns[:exclude_author_id]
+  authors = Author.order(:name).where.not(id: exclude_id).pluck(:name, :id)
+  selected_ids = Array(local_assigns[:selected_ids])
+  field_name = local_assigns[:field_name] || "song[additional_author_ids][]"
+%>
+
+<div class="form-field">
+  <%= label_tag :"song_additional_author_ids", "Featured artists", class: "label" %>
+  <div class="multi-select"
+       data-controller="multi-select"
+       data-multi-select-placeholder-value="Search authors…"
+       data-multi-select-empty-text-value="No matches">
+    <%= select_tag field_name,
+                    options_for_select(authors, selected_ids),
+                    multiple: true,
+                    class: "multi-select__native",
+                    hidden: true,
+                    data: { multi_select_target: "select" } %>
+    <input type="hidden" name="<%= field_name %>" value="">
+
+    <div class="multi-select__chips" data-multi-select-target="chips"></div>
+
+    <div class="multi-select__control">
+      <input type="text"
+             class="multi-select__search"
+             placeholder="Search authors…"
+             autocomplete="off"
+             data-multi-select-target="search"
+             data-action="input->multi-select#search focus->multi-select#focusSearch">
+    </div>
+
+    <div class="multi-select__dropdown"
+         data-multi-select-target="dropdown"
+         hidden>
+      <div class="multi-select__options" data-multi-select-target="options"></div>
+    </div>
+  </div>
+  <span class="form-field__hint">Album's main artist is always credited.</span>
+</div>

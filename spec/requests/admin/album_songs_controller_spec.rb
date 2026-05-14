@@ -41,5 +41,40 @@ RSpec.describe Admin::AlbumSongsController, type: :request do
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include("wizard-step")
     end
+
+    it "attaches additional authors alongside the album's main author" do
+      featured1 = create(:author)
+      featured2 = create(:author)
+
+      post admin_author_album_songs_path(author, album),
+           params: {
+             song: {
+               name: "Collab",
+               duration_ms: 0,
+               age: 0,
+               additional_author_ids: [ featured1.id, featured2.id ]
+             }
+           },
+           headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+      created = album.songs.last
+      expect(created.authors).to contain_exactly(author, featured1, featured2)
+    end
+
+    it "ignores blank additional_author_ids without losing the main author" do
+      post admin_author_album_songs_path(author, album),
+           params: {
+             song: {
+               name: "Solo",
+               duration_ms: 0,
+               age: 0,
+               additional_author_ids: [ "" ]
+             }
+           },
+           headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+      created = album.songs.last
+      expect(created.authors).to contain_exactly(author)
+    end
   end
 end

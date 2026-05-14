@@ -140,6 +140,11 @@
             </span>
           </label>
 
+          <% album_author_id = song.album&.author_id %>
+          <%= render "admin/shared/song_authors_picker",
+                     exclude_author_id: album_author_id,
+                     selected_ids: song.author_ids - [album_author_id].compact %>
+
           <% if song.persisted? %>
             <div class="form-field">
               <%= form.label :position, "Position", class: "label" %>
