@@ -131,6 +131,39 @@ RSpec.describe Admin::SongsController, type: :request do
       expect(song_a.reload.name).to eq("Renamed Track")
       expect(response.body).to include("Renamed Track")
     end
+
+    it "syncs additional authors while keeping the album's main author" do
+      featured = create(:author, name: "Featured")
+      song_a.authors << author_a
+
+      patch admin_song_path(song_a),
+            params: { song: { additional_author_ids: [ featured.id ] } },
+            headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+      expect(song_a.reload.authors).to contain_exactly(author_a, featured)
+    end
+
+    it "removes featured authors when an empty selection is submitted" do
+      featured = create(:author, name: "Old Feature")
+      song_a.authors = [ author_a, featured ]
+
+      patch admin_song_path(song_a),
+            params: { song: { additional_author_ids: [ "" ] } },
+            headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+      expect(song_a.reload.authors).to contain_exactly(author_a)
+    end
+
+    it "leaves authors untouched when additional_author_ids is not submitted" do
+      featured = create(:author, name: "Untouched Feature")
+      song_a.authors = [ author_a, featured ]
+
+      patch admin_song_path(song_a),
+            params: { song: { name: "Renamed Track" } },
+            headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+      expect(song_a.reload.authors).to contain_exactly(author_a, featured)
+    end
   end
 
   describe "DELETE /admin/songs/:id" do

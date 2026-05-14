@@ -7,10 +7,10 @@ class AuthorsController < ApplicationController
   before_action :load_author, only: %i[show all_songs random_song]
 
   def show
-    @popular_songs = @author.popular_songs
-                            .includes(song: [ :authors, { image_attachment: :blob } ])
-                            .limit(POPULAR_SONGS_LIMIT)
-                            .map(&:song)
+    @popular_entries = @author.popular_songs
+                              .includes(song: [ :authors, { image_attachment: :blob } ])
+                              .limit(POPULAR_SONGS_LIMIT)
+                              .to_a
 
     albums = @author.albums.with_attached_image
                     .includes(songs: [ :authors, { image_attachment: :blob } ])

@@ -50,17 +50,47 @@ class PlayersController < ApplicationController
   def advance(direction:)
     latest = SongQueue.where(user: current_user).recent.first
     current_song = latest&.song
-    return redirect_back_or_to(root_path) unless current_song
+    return respond_no_song unless current_song
 
     if direction == :next && current_user.random_mode?
       random_next = sample_category_song(current_song)
-      return redirect_to player_path(random_next, source: SongQueue::SOURCE_CATEGORY_SHUFFLE) if random_next
+      return respond_advance(random_next, SongQueue::SOURCE_CATEGORY_SHUFFLE) if random_next
     end
 
     next_song, source, source_id = resolve_next(current_song, latest.source, latest.source_id, direction)
-    return redirect_back_or_to(player_path(current_song)) unless next_song
+    return respond_advance_fallback(current_song) unless next_song
 
-    redirect_to player_path(next_song, **redirect_source_params(source, source_id))
+    respond_advance(next_song, source, source_id)
+  end
+
+  def respond_advance(song, source, source_id = nil)
+    record_queue_entry!(song, source, source_id)
+    record_play_history!(song, source)
+
+    respond_to do |format|
+      format.turbo_stream do
+        @song = song
+        render "advance"
+      end
+      format.html { redirect_to player_path(song, **redirect_source_params(source, source_id)) }
+    end
+  end
+
+  def respond_advance_fallback(song)
+    respond_to do |format|
+      format.turbo_stream do
+        @song = song
+        render "advance"
+      end
+      format.html { redirect_back_or_to(player_path(song)) }
+    end
+  end
+
+  def respond_no_song
+    respond_to do |format|
+      format.turbo_stream { head :no_content }
+      format.html { redirect_back_or_to(root_path) }
+    end
   end
 
   def redirect_source_params(source, source_id)

@@ -65,6 +65,36 @@ RSpec.describe PlayersController, type: :request do
     end
   end
 
+  describe 'POST /players/next with a turbo_stream accept header' do
+    let(:turbo_headers) { { "Accept" => "text/vnd.turbo-stream.html" } }
+
+    it 'renders a turbo_stream response instead of redirecting' do
+      next_song = create(:song, album: album, position: 2)
+      create(:song_queue, user: user, song: song, source: SongQueue::SOURCE_ALBUM)
+
+      post next_players_path, headers: turbo_headers
+
+      expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+      expect(response.body).to include("turbo-stream")
+      expect(response.body).to include(next_song.slug)
+    end
+
+    it 'still records the play history and queue entry' do
+      create(:song, album: album, position: 2)
+      create(:song_queue, user: user, song: song, source: SongQueue::SOURCE_ALBUM)
+
+      expect {
+        post next_players_path, headers: turbo_headers
+      }.to change { user.song_queues.count }.by(1)
+       .and change { user.play_histories.count }.by(1)
+    end
+
+    it 'returns no_content when no current song is queued' do
+      post next_players_path, headers: turbo_headers
+      expect(response).to have_http_status(:no_content)
+    end
+  end
+
   describe 'POST /players/toggle_random' do
     it 'flips the random_mode flag and renders a turbo stream' do
       expect {

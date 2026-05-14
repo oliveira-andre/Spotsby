@@ -1,0 +1,23 @@
+<%
+  song_image_blob =
+    if song&.image&.attached?
+      song.image
+    elsif song&.album&.image&.attached?
+      song.album.image
+    end
+  song_image_url = song_image_blob ? rails_storage_proxy_url(song_image_blob) : nil
+  song_image_content_type = song_image_blob&.blob&.content_type
+  song_audio_url = song&.audio&.attached? ? url_for(song.audio) : nil
+  song_authors = song ? song.authors.map(&:name).join(", ") : nil
+%>
+
+<div data-controller="song-loader"
+     data-song-loader-id-value="<%= song&.id %>"
+     data-song-loader-slug-value="<%= song&.slug %>"
+     data-song-loader-name-value="<%= song&.name %>"
+     data-song-loader-authors-value="<%= song_authors %>"
+     data-song-loader-album-value="<%= song&.album&.name %>"
+     data-song-loader-image-url-value="<%= song_image_url %>"
+     data-song-loader-image-content-type-value="<%= song_image_content_type %>"
+     data-song-loader-audio-url-value="<%= song_audio_url %>">
+</div>

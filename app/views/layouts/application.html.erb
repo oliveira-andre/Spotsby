@@ -33,6 +33,7 @@
     </div>
     <% if current_user %>
       <%= render "shared/minimal_player" %>
+      <div id="now-playing-events" hidden></div>
       <%= render "shared/footer" %>
       <%= render "shared/modal", id: "bottom-modal" %>
     <% end %>

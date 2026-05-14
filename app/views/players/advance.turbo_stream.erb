@@ -1,0 +1,7 @@
+<%= turbo_stream.replace "player" do %>
+  <%= render "players/player", song: @song %>
+<% end %>
+
+<%= turbo_stream.append "now-playing-events" do %>
+  <%= render "players/song_event", song: @song %>
+<% end %>
