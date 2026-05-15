@@ -23,4 +23,5 @@
                 aria: { label: "Remove from this playlist" } do %>
     <%= icon :heart, size: 20 %>
   <% end %>
+  <%= render "shared/song_kebab", song: song, button_class: "playlist-song__kebab" %>
 </li>

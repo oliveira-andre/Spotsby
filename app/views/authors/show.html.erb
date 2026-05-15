@@ -73,8 +73,9 @@
     <section class="author-show__popular" data-controller="reveal">
       <h2 class="author-show__section-title">Popular</h2>
       <ul class="author-show__songs<%= ' author-show__songs--sortable' if can_sort_popular %>"
+          data-controller="<%= "sortable " if can_sort_popular %>song-actions-trigger"
+          data-song-actions-trigger-modal-outlet="#song-actions-modal"
           <% if can_sort_popular %>
-            data-controller="sortable"
             data-sortable-url-template-value="<%= update_position_author_popular_song_path(@author, ':id') %>"
           <% end %>>
         <% @popular_entries.each_with_index do |entry, idx| %>
@@ -104,6 +105,7 @@
                 <p class="author-song__authors"><%= song.authors.map(&:name).join(", ") %></p>
               </div>
             <% end %>
+            <%= render "shared/song_kebab", song: song, button_class: "author-song__kebab" %>
           </li>
         <% end %>
       </ul>
@@ -129,6 +131,8 @@
       <% end %>
     </section>
   <% end %>
+
+  <%= render "shared/song_actions_modal" %>
 
   <% if @albums.any? || @pagy.page > 1 %>
     <section class="author-show__albums">

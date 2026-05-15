@@ -74,8 +74,9 @@
   <% owner = @playlist.user_id == current_user.id %>
   <ul class="playlist-show__songs"
       id="playlist_songs_<%= @playlist.id %>"
+      data-controller="<%= "sortable " if owner %>song-actions-trigger"
+      data-song-actions-trigger-modal-outlet="#song-actions-modal"
       <% if owner %>
-        data-controller="sortable"
         data-sortable-url-template-value="<%= update_position_playlist_song_path(@playlist, ":id") %>"
       <% end %>>
     <% songs.each do |song| %>
@@ -87,6 +88,8 @@
       No songs in this playlist yet.
     </p>
   <% end %>
+
+  <%= render "shared/song_actions_modal" %>
 </div>
 
 <% if params[:picker].present? %>

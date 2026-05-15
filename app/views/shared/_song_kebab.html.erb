@@ -1,0 +1,7 @@
+<%= link_to song_actions_path(song),
+            class: local_assigns[:button_class] || "song-kebab",
+            data: { turbo_frame: "song_actions_body",
+                    action: "click->song-actions-trigger#open" },
+            aria: { label: "More actions" } do %>
+  <%= icon :dots_vertical, size: local_assigns[:size] || 18 %>
+<% end %>

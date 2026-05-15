@@ -1,0 +1,28 @@
+<%= turbo_frame_tag "song_actions_body" do %>
+  <div class="song-actions">
+    <div class="song-actions__details">
+      <% if @song.album&.image&.attached? %>
+        <%= image_tag @song.album.image, class: "song-actions__thumb", alt: @song.album.name, loading: "lazy" %>
+      <% elsif @song.image.attached? %>
+        <%= image_tag @song.image, class: "song-actions__thumb", alt: @song.name, loading: "lazy" %>
+      <% else %>
+        <div class="song-actions__thumb song-actions__thumb--placeholder"></div>
+      <% end %>
+      <div class="song-actions__text">
+        <p class="song-actions__name"><%= @song.name %></p>
+        <p class="song-actions__artist"><%= @song.authors.map(&:name).join(", ") %></p>
+        <% if @song.album %>
+          <p class="song-actions__album"><%= @song.album.name %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <%= button_to song_queues_path(song_id: @song.id),
+                  method: :post,
+                  class: "song-actions__option",
+                  form: { class: "song-actions__form", data: { turbo_stream: true } } do %>
+      <span class="song-actions__option-icon"><%= icon :plus, size: 18 %></span>
+      <span class="song-actions__option-label">Add to queue</span>
+    <% end %>
+  </div>
+<% end %>

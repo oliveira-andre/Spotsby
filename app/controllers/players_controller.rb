@@ -48,19 +48,55 @@ class PlayersController < ApplicationController
   end
 
   def advance(direction:)
-    latest = SongQueue.where(user: current_user).recent.first
-    current_song = latest&.song
+    ph_latest = current_user.play_histories.recent.first
+    sq_latest = current_user.song_queues.reorder(created_at: :desc).first
+
+    current_song = ph_latest&.song || sq_latest&.song
+    current_source = ph_latest&.source || sq_latest&.source
     return respond_no_song unless current_song
 
-    if direction == :next && current_user.random_mode?
-      random_next = sample_category_song(current_song)
-      return respond_advance(random_next, SongQueue::SOURCE_CATEGORY_SHUFFLE) if random_next
+    if direction == :next
+      pending = current_user.song_queues
+                            .where(source: SongQueue::SOURCE_USER_CUSTOM)
+                            .reorder(created_at: :asc).first
+      if pending
+        next_song = pending.song
+        pending.destroy
+        return respond_advance_user_custom(next_song)
+      end
+
+      if current_source == SongQueue::SOURCE_USER_CUSTOM
+        shuffle = sample_artist_song(current_song)
+        return respond_advance(shuffle, SongQueue::SOURCE_ARTIST_SHUFFLE) if shuffle
+        return respond_advance_fallback(current_song)
+      end
+
+      if current_user.random_mode?
+        random_next = sample_category_song(current_song)
+        return respond_advance(random_next, SongQueue::SOURCE_CATEGORY_SHUFFLE) if random_next
+      end
     end
 
-    next_song, source, source_id = resolve_next(current_song, latest.source, latest.source_id, direction)
+    next_song, source, source_id = resolve_next(
+      current_song,
+      sq_latest&.source || current_source,
+      sq_latest&.source_id,
+      direction
+    )
     return respond_advance_fallback(current_song) unless next_song
 
     respond_advance(next_song, source, source_id)
+  end
+
+  def respond_advance_user_custom(song)
+    record_play_history!(song, SongQueue::SOURCE_USER_CUSTOM)
+    respond_to do |format|
+      format.turbo_stream do
+        @song = song
+        render "advance"
+      end
+      format.html { redirect_to player_path(song, source: SongQueue::SOURCE_USER_CUSTOM) }
+    end
   end
 
   def respond_advance(song, source, source_id = nil)

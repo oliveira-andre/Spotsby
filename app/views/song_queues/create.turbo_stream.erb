@@ -1,0 +1,7 @@
+<%= turbo_stream.update "song_actions_body" do %>
+  <div class="song-actions song-actions--confirmed"
+       data-controller="auto-close-modal"
+       data-auto-close-modal-target-value="#song-actions-modal">
+    <p class="song-actions__confirmation">Added to queue</p>
+  </div>
+<% end %>

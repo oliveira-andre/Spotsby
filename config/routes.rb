@@ -82,6 +82,9 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :song_queues, only: %i[create]
+  get "songs/:song_id/actions", to: "song_actions#show", as: :song_actions
+
   namespace :admin do
     get "dashboard", to: "dashboard#index", as: :dashboard
     resources :categories do

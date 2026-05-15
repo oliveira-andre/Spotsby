@@ -81,8 +81,9 @@
   <% if @album.songs.any? %>
     <% owner = @album.author.user_id.present? && @album.author.user_id == current_user.id %>
     <ul class="album-show__songs"
+        data-controller="<%= "sortable " if owner %>song-actions-trigger"
+        data-song-actions-trigger-modal-outlet="#song-actions-modal"
         <% if owner %>
-          data-controller="sortable"
           data-sortable-url-template-value="<%= update_position_album_song_path(@album, ":id") %>"
         <% end %>>
       <% @album.songs.each do |song| %>
@@ -104,10 +105,13 @@
           <% end %>
           <% saved = current_user.saved_song_ids.include?(song.id) %>
           <%= render "shared/song_heart", song: song, saved: saved, button_class: "album-song__heart", size: 20 %>
+          <%= render "shared/song_kebab", song: song, button_class: "album-song__kebab" %>
         </li>
       <% end %>
     </ul>
   <% else %>
     <p class="album-show__empty">No songs in this album yet.</p>
   <% end %>
+
+  <%= render "shared/song_actions_modal" %>
 </div>

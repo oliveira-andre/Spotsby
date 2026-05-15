@@ -11,7 +11,9 @@
 
   <% if @songs.any? || @pagy.page > 1 %>
     <%= turbo_frame_tag :page, @pagy.page, target: :_top do %>
-      <ul class="author-all-songs__list">
+      <ul class="author-all-songs__list"
+          data-controller="song-actions-trigger"
+          data-song-actions-trigger-modal-outlet="#song-actions-modal">
         <% @songs.each do |song| %>
           <li class="author-song"
               data-song-id="<%= song.id %>">
@@ -30,6 +32,7 @@
                 <p class="author-song__authors"><%= song.authors.map(&:name).join(", ") %></p>
               </div>
             <% end %>
+            <%= render "shared/song_kebab", song: song, button_class: "author-song__kebab" %>
           </li>
         <% end %>
       </ul>
@@ -46,4 +49,6 @@
   <% else %>
     <p class="author-all-songs__empty">No songs yet.</p>
   <% end %>
+
+  <%= render "shared/song_actions_modal" %>
 </div>

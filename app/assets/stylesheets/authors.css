@@ -253,7 +253,7 @@
 .author-song__link::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: 0 calc(36px + var(--space-3)) 0 0;
   z-index: 1;
   border-radius: inherit;
 }

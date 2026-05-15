@@ -132,6 +132,71 @@ RSpec.describe PlayersController, type: :request do
     end
   end
 
+  describe 'POST /players/next with a pending user_custom queue' do
+    it 'pops the queued song even when currently playing from a non-user_custom source' do
+      queued_song = create(:song)
+      create(:song, album: album, position: 2)
+      create(:play_history, user: user, song: song, source: SongQueue::SOURCE_ALBUM, played_at: 1.minute.ago)
+      create(:song_queue, user: user, song: song, source: SongQueue::SOURCE_ALBUM)
+      create(:song_queue, user: user, song: queued_song, source: SongQueue::SOURCE_USER_CUSTOM)
+
+      post next_players_path
+
+      expect(user.play_histories.recent.first.song).to eq(queued_song)
+      expect(user.play_histories.recent.first.source).to eq(SongQueue::SOURCE_USER_CUSTOM)
+      expect(user.song_queues.where(source: SongQueue::SOURCE_USER_CUSTOM)).to be_empty
+    end
+  end
+
+  describe 'POST /players/next when the current source is user_custom' do
+    let(:queued_song) { create(:song) }
+    let(:later_song) { create(:song) }
+
+    it 'pops the oldest pending user_custom entry and plays it' do
+      create(:play_history, user: user, song: song, source: SongQueue::SOURCE_USER_CUSTOM, played_at: 1.minute.ago)
+      pending = create(:song_queue, user: user, song: queued_song, source: SongQueue::SOURCE_USER_CUSTOM)
+
+      expect {
+        post next_players_path
+      }.to change { user.song_queues.where(id: pending.id).count }.from(1).to(0)
+       .and change { user.play_histories.count }.by(1)
+
+      expect(user.play_histories.recent.first.song).to eq(queued_song)
+      expect(user.play_histories.recent.first.source).to eq(SongQueue::SOURCE_USER_CUSTOM)
+    end
+
+    it 'plays user_custom entries in created_at order' do
+      create(:play_history, user: user, song: song, source: SongQueue::SOURCE_USER_CUSTOM, played_at: 1.minute.ago)
+      older = create(:song_queue, user: user, song: queued_song, source: SongQueue::SOURCE_USER_CUSTOM, created_at: 5.minutes.ago)
+      _newer = create(:song_queue, user: user, song: later_song, source: SongQueue::SOURCE_USER_CUSTOM, created_at: 1.minute.ago)
+
+      post next_players_path
+
+      expect(user.play_histories.recent.first.song).to eq(queued_song)
+      expect(user.song_queues.where(source: SongQueue::SOURCE_USER_CUSTOM).pluck(:song_id)).to eq([later_song.id])
+    end
+
+    it 'falls back to artist shuffle when no pending user_custom entries exist' do
+      sibling = create(:song, album: album, position: 5)
+      create(:play_history, user: user, song: song, source: SongQueue::SOURCE_USER_CUSTOM, played_at: 1.minute.ago)
+
+      post next_players_path
+
+      shuffle_entry = user.song_queues.where(source: SongQueue::SOURCE_ARTIST_SHUFFLE).first
+      expect(shuffle_entry).to be_present
+      expect(shuffle_entry.song).to eq(sibling)
+    end
+
+    it 'does not create a song_queue row when popping from the custom queue' do
+      create(:play_history, user: user, song: song, source: SongQueue::SOURCE_USER_CUSTOM, played_at: 1.minute.ago)
+      create(:song_queue, user: user, song: queued_song, source: SongQueue::SOURCE_USER_CUSTOM)
+
+      post next_players_path
+
+      expect(user.song_queues.where(source: SongQueue::SOURCE_USER_CUSTOM).count).to eq(0)
+    end
+  end
+
   describe 'POST /players/previous' do
     it 'goes to the previous album track when one exists' do
       first_song = song
