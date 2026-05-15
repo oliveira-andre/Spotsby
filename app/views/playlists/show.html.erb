@@ -36,11 +36,11 @@
     <% if @playlist.image.attached? %>
       <div class="playlist-show__hero playlist-show__hero--image"
            style="background-image: url('<%= url_for(@playlist.image) %>');">
-        <h1 class="playlist-show__name"><%= @playlist.name %></h1>
+        <%= render "name", playlist: @playlist %>
       </div>
     <% else %>
       <div class="playlist-show__hero">
-        <h1 class="playlist-show__name"><%= @playlist.name %></h1>
+        <%= render "name", playlist: @playlist %>
       </div>
     <% end %>
   </header>

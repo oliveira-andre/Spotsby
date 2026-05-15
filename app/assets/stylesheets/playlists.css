@@ -87,6 +87,81 @@
   word-break: break-word;
 }
 
+.playlist-show__name-link {
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
+}
+
+.playlist-show__name-link:hover .playlist-show__name {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.playlist-show__hero--image .playlist-show__name-link {
+  z-index: 2;
+}
+
+.playlist-show__name-form {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 100%;
+}
+
+.playlist-show__name-input {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 700;
+  min-width: 0;
+}
+
+.playlist-show__name-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: var(--radius-circle);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.playlist-show__name-btn--save {
+  background-color: var(--color-accent);
+  color: var(--color-text-light);
+}
+
+.playlist-show__name-btn--save:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.playlist-show__name-btn--cancel {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-light);
+}
+
+.playlist-show__name-btn--cancel:hover {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-light);
+  text-decoration: none;
+}
+
+.playlist-show__name-error {
+  position: relative;
+  z-index: 2;
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: var(--color-negative);
+}
+
 .playlist-show__actions {
   display: flex;
   align-items: center;

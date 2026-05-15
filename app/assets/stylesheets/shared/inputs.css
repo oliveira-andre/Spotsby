@@ -69,3 +69,23 @@ select.input option,
   background-color: var(--color-bg-elevated);
   color: var(--color-text-base);
 }
+
+.clear-input {
+  border: 0;
+  border-bottom: 2px solid var(--color-border-light);
+  border-radius: 0;
+  background-color: transparent;
+  padding: var(--space-1) 0;
+  color: var(--color-text-base);
+  font: inherit;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.clear-input:focus {
+  border-bottom-color: var(--color-accent);
+}
+
+.clear-input::placeholder {
+  color: var(--color-text-muted);
+}

@@ -93,6 +93,62 @@ RSpec.describe PlaylistsController, type: :request do
         expect(response).to have_http_status(:not_found)
       end
     end
+
+    describe 'GET /playlists/:id/update_name' do
+      it 'renders the edit form inside the playlist_name turbo-frame' do
+        playlist = create(:playlist, user: user)
+        get update_name_playlist_path(playlist)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('turbo-frame id="playlist_name"')
+        expect(response.body).to include("playlist[name]")
+      end
+
+      it 'allows renaming the pinned saved-songs playlist' do
+        get update_name_playlist_path(user.saved_songs_playlist)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    describe 'PATCH /playlists/:id/update_name' do
+      it 'updates the name and renders the display partial' do
+        playlist = create(:playlist, user: user, name: "Old")
+
+        patch update_name_playlist_path(playlist), params: { playlist: { name: "New" } }
+
+        expect(playlist.reload.name).to eq("New")
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('turbo-frame id="playlist_name"')
+        expect(response.body).to include("New")
+      end
+
+      it 'renames the pinned saved-songs playlist' do
+        saved = user.saved_songs_playlist
+
+        patch update_name_playlist_path(saved), params: { playlist: { name: "Heart" } }
+
+        expect(saved.reload.name).to eq("Heart")
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 're-renders the form with errors on a blank name' do
+        playlist = create(:playlist, user: user, name: "Keep")
+
+        patch update_name_playlist_path(playlist), params: { playlist: { name: "" } }
+
+        expect(playlist.reload.name).to eq("Keep")
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("playlist[name]")
+      end
+
+      it 'returns not found when the playlist belongs to another user' do
+        playlist = create(:playlist, user: user)
+        sign_in(create(:user))
+
+        patch update_name_playlist_path(playlist), params: { playlist: { name: "Hack" } }
+        expect(response).to have_http_status(:not_found)
+      end
+    end
   end
 end
 

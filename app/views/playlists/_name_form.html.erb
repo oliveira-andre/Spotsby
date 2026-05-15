@@ -1,0 +1,31 @@
+<%= turbo_frame_tag "playlist_name" do %>
+  <%= form_with model: playlist,
+                url: update_name_playlist_path(playlist),
+                method: :patch,
+                scope: :playlist,
+                class: "playlist-show__name-form" do |form| %>
+    <%= form.text_field :name,
+                        value: playlist.name,
+                        class: "playlist-show__name-input clear-input",
+                        required: true,
+                        autocomplete: "off",
+                        autofocus: true,
+                        maxlength: 255 %>
+    <button type="submit"
+            class="playlist-show__name-btn playlist-show__name-btn--save"
+            aria-label="Save">
+      <%= icon :check, size: 18 %>
+    </button>
+    <%= link_to playlist_path(playlist),
+                class: "playlist-show__name-btn playlist-show__name-btn--cancel",
+                aria: { label: "Cancel" } do %>
+      <%= icon :cross, size: 18 %>
+    <% end %>
+  <% end %>
+
+  <% if playlist.errors[:name].any? %>
+    <p class="playlist-show__name-error" role="alert">
+      <%= playlist.errors[:name].to_sentence %>
+    </p>
+  <% end %>
+<% end %>

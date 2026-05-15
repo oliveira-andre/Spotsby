@@ -2,7 +2,7 @@
 
 # PlaylistsController
 class PlaylistsController < ApplicationController
-  before_action :load_playlist, only: %i[show song_picker update_position random_song]
+  before_action :load_playlist, only: %i[show song_picker update_position random_song update_name]
 
   def show; end
 
@@ -13,6 +13,18 @@ class PlaylistsController < ApplicationController
 
     @playlist.insert_at(position)
     head :ok
+  end
+
+  def update_name
+    authorize @playlist
+
+    if request.patch?
+      if @playlist.update(playlist_name_params)
+        render partial: "name", locals: { playlist: @playlist }
+      else
+        render :update_name, status: :unprocessable_content
+      end
+    end
   end
 
   def random_song
@@ -78,6 +90,10 @@ class PlaylistsController < ApplicationController
 
   def playlist_params
     params.require(:playlist).permit(:name, :status, :image)
+  end
+
+  def playlist_name_params
+    params.require(:playlist).permit(:name)
   end
 
   def songs_from_user_other_playlists

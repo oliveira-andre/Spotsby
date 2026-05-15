@@ -9,6 +9,10 @@ class PlaylistPolicy < ApplicationPolicy
     owner?
   end
 
+  def update_name?
+    owner?
+  end
+
   private
 
   def owner?

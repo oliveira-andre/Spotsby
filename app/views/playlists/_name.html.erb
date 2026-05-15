@@ -1,0 +1,9 @@
+<%= turbo_frame_tag "playlist_name" do %>
+  <% if policy(playlist).update_name? %>
+    <%= link_to update_name_playlist_path(playlist), class: "playlist-show__name-link" do %>
+      <h1 class="playlist-show__name"><%= playlist.name %></h1>
+    <% end %>
+  <% else %>
+    <h1 class="playlist-show__name"><%= playlist.name %></h1>
+  <% end %>
+<% end %>

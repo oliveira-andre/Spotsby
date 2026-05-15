@@ -34,6 +34,8 @@ Rails.application.routes.draw do
       get :song_picker
       patch :update_position
       post :random_song
+      get :update_name
+      patch :update_name
     end
 
     collection do
