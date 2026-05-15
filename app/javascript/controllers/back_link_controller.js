@@ -20,11 +20,12 @@ export default class extends Controller {
     const stack = readNavStack()
     if (stack.length === 0) return
 
-    // Player paths are not tracked in the stack (autoplay redirects bypass
-    // trackLastPage), so on a player page the current URL is not the top of
-    // the stack — back is just stack[length-1]. On other pages, the current
-    // URL is on top and back is stack[length-2].
-    const back = isPlayerPath(currentPath())
+    // Player views are not tracked in the stack (autoplay redirects bypass
+    // trackLastPage, and turbo-stream responses don't update the URL), so on
+    // a player view the top of the stack is the page to return to — back is
+    // stack[length-1]. On other pages the current URL is on top and back is
+    // stack[length-2].
+    const back = onPlayerView()
       ? stack[stack.length - 1]
       : stack[stack.length - 2]
     if (!back) return
@@ -41,9 +42,9 @@ export default class extends Controller {
   }
 
   handleClick() {
-    // On player pages the stack's top is the page we're navigating back to,
+    // On a player view the stack's top is the page we're navigating back to,
     // not the current page — don't pop, or we'd lose our destination.
-    if (isPlayerPath(currentPath())) return
+    if (onPlayerView()) return
 
     const stack = readNavStack()
     if (stack.length === 0) return
@@ -52,12 +53,8 @@ export default class extends Controller {
   }
 }
 
-function currentPath() {
-  return window.location.pathname + window.location.search + window.location.hash
-}
-
-function isPlayerPath(path) {
-  return /^\/players(\/|$|\?)/.test(path)
+function onPlayerView() {
+  return !!document.getElementById("player")
 }
 
 function readNavStack() {
