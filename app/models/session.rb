@@ -2,6 +2,9 @@ class Session < ApplicationRecord
   belongs_to :user
 
   scope :recently_active, -> { where("last_seen_at > ?", 2.minutes.ago) }
+  scope :listable_for, ->(session) {
+    where("last_seen_at > ? OR id = ?", 2.minutes.ago, session&.id)
+  }
 
   def device_label
     parts = []

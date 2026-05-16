@@ -34,7 +34,7 @@ class NowPlayingChannel < ApplicationCable::Channel
       target: "now-playing-devices",
       partial: "shared/now_playing_devices",
       locals: { user: current_user,
-                sessions: current_user.sessions.recently_active.order(:last_seen_at) }
+                sessions: current_user.sessions.listable_for(current_session).order(:last_seen_at) }
     )
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_15_214425) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_16_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -212,5 +212,5 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_15_214425) do
   add_foreign_key "song_queues", "users"
   add_foreign_key "songs", "albums"
   add_foreign_key "songs", "categories"
-  add_foreign_key "users", "sessions", column: "active_session_id"
+  add_foreign_key "users", "sessions", column: "active_session_id", on_delete: :nullify
 end
