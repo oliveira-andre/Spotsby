@@ -1,10 +1,31 @@
-<div id="now-playing-devices" class="now-playing-devices">
-  <% if sessions.any? %>
-    <ul class="now-playing-devices__list">
-      <% sessions.each do |session| %>
-        <% is_active = user.active_session_id == session.id %>
-        <% is_self = Current.session&.id == session.id %>
-        <li class="now-playing-devices__item <%= 'now-playing-devices__item--active' if is_active %>">
+<%
+  current_session = Current.session
+  active_id = user.active_session_id
+  current = sessions.find { |s| s.id == current_session&.id }
+  others = sessions.reject { |s| s.id == current_session&.id }
+%>
+
+<div id="now-playing-devices"
+     class="now-playing-devices"
+     data-controller="now-playing-devices">
+  <% if current %>
+    <button type="button"
+            class="now-playing-devices__toggle <%= 'is-active' if active_id == current.id %>"
+            data-now-playing-devices-target="toggleBtn"
+            data-action="click->now-playing-devices#toggle"
+            aria-expanded="false"
+            aria-controls="now-playing-devices-list">
+      <span class="now-playing-devices__dot"></span>
+      <span class="now-playing-devices__label"><%= current.device_label %></span>
+    </button>
+
+    <ul id="now-playing-devices-list"
+        class="now-playing-devices__list"
+        data-now-playing-devices-target="list"
+        hidden>
+      <% others.each do |session| %>
+        <% is_active = active_id == session.id %>
+        <li class="now-playing-devices__item <%= 'is-active' if is_active %>">
           <%= button_to active_device_now_playing_path,
                         method: :patch,
                         params: { session_id: session.id },
@@ -13,17 +34,11 @@
                         class: "now-playing-devices__button",
                         disabled: is_active,
                         aria: { label: "Switch playback to #{session.device_label}" } do %>
-            <span class="now-playing-devices__label">
-              <%= session.device_label %><%= " (this device)" if is_self %>
-            </span>
-            <% if is_active %>
-              <span class="now-playing-devices__badge"><%= icon :check, size: 14 %></span>
-            <% end %>
+            <span class="now-playing-devices__dot"></span>
+            <span class="now-playing-devices__label"><%= session.device_label %></span>
           <% end %>
         </li>
       <% end %>
     </ul>
-  <% else %>
-    <p class="now-playing-devices__empty">No active devices.</p>
   <% end %>
 </div>

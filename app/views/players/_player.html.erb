@@ -41,6 +41,10 @@
 
     <div class="player__header-spacer"></div>
 
+    <%= render "shared/now_playing_devices",
+               user: current_user,
+               sessions: current_user.sessions.listable_for(Current.session).order(:last_seen_at) %>
+
     <button type="button"
             class="player__icon-btn"
             aria-label="Song details"

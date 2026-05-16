@@ -28,5 +28,18 @@ class PlayHistory < ApplicationRecord
       target: "now-playing-events",
       partial: "players/song_event",
       locals: { song: song }
+
+    session_for_broadcast = Current.session || user.active_session || user.sessions.first
+    return unless session_for_broadcast
+
+    # Sync broadcast wrapped in Current.set so the partial's `current_user`
+    # resolves whether the callback fires from a request (Current.session set)
+    # or from a job/console where it isn't.
+    Current.set(session: session_for_broadcast) do
+      broadcast_replace_to user, "play_histories",
+        target: "player",
+        partial: "players/player",
+        locals: { song: song }
+    end
   end
 end

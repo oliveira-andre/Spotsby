@@ -1,0 +1,103 @@
+.now-playing-devices {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.now-playing-devices__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background: transparent;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-full-pill);
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.now-playing-devices__toggle:hover {
+  border-color: var(--color-text-base);
+  color: var(--color-text-base);
+}
+
+.now-playing-devices__toggle.is-active {
+  color: var(--color-accent);
+  border-color: var(--color-accent-border);
+}
+
+.now-playing-devices__toggle.is-active .now-playing-devices__dot {
+  background: var(--color-accent);
+  box-shadow: 0 0 6px var(--color-accent);
+}
+
+.now-playing-devices__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  background: currentColor;
+  display: inline-block;
+}
+
+.now-playing-devices__label {
+  white-space: nowrap;
+}
+
+.now-playing-devices__list {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  min-width: 180px;
+  margin: 0;
+  padding: var(--space-2);
+  list-style: none;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-comfortable);
+  box-shadow: var(--shadow-medium);
+  z-index: 20;
+}
+
+.now-playing-devices__item {
+  margin: 0;
+}
+
+.now-playing-devices__form {
+  margin: 0;
+}
+
+.now-playing-devices__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-standard);
+  color: var(--color-text-base);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.now-playing-devices__button:hover {
+  background: var(--color-bg-card);
+}
+
+.now-playing-devices__item.is-active .now-playing-devices__button,
+.now-playing-devices__button:disabled {
+  color: var(--color-accent);
+  cursor: default;
+}
+
+.now-playing-devices__item.is-active .now-playing-devices__dot {
+  background: var(--color-accent);
+  box-shadow: 0 0 6px var(--color-accent);
+}

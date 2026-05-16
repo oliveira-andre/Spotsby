@@ -17,7 +17,18 @@ class NowPlayingController < ApplicationController
     target = current_user.sessions.find(params[:session_id])
     current_user.update!(active_session_id: target.id)
     broadcast_active_device
-    head :no_content
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "now-playing-devices",
+          partial: "shared/now_playing_devices",
+          locals: { user: current_user,
+                    sessions: current_user.sessions.listable_for(Current.session).order(:last_seen_at) }
+        )
+      end
+      format.html { head :no_content }
+    end
   end
 
   private
