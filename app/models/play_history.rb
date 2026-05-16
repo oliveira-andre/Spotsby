@@ -9,7 +9,7 @@ class PlayHistory < ApplicationRecord
   belongs_to :user
   belongs_to :song
 
-  scope :recent, -> { order(created_at: :desc) }
+  scope :recent, -> { reorder(created_at: :desc) }
   scope :from_search, -> { where(source: SOURCE_SEARCH) }
 
   validates :user_id, presence: true

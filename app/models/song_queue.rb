@@ -15,8 +15,8 @@ class SongQueue < ApplicationRecord
   belongs_to :user
   belongs_to :song
 
-  scope :ordered, -> { order(position: :asc) }
-  scope :recent, -> { order(created_at: :desc) }
+  scope :ordered, -> { reorder(position: :asc) }
+  scope :recent, -> { reorder(created_at: :desc) }
 
   validates :user_id, presence: true
   validates :song_id, presence: true
