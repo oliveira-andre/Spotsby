@@ -2,22 +2,29 @@
 
 class NowPlayingController < ApplicationController
   def play
-    current_user.update!(active_session_id: Current.session.id)
-    broadcast_active_device
+    if current_user.active_session_id.nil?
+      current_user.update!(active_session_id: Current.session.id)
+      broadcast_active_device
+    end
     broadcast_play_state(playing: true)
-    head :no_content
+    render_devices_or_head
   end
 
   def pause
     broadcast_play_state(playing: false)
-    head :no_content
+    render_devices_or_head
   end
 
   def active_device
     target = current_user.sessions.find(params[:session_id])
     current_user.update!(active_session_id: target.id)
     broadcast_active_device
+    render_devices_or_head
+  end
 
+  private
+
+  def render_devices_or_head
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
@@ -27,11 +34,9 @@ class NowPlayingController < ApplicationController
                     sessions: current_user.sessions.listable_for(Current.session).order(:last_seen_at) }
         )
       end
-      format.html { head :no_content }
+      format.any { head :no_content }
     end
   end
-
-  private
 
   def broadcast_active_device
     Turbo::StreamsChannel.broadcast_replace_to(

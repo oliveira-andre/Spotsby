@@ -14,10 +14,6 @@ class NowPlayingChannel < ApplicationCable::Channel
 
   private
 
-  def current_session
-    @current_session ||= Session.find_by(id: connection.cookies.signed[:session_id])
-  end
-
   def auto_activate_if_only_device(session)
     others = current_user.sessions.recently_active.where.not(id: session.id).exists?
     current_user.update!(active_session_id: session.id) unless others

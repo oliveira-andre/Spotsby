@@ -43,11 +43,24 @@ export default class extends Controller {
     window.addEventListener("now-playing:active-changed", this.onActiveChanged)
     window.addEventListener("now-playing:remote-state", this.onRemoteState)
 
+    // Read active state directly — active_device_controller may have already
+    // dispatched its event before we attached the listener (Stimulus doesn't
+    // guarantee strict DOM-order connection).
+    this.syncIsActive()
+
     this.repeat = readRepeat()
     this.seedNavStack()
     this.restoreFromStorage()
     this.setupMediaSession()
     this.openCableSubscription()
+  }
+
+  syncIsActive() {
+    const tracker = document.getElementById("now-playing-active-device")
+    if (!tracker) return
+    const sessionId = tracker.dataset.activeDeviceSessionIdValue
+    const activeId = tracker.dataset.activeDeviceActiveIdValue
+    this.isActive = !!sessionId && sessionId === activeId
   }
 
   disconnect() {
@@ -89,31 +102,43 @@ export default class extends Controller {
       this.audioTarget.removeAttribute("src")
       this.audioTarget.load()
     }
+    if (!wasActive && next && this.state?.audioUrl && !this.audioTarget.src) {
+      // Just became active; make sure audio is loaded so the next play click works.
+      this.attachAudio(this.state)
+    }
   }
 
   handleRemoteState(event) {
-    // Active device owns its playback; mirroring a remote echo can pause background audio when iOS restores the tab.
-    if (this.isActive) return
-    this.renderPlayIcon(!!event.detail?.playing)
+    const playing = !!event.detail?.playing
+    this.renderPlayIcon(playing)
+    if (!this.isActive) return
+    if (!this.audioTarget.src) return
+    if (playing && this.audioTarget.paused) this.safePlay()
+    if (!playing && !this.audioTarget.paused) this.audioTarget.pause()
   }
 
   claimActive() {
-    return this.postJson("/now_playing/play")
+    return this.postRequest("/now_playing/play")
   }
 
   announcePause() {
-    return this.postJson("/now_playing/pause")
+    return this.postRequest("/now_playing/pause")
   }
 
-  postJson(url) {
+  postRequest(url) {
     const token = document.querySelector('meta[name="csrf-token"]')?.content
     return fetch(url, {
       method: "POST",
       headers: {
         "X-CSRF-Token": token || "",
-        "Accept": "application/json"
+        "Accept": "text/vnd.turbo-stream.html"
       },
       credentials: "same-origin"
+    }).then(async (response) => {
+      if (response.ok && response.headers.get("content-type")?.includes("turbo-stream")) {
+        const html = await response.text()
+        if (window.Turbo?.renderStreamMessage) window.Turbo.renderStreamMessage(html)
+      }
     }).catch(() => {})
   }
 
@@ -177,6 +202,9 @@ export default class extends Controller {
     }
 
     if (sameSong) {
+      // restoreFromStorage hydrated state but didn't attach audio (isActive was false
+      // when it ran). Attach now so the first user-gesture play has a source.
+      if (!this.audioTarget.src) this.attachAudio(detail)
       if (this.audioTarget.paused) this.safePlay()
       return
     }
@@ -287,21 +315,46 @@ export default class extends Controller {
   toggle() {
     if (!this.state) return
     if (!this.isActive) {
-      // Claim active + start playing on this device.
-      this.claimActive()
-      if (!this.audioTarget.src && this.state.audioUrl) this.attachAudio(this.state)
-      this.isActive = true
-      this.safePlay()
+      if (!this.someoneIsActive()) {
+        // No active device anywhere — claim it and play locally.
+        this.claimActive()
+        if (!this.audioTarget.src && this.state.audioUrl) this.attachAudio(this.state)
+        this.isActive = true
+        this.safePlay()
+        return
+      }
+      // Remote control: ask the active device to play/pause, don't play here.
+      if (this.isShowingPlayIcon()) this.requestRemotePlay()
+      else this.requestRemotePause()
       return
     }
 
     if (this.audioTarget.paused) {
+      if (!this.audioTarget.src && this.state.audioUrl) this.attachAudio(this.state)
       this.safePlay()
       this.claimActive()
     } else {
       this.audioTarget.pause()
       this.announcePause()
     }
+  }
+
+  someoneIsActive() {
+    const tracker = document.getElementById("now-playing-active-device")
+    return !!tracker?.dataset.activeDeviceActiveIdValue
+  }
+
+  isShowingPlayIcon() {
+    if (this.hasPauseIconTarget) return this.pauseIconTarget.hidden
+    return true
+  }
+
+  requestRemotePlay() {
+    return this.postRequest("/now_playing/play")
+  }
+
+  requestRemotePause() {
+    return this.postRequest("/now_playing/pause")
   }
 
   requestNext() {
@@ -313,15 +366,7 @@ export default class extends Controller {
   }
 
   requestAdvance(path) {
-    const submit = () => this.submitForm(path)
-    if (this.isActive) {
-      submit()
-    } else {
-      this.claimActive().then(() => {
-        this.isActive = true
-        submit()
-      })
-    }
+    this.submitForm(path)
   }
 
   submitForm(action) {

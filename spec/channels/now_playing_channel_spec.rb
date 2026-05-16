@@ -5,8 +5,7 @@ RSpec.describe NowPlayingChannel, type: :channel do
   let(:session) { user.sessions.create!(user_agent: "Test/1.0", ip_address: "127.0.0.1") }
 
   before do
-    stub_connection current_user: user
-    allow_any_instance_of(described_class).to receive(:current_session).and_return(session)
+    stub_connection current_user: user, current_session: session
   end
 
   describe '#subscribed' do

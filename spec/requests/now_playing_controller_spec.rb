@@ -14,10 +14,19 @@ RSpec.describe NowPlayingController, type: :request do
     before { sign_in(user) }
 
     describe 'POST /now_playing/play' do
-      it 'sets the current session as active and returns no_content' do
+      it 'claims active when no session is active yet' do
         expect {
           post play_now_playing_path
         }.to change { user.reload.active_session_id }.from(nil)
+        expect(response).to have_http_status(:no_content)
+      end
+
+      it 'does not steal active from another session' do
+        other = user.sessions.create!(user_agent: "Other", ip_address: "127.0.0.2")
+        user.update!(active_session_id: other.id)
+        expect {
+          post play_now_playing_path
+        }.not_to change { user.reload.active_session_id }
         expect(response).to have_http_status(:no_content)
       end
     end
