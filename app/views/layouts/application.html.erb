@@ -32,8 +32,17 @@
       <%= yield %>
     </div>
     <% if current_user %>
+      <%= turbo_stream_from current_user, "play_histories" %>
+      <%= turbo_stream_from current_user, :now_playing %>
       <%= render "shared/minimal_player" %>
-      <div id="now-playing-events" hidden></div>
+      <div id="now-playing-events" hidden>
+        <%= render "shared/now_playing_seed", user: current_user %>
+      </div>
+      <%= render "shared/now_playing_active_device", user: current_user %>
+      <%= render "shared/now_playing_state", playing: false %>
+      <%= render "shared/now_playing_devices",
+                 user: current_user,
+                 sessions: current_user.sessions.recently_active.order(:last_seen_at) %>
       <%= render "shared/footer" %>
       <%= render "shared/modal", id: "bottom-modal" %>
     <% end %>

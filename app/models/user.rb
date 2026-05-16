@@ -16,6 +16,11 @@ class User < ApplicationRecord
   has_many :playlists, -> { ordered }, dependent: :destroy
   has_many :play_histories, dependent: :destroy
   has_many :song_queues, -> { ordered }
+  belongs_to :active_session, class_name: "Session", optional: true
+
+  def active_session?(session)
+    session && active_session_id == session.id
+  end
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 

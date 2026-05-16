@@ -11,3 +11,4 @@ pin "stimulus-textarea-autogrow", to: "https://ga.jspm.io/npm:stimulus-textarea-
 pin "@simonwep/pickr", to: "https://ga.jspm.io/npm:@simonwep/pickr@1.9.0/dist/pickr.min.js"
 pin "sortablejs", to: "https://ga.jspm.io/npm:sortablejs@1.15.6/modular/sortable.esm.js"
 pin_all_from "app/javascript/controllers", under: "controllers"
+pin "@rails/actioncable", to: "@rails--actioncable.js" # @8.1.300

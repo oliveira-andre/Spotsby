@@ -1,0 +1,29 @@
+<div id="now-playing-devices" class="now-playing-devices">
+  <% if sessions.any? %>
+    <ul class="now-playing-devices__list">
+      <% sessions.each do |session| %>
+        <% is_active = user.active_session_id == session.id %>
+        <% is_self = Current.session&.id == session.id %>
+        <li class="now-playing-devices__item <%= 'now-playing-devices__item--active' if is_active %>">
+          <%= button_to active_device_now_playing_path,
+                        method: :patch,
+                        params: { session_id: session.id },
+                        form: { class: "now-playing-devices__form",
+                                data: { turbo: true } },
+                        class: "now-playing-devices__button",
+                        disabled: is_active,
+                        aria: { label: "Switch playback to #{session.device_label}" } do %>
+            <span class="now-playing-devices__label">
+              <%= session.device_label %><%= " (this device)" if is_self %>
+            </span>
+            <% if is_active %>
+              <span class="now-playing-devices__badge"><%= icon :check, size: 14 %></span>
+            <% end %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="now-playing-devices__empty">No active devices.</p>
+  <% end %>
+</div>

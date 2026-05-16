@@ -16,4 +16,15 @@ RSpec.describe PlayHistory, type: :model do
     it { is_expected.to validate_presence_of(:user_id) }
     it { is_expected.to validate_presence_of(:song_id) }
   end
+
+  describe 'broadcasting after create' do
+    let(:user) { create(:user) }
+    let(:song) { create(:song) }
+
+    it 'enqueues a Turbo Streams broadcast to the user_play_histories stream' do
+      expect {
+        PlayHistory.create!(user: user, song: song, played_at: Time.current)
+      }.to have_enqueued_job(Turbo::Streams::ActionBroadcastJob)
+    end
+  end
 end

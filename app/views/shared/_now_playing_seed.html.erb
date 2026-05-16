@@ -1,0 +1,4 @@
+<% latest_song = user.play_histories.recent.first&.song %>
+<% if latest_song %>
+  <%= render "players/song_event", song: latest_song %>
+<% end %>

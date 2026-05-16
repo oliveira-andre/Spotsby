@@ -98,14 +98,12 @@
 
     <div class="player__controls">
       <%= render "players/random_button" %>
-      <%= button_to previous_players_path,
-                    method: :post,
-                    class: "player__ctrl",
-                    form_class: "player__ctrl-form",
-                    data: { action: "click->player#prepareAdvance" },
-                    aria: { label: "Previous" } do %>
+      <button type="button"
+              class="player__ctrl"
+              aria-label="Previous"
+              data-action="click->player#requestPrevious">
         <%= icon :backward, size: 28 %>
-      <% end %>
+      </button>
       <button type="button"
               class="player__ctrl player__ctrl--primary"
               aria-label="Play"
@@ -114,14 +112,12 @@
         <span data-player-target="playIcon"><%= icon :play, size: 22 %></span>
         <span data-player-target="pauseIcon" hidden><%= icon :pause, size: 22 %></span>
       </button>
-      <%= button_to next_players_path,
-                    method: :post,
-                    class: "player__ctrl",
-                    form_class: "player__ctrl-form",
-                    data: { action: "click->player#prepareAdvance" },
-                    aria: { label: "Next" } do %>
+      <button type="button"
+              class="player__ctrl"
+              aria-label="Next"
+              data-action="click->player#requestNext">
         <%= icon :forward, size: 28 %>
-      <% end %>
+      </button>
       <button type="button"
               class="player__ctrl"
               aria-label="Turn on repeat"

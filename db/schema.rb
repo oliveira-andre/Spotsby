@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_05_123855) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_15_214425) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -132,6 +132,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_05_123855) do
     t.string "user_agent"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "last_seen_at"
+    t.index ["user_id", "last_seen_at"], name: "index_sessions_on_user_id_and_last_seen_at"
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
@@ -186,6 +188,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_05_123855) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "random_mode", default: false, null: false
+    t.uuid "active_session_id"
+    t.index ["active_session_id"], name: "index_users_on_active_session_id"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
@@ -208,4 +212,5 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_05_123855) do
   add_foreign_key "song_queues", "users"
   add_foreign_key "songs", "albums"
   add_foreign_key "songs", "categories"
+  add_foreign_key "users", "sessions", column: "active_session_id"
 end

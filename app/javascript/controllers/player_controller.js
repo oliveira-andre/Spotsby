@@ -77,6 +77,14 @@ export default class extends Controller {
     } catch (_) { /* storage unavailable — ignore */ }
   }
 
+  requestNext() {
+    if (this.hasNowPlayingOutlet) this.nowPlayingOutlet.requestNext()
+  }
+
+  requestPrevious() {
+    if (this.hasNowPlayingOutlet) this.nowPlayingOutlet.requestPrevious()
+  }
+
   nowPlayingOutletDisconnected(_outlet, element) {
     if (element === this.boundOutletElement) {
       element.removeEventListener("now-playing:state", this.onState)

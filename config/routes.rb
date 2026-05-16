@@ -85,6 +85,12 @@ Rails.application.routes.draw do
   resources :song_queues, only: %i[create]
   get "songs/:song_id/actions", to: "song_actions#show", as: :song_actions
 
+  resource :now_playing, only: [], controller: "now_playing" do
+    post  :play
+    post  :pause
+    patch :active_device
+  end
+
   namespace :admin do
     get "dashboard", to: "dashboard#index", as: :dashboard
     resources :categories do
