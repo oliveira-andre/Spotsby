@@ -92,12 +92,9 @@ export default class extends Controller {
   }
 
   handleRemoteState(event) {
-    const playing = !!event.detail?.playing
-    this.renderPlayIcon(playing)
-    if (!this.isActive) return
-    if (!this.audioTarget.src) return
-    if (playing && this.audioTarget.paused) this.safePlay()
-    if (!playing && !this.audioTarget.paused) this.audioTarget.pause()
+    // Active device owns its playback; mirroring a remote echo can pause background audio when iOS restores the tab.
+    if (this.isActive) return
+    this.renderPlayIcon(!!event.detail?.playing)
   }
 
   claimActive() {
@@ -169,6 +166,9 @@ export default class extends Controller {
     const { audioUrl } = detail
     if (!audioUrl) return
 
+    // Compare by id, not audioUrl — Active Storage signed URLs rotate per request.
+    const sameSong = this.state?.id && detail.id && this.state.id === detail.id
+
     this.loadMeta(detail)
 
     if (!this.isActive) {
@@ -176,7 +176,7 @@ export default class extends Controller {
       return
     }
 
-    if (this.state && this.state.audioUrl === audioUrl) {
+    if (sameSong) {
       if (this.audioTarget.paused) this.safePlay()
       return
     }
