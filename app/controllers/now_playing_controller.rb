@@ -22,6 +22,10 @@ class NowPlayingController < ApplicationController
     render_devices_or_head
   end
 
+  def devices
+    render_devices_or_head
+  end
+
   private
 
   def render_devices_or_head

@@ -89,6 +89,7 @@ Rails.application.routes.draw do
     post  :play
     post  :pause
     patch :active_device
+    get   :devices
   end
 
   namespace :admin do

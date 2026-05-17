@@ -173,7 +173,7 @@ RSpec.describe PlayersController, type: :request do
       post next_players_path
 
       expect(user.play_histories.recent.first.song).to eq(queued_song)
-      expect(user.song_queues.where(source: SongQueue::SOURCE_USER_CUSTOM).pluck(:song_id)).to eq([later_song.id])
+      expect(user.song_queues.where(source: SongQueue::SOURCE_USER_CUSTOM).pluck(:song_id)).to eq([ later_song.id ])
     end
 
     it 'falls back to artist shuffle when no pending user_custom entries exist' do
