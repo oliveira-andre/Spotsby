@@ -109,6 +109,8 @@ export default class extends Controller {
   }
 
   handleRemoteState(event) {
+    if (this.isActive) return // active owns playback; ignore echo
+
     const playing = !!event.detail?.playing
     this.renderPlayIcon(playing)
     if (!this.isActive) return
