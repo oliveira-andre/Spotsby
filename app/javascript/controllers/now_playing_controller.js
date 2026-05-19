@@ -195,6 +195,7 @@ export default class extends Controller {
 
     // Compare by id, not audioUrl — Active Storage signed URLs rotate per request.
     const sameSong = this.state?.id && detail.id && this.state.id === detail.id
+    const shouldAutoplay = !!detail.autoplay
 
     this.loadMeta(detail)
 
@@ -207,11 +208,11 @@ export default class extends Controller {
       // restoreFromStorage hydrated state but didn't attach audio (isActive was false
       // when it ran). Attach now so the first user-gesture play has a source.
       if (!this.audioTarget.src) this.attachAudio(detail)
-      if (this.audioTarget.paused) this.safePlay()
+      if (shouldAutoplay && this.audioTarget.paused) this.safePlay()
       return
     }
     this.attachAudio(detail)
-    this.safePlay()
+    if (shouldAutoplay) this.safePlay()
   }
 
   loadMeta(data) {

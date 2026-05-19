@@ -26,7 +26,7 @@ export default class extends Controller {
           imageUrl: this.imageUrlValue,
           imageContentType: this.imageContentTypeValue,
           audioUrl: this.audioUrlValue,
-          autoplay: true
+          autoplay: this.shouldAutoplay(target)
         }
       }))
     }
@@ -36,5 +36,16 @@ export default class extends Controller {
     }
 
     this.element.remove()
+  }
+
+  shouldAutoplay(target) {
+    const tracker = document.getElementById("now-playing-active-device")
+    const sessionId = tracker?.dataset.activeDeviceSessionIdValue
+    const activeId = tracker?.dataset.activeDeviceActiveIdValue
+    const isCurrentDevice = !!sessionId && sessionId === activeId
+    if (!isCurrentDevice) return false
+
+    const audio = target.querySelector("audio")
+    return !!audio && !audio.paused
   }
 }
