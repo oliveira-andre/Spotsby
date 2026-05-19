@@ -295,12 +295,11 @@ export default class extends Controller {
   updateMediaSessionMetadata(data) {
     if (!data || !("mediaSession" in navigator) || typeof MediaMetadata === "undefined") return
 
-    const type = data.imageContentType || "image/jpeg"
     const artwork = data.imageUrl
       ? [
-          { src: data.imageUrl, sizes: "96x96", type },
-          { src: data.imageUrl, sizes: "192x192", type },
-          { src: data.imageUrl, sizes: "512x512", type }
+          { src: data.imageUrl, sizes: "96x96", type: "image/jpeg" },
+          { src: data.imageUrl, sizes: "192x192", type: "image/jpeg" },
+          { src: data.imageUrl, sizes: "512x512", type: "image/jpeg" }
         ]
       : []
 
