@@ -12,6 +12,7 @@
   first_song_image_content_type = first_song_image_blob&.blob&.content_type
   first_song_audio_url = first_song&.audio&.attached? ? url_for(first_song.audio) : nil
   first_song_authors = first_song ? first_song.authors.map(&:name).join(", ") : nil
+  owner = @playlist.user_id == current_user.id
 %>
 
 <div class="playlist-show"
@@ -47,13 +48,24 @@
 
   <div class="playlist-show__actions">
     <div class="playlist-show__actions-left">
-      <%= button_to song_picker_playlist_path(@playlist),
-                    method: :get,
-                    form: { class: "playlist-show__icon-form", data: { turbo_stream: true } },
-                    class: "playlist-show__icon-btn",
-                    aria: { label: "Add songs" } do %>
-        <%= icon :plus, size: 22 %>
-      <% end unless @playlist.position == 0 %>
+      <% if owner && @playlist.position != 0 %>
+        <%= button_to song_picker_playlist_path(@playlist),
+                      method: :get,
+                      form: { class: "playlist-show__icon-form", data: { turbo_stream: true } },
+                      class: "playlist-show__icon-btn",
+                      aria: { label: "Add songs" } do %>
+          <%= icon :plus, size: 22 %>
+        <% end %>
+      <% end %>
+      <% unless owner %>
+        <%= button_to clone_playlist_path(@playlist),
+                      method: :post,
+                      form: { class: "playlist-show__icon-form" },
+                      class: "playlist-show__icon-btn",
+                      aria: { label: "Clone playlist" } do %>
+          <%= icon :clone, size: 22 %>
+        <% end %>
+      <% end %>
       <%= button_to random_song_playlist_path(@playlist),
                     form: { class: "playlist-show__icon-form", data: { turbo_stream: true } },
                     class: "playlist-show__icon-btn",
@@ -71,7 +83,6 @@
     </button>
   </div>
 
-  <% owner = @playlist.user_id == current_user.id %>
   <ul class="playlist-show__songs"
       id="playlist_songs_<%= @playlist.id %>"
       data-controller="<%= "sortable " if owner %>song-actions-trigger"
@@ -80,7 +91,7 @@
         data-sortable-url-template-value="<%= update_position_playlist_song_path(@playlist, ":id") %>"
       <% end %>>
     <% songs.each do |song| %>
-      <%= render "playlists/song_row", playlist: @playlist, song: song %>
+      <%= render "playlists/song_row", playlist: @playlist, song: song, owner: owner %>
     <% end %>
   </ul>
   <% if songs.empty? %>
@@ -92,7 +103,7 @@
   <%= render "shared/song_actions_modal" %>
 </div>
 
-<% if params[:picker].present? %>
+<% if owner && params[:picker].present? %>
   <% songs_to_pick = Song.joins(:playlist_songs)
                          .where(playlist_songs: { playlist_id: current_user.playlist_ids - [@playlist.id] })
                          .with_attached_image

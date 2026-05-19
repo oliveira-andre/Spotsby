@@ -33,6 +33,7 @@ class HomeController < ApplicationController
       @songs = Song.none
       @albums = Album.none
       @authors = Author.none
+      @playlists = Playlist.none
     else
       pattern = "%#{ActiveRecord::Base.sanitize_sql_like(query)}%"
 
@@ -49,6 +50,12 @@ class HomeController < ApplicationController
       @authors = Author.where("name ILIKE ?", pattern)
                        .with_attached_image
                        .limit(20)
+
+      @playlists = Playlist.public_status
+                           .where("name ILIKE ?", pattern)
+                           .with_attached_image
+                           .includes(:user, playlist_songs: { song: { image_attachment: :blob } })
+                           .limit(10)
     end
 
     respond_to do |format|

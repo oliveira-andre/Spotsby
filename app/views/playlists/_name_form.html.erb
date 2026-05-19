@@ -3,14 +3,17 @@
                 url: update_name_playlist_path(playlist),
                 method: :patch,
                 scope: :playlist,
-                class: "playlist-show__name-form" do |form| %>
+                class: "playlist-show__name-form",
+                data: { controller: "inline-edit-form" } do |form| %>
     <%= form.text_field :name,
                         value: playlist.name,
                         class: "playlist-show__name-input clear-input",
                         required: true,
                         autocomplete: "off",
                         autofocus: true,
-                        maxlength: 255 %>
+                        maxlength: 255,
+                        size: nil,
+                        data: { action: "keydown.esc->inline-edit-form#cancel" } %>
     <button type="submit"
             class="playlist-show__name-btn playlist-show__name-btn--save"
             aria-label="Save">
@@ -18,7 +21,8 @@
     </button>
     <%= link_to playlist_path(playlist),
                 class: "playlist-show__name-btn playlist-show__name-btn--cancel",
-                aria: { label: "Cancel" } do %>
+                aria: { label: "Cancel" },
+                data: { "inline-edit-form-target": "cancel" } do %>
       <%= icon :cross, size: 18 %>
     <% end %>
   <% end %>

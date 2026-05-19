@@ -2,7 +2,10 @@
 
 # PlaylistsController
 class PlaylistsController < ApplicationController
-  before_action :load_playlist, only: %i[show song_picker update_position random_song update_name]
+  before_action :load_owned_playlist, only: %i[song_picker update_position random_song]
+  before_action :load_playlist_for_show, only: :show
+  before_action :load_source_playlist, only: :clone
+  before_action :load_playlist_for_update_name, only: :update_name
 
   def show; end
 
@@ -16,8 +19,6 @@ class PlaylistsController < ApplicationController
   end
 
   def update_name
-    authorize @playlist
-
     if request.patch?
       if @playlist.update(playlist_name_params)
         render partial: "name", locals: { playlist: @playlist }
@@ -55,6 +56,16 @@ class PlaylistsController < ApplicationController
     end
   end
 
+  def clone
+    authorize @source_playlist, :clone?
+
+    new_playlist = PlaylistCloning.new(user: current_user, source: @source_playlist).call
+    redirect_to playlist_path(new_playlist),
+                notice: "Playlist cloned. Update the name and set it to public when you're ready."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to playlist_path(@source_playlist), alert: e.message
+  end
+
   def song_picker
     query = params[:q].to_s.strip
 
@@ -78,14 +89,28 @@ class PlaylistsController < ApplicationController
 
   private
 
-  def load_playlist
+  def load_owned_playlist
     @playlist = current_user.playlists
                             .with_attached_image
                             .friendly
                             .find(params[:id])
+  end
+
+  def load_playlist_for_show
+    @playlist = Playlist.with_attached_image.friendly.find(params[:id])
+    authorize @playlist, :show?
     @playlist_songs = @playlist.playlist_songs
                                .includes(song: [ :authors, :album, { image_attachment: :blob } ])
                                .ordered
+  end
+
+  def load_source_playlist
+    @source_playlist = Playlist.friendly.find(params[:id])
+  end
+
+  def load_playlist_for_update_name
+    @playlist = Playlist.with_attached_image.friendly.find(params[:id])
+    authorize @playlist, :update_name?
   end
 
   def playlist_params

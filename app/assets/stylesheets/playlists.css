@@ -107,17 +107,19 @@
 .playlist-show__name-form {
   position: relative;
   z-index: 2;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: var(--space-2);
-  max-width: 100%;
+  width: 100%;
 }
 
-.playlist-show__name-input {
+.playlist-show__name-input.clear-input {
   font-family: var(--font-title);
   font-size: 2rem;
   font-weight: 700;
+  flex: 1 1 0;
   min-width: 0;
+  width: 100%;
 }
 
 .playlist-show__name-btn {
@@ -131,6 +133,7 @@
   border-radius: var(--radius-circle);
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
+  text-decoration: none;
 }
 
 .playlist-show__name-btn--save {

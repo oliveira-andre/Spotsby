@@ -36,6 +36,7 @@ Rails.application.routes.draw do
       post :random_song
       get :update_name
       patch :update_name
+      post :clone
     end
 
     collection do

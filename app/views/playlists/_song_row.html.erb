@@ -1,3 +1,4 @@
+<% owner = local_assigns.fetch(:owner) { playlist.user_id == current_user.id } %>
 <li class="playlist-song"
     id="playlist_song_<%= playlist.id %>_<%= song.id %>"
     data-album-show-target="songRow"
@@ -16,12 +17,14 @@
       <p class="playlist-song__authors"><%= song.authors.map(&:name).join(", ") %></p>
     </div>
   <% end %>
-  <%= button_to remove_song_from_playlist_favorites_path(song, playlist_id: playlist.id),
-                method: :delete,
-                form: { class: "heart-form", data: { turbo_stream: true } },
-                class: "playlist-song__heart heart-active",
-                aria: { label: "Remove from this playlist" } do %>
-    <%= icon :heart, size: 20 %>
+  <% if owner %>
+    <%= button_to remove_song_from_playlist_favorites_path(song, playlist_id: playlist.id),
+                  method: :delete,
+                  form: { class: "heart-form", data: { turbo_stream: true } },
+                  class: "playlist-song__heart heart-active",
+                  aria: { label: "Remove from this playlist" } do %>
+      <%= icon :heart, size: 20 %>
+    <% end %>
   <% end %>
   <%= render "shared/song_kebab", song: song, button_class: "playlist-song__kebab" %>
 </li>

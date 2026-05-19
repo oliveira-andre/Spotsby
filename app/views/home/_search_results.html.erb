@@ -1,4 +1,4 @@
-<% if @songs.empty? && @albums.empty? && @authors.empty? %>
+<% if @songs.empty? && @albums.empty? && @authors.empty? && @playlists.empty? %>
   <p class="search-results__empty">No results found.</p>
 <% else %>
   <% if @songs.any? %>
@@ -67,6 +67,38 @@
               <div class="search-result__meta">
                 <p class="search-result__name"><%= author.name %></p>
                 <p class="search-result__sub">Artist</p>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+
+  <% if @playlists.any? %>
+    <section class="search-results__group">
+      <h3 class="search-results__title">Playlists</h3>
+      <p class="search-results__hint">Only public playlists made by other users.</p>
+      <ul class="search-results__list">
+        <% @playlists.each do |playlist| %>
+          <%
+            playlist_image_blob =
+              if playlist.image.attached?
+                playlist.image
+              else
+                playlist.playlist_songs.first&.song&.image
+              end
+          %>
+          <li>
+            <%= link_to playlist_path(playlist), class: "search-result", data: { turbo_stream: true } do %>
+              <% if playlist_image_blob&.attached? %>
+                <%= image_tag playlist_image_blob, class: "search-result__image", loading: "lazy", alt: playlist.name %>
+              <% else %>
+                <div class="search-result__image search-result__image--placeholder"></div>
+              <% end %>
+              <div class="search-result__meta">
+                <p class="search-result__name"><%= playlist.name %></p>
+                <p class="search-result__sub">Playlist · by <%= playlist.user.email_address %></p>
               </div>
             <% end %>
           </li>
