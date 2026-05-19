@@ -33,6 +33,76 @@ RSpec.describe PlaylistsController, type: :request do
         get playlist_path(user.saved_songs_playlist)
         expect(response).to have_http_status(:ok)
       end
+
+      it 'lets a non-owner view a public playlist' do
+        other_user = create(:user)
+        public_playlist = create(:playlist, user: other_user, status: :public)
+
+        get playlist_path(public_playlist)
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'forbids a non-owner from viewing a private playlist' do
+        other_user = create(:user)
+        private_playlist = create(:playlist, user: other_user, status: :private)
+
+        get playlist_path(private_playlist)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    describe 'POST /playlists/:id/clone' do
+      it "creates a private copy of a public playlist in the cloner's library" do
+        other_user = create(:user)
+        public_playlist = create(:playlist, user: other_user, status: :public, name: "Source")
+        song_a = create(:song)
+        song_b = create(:song)
+        create(:playlist_song, playlist: public_playlist, song: song_a, position: 1)
+        create(:playlist_song, playlist: public_playlist, song: song_b, position: 2)
+
+        expect {
+          post clone_playlist_path(public_playlist)
+        }.to change { user.playlists.count }.by(1)
+
+        clone = user.playlists.where(name: "Source").first
+        expect(clone).to be_present
+        expect(clone.status).to eq("private")
+        expect(clone.playlist_songs.ordered.pluck(:song_id)).to eq([ song_a.id, song_b.id ])
+        expect(response).to redirect_to(playlist_path(clone))
+      end
+
+      it 'forbids cloning a private playlist owned by someone else' do
+        other_user = create(:user)
+        private_playlist = create(:playlist, user: other_user, status: :private)
+
+        expect {
+          post clone_playlist_path(private_playlist)
+        }.not_to change { user.playlists.count }
+
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'forbids cloning your own playlist' do
+        own_playlist = create(:playlist, user: user, status: :public)
+
+        expect {
+          post clone_playlist_path(own_playlist)
+        }.not_to change { user.playlists.count }
+
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'dedups the name when the cloner already has a playlist with that name' do
+        other_user = create(:user)
+        public_playlist = create(:playlist, user: other_user, status: :public, name: "Collision")
+        create(:playlist, user: user, name: "Collision")
+
+        post clone_playlist_path(public_playlist)
+
+        clone = user.playlists.find_by(name: "Collision (Copy)")
+        expect(clone).to be_present
+        expect(response).to redirect_to(playlist_path(clone))
+      end
     end
 
     describe 'POST /playlists/:id/random_song' do
@@ -141,12 +211,23 @@ RSpec.describe PlaylistsController, type: :request do
         expect(response.body).to include("playlist[name]")
       end
 
-      it 'returns not found when the playlist belongs to another user' do
+      it 'forbids a non-owner via Pundit (403, not 404)' do
+        playlist = create(:playlist, user: user, name: "Keep")
+        sign_in(create(:user))
+
+        expect {
+          patch update_name_playlist_path(playlist), params: { playlist: { name: "Hack" } }
+        }.not_to change { playlist.reload.name }
+
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'forbids a non-owner from opening the edit form' do
         playlist = create(:playlist, user: user)
         sign_in(create(:user))
 
-        patch update_name_playlist_path(playlist), params: { playlist: { name: "Hack" } }
-        expect(response).to have_http_status(:not_found)
+        get update_name_playlist_path(playlist)
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end

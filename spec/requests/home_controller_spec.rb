@@ -64,6 +64,31 @@ RSpec.describe HomeController, type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.body).to include('Searchable')
       end
+
+      it 'includes a public playlist whose name matches the query' do
+        other_user = create(:user)
+        public_playlist = create(:playlist, user: other_user, status: :public, name: 'Searchable Playlist')
+
+        get search_results_path,
+            params: { q: 'Searchable' },
+            headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('Searchable Playlist')
+        expect(response.body).to include(playlist_path(public_playlist))
+      end
+
+      it 'omits a private playlist even when the name matches' do
+        other_user = create(:user)
+        create(:playlist, user: other_user, status: :private, name: 'Hidden Mix')
+
+        get search_results_path,
+            params: { q: 'Hidden' },
+            headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).not_to include('Hidden Mix')
+      end
     end
 
     describe 'GET /library' do
