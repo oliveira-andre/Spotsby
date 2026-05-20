@@ -73,6 +73,13 @@ class HomeController < ApplicationController
                              .with_attached_image
                              .with_songs_count
                              .ordered
+
+    @followed_playlist_follows =
+      current_user.playlist_follows
+                  .ordered
+                  .includes(playlist: [ :user, { image_attachment: :blob } ])
+                  .joins(:playlist)
+                  .where(playlists: { status: Playlist.statuses[:public] })
   end
 
   def manage; end

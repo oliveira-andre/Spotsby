@@ -21,6 +21,10 @@ class PlaylistPolicy < ApplicationPolicy
     user.present? && !owner? && record.public_status?
   end
 
+  def follow?
+    user.present? && !owner? && record.public_status?
+  end
+
   private
 
   def owner?

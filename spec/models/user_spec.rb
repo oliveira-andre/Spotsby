@@ -29,4 +29,36 @@ RSpec.describe User, type: :model do
       expect(user.email_address).to eq('foo@example.com')
     end
   end
+
+  describe '#followed_playlist?' do
+    it 'is true when the user has a PlaylistFollow for the playlist' do
+      follower = create(:user)
+      owner    = create(:user)
+      playlist = create(:playlist, user: owner, status: :public)
+      create(:playlist_follow, user: follower, playlist: playlist)
+
+      expect(follower.followed_playlist?(playlist)).to be true
+    end
+
+    it 'is false otherwise' do
+      follower = create(:user)
+      owner    = create(:user)
+      playlist = create(:playlist, user: owner, status: :public)
+
+      expect(follower.followed_playlist?(playlist)).to be false
+    end
+  end
+
+  describe '#followed_playlists' do
+    it 'returns the playlists the user follows' do
+      follower = create(:user)
+      owner    = create(:user)
+      one = create(:playlist, user: owner, status: :public)
+      two = create(:playlist, user: owner, status: :public, name: 'Other Mix')
+      create(:playlist_follow, user: follower, playlist: one)
+      create(:playlist_follow, user: follower, playlist: two)
+
+      expect(follower.followed_playlists).to contain_exactly(one, two)
+    end
+  end
 end

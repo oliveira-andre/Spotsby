@@ -1,0 +1,13 @@
+<%
+  followed_v     = local_assigns.fetch(:followed) { current_user&.followed_playlist?(playlist) }
+  size_v         = local_assigns[:size] || 22
+  button_class_v = local_assigns[:button_class] || "playlist-show__icon-btn"
+%>
+
+<span id="<%= dom_id(playlist, :heart) %>" class="heart-wrap">
+  <%= render "shared/playlist_heart_button",
+             playlist: playlist,
+             followed: followed_v,
+             size: size_v,
+             button_class: button_class_v %>
+</span>

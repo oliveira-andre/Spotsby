@@ -24,6 +24,14 @@ Rails.application.routes.draw do
       delete "songs/:id/playlists/:playlist_id", action: :remove_from_playlist, as: :remove_song_from_playlist
       post   "albums/:id",                       action: :create_album,         as: :album
       delete "albums/:id",                       action: :destroy_album
+      post   "playlists/:id",                    action: :create_playlist,      as: :playlist
+      delete "playlists/:id",                    action: :destroy_playlist
+    end
+  end
+
+  resources :playlist_follows, only: %i[] do
+    member do
+      patch :update_position
     end
   end
 

@@ -16,6 +16,8 @@ class Playlist < ApplicationRecord
 
   has_many :playlist_songs, -> { ordered }, dependent: :destroy
   has_many :songs, through: :playlist_songs
+  has_many :playlist_follows, dependent: :destroy
+  has_many :followers, through: :playlist_follows, source: :user
 
   scope :ordered, -> { order(position: :asc) }
   scope :with_songs_count, lambda {

@@ -20,4 +20,15 @@
       <%= render "home/library_item", playlist: playlist %>
     <% end %>
   </ul>
+
+  <% if @followed_playlist_follows.any? %>
+    <h2 class="library__section-title">Followed playlists</h2>
+    <ul class="library__list"
+        data-controller="sortable"
+        data-sortable-url-template-value="<%= update_position_playlist_follow_path(":id") %>">
+      <% @followed_playlist_follows.each do |playlist_follow| %>
+        <%= render "home/library_follow_item", playlist_follow: playlist_follow %>
+      <% end %>
+    </ul>
+  <% end %>
 </div>

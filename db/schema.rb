@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_16_180000) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_20_043234) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -89,6 +89,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_16_180000) do
     t.index ["song_id"], name: "index_play_histories_on_song_id"
     t.index ["user_id", "source", "created_at"], name: "index_play_histories_on_user_id_and_source_and_created_at"
     t.index ["user_id"], name: "index_play_histories_on_user_id"
+  end
+
+  create_table "playlist_follows", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "playlist_id", null: false
+    t.integer "position", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["playlist_id"], name: "index_playlist_follows_on_playlist_id"
+    t.index ["user_id", "playlist_id"], name: "index_playlist_follows_on_user_id_and_playlist_id", unique: true
+    t.index ["user_id", "position"], name: "index_playlist_follows_on_user_id_and_position"
+    t.index ["user_id"], name: "index_playlist_follows_on_user_id"
   end
 
   create_table "playlist_songs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -200,6 +212,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_16_180000) do
   add_foreign_key "authors", "users"
   add_foreign_key "play_histories", "songs"
   add_foreign_key "play_histories", "users"
+  add_foreign_key "playlist_follows", "playlists"
+  add_foreign_key "playlist_follows", "users"
   add_foreign_key "playlist_songs", "playlists"
   add_foreign_key "playlist_songs", "songs"
   add_foreign_key "playlists", "users"

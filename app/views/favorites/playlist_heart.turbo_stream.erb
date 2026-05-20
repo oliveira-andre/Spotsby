@@ -1,0 +1,7 @@
+<%= turbo_stream.replace dom_id(@playlist, :heart) do %>
+  <%= render "shared/playlist_heart",
+             playlist: @playlist,
+             followed: @followed,
+             size: @size,
+             button_class: @button_class %>
+<% end %>

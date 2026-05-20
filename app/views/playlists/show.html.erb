@@ -58,6 +58,11 @@
         <% end %>
       <% end %>
       <% unless owner %>
+        <%= render "shared/playlist_heart",
+                   playlist: @playlist,
+                   followed: current_user.followed_playlist?(@playlist),
+                   size: 22,
+                   button_class: "playlist-show__icon-btn" %>
         <%= button_to clone_playlist_path(@playlist),
                       method: :post,
                       form: { class: "playlist-show__icon-form" },

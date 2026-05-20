@@ -119,4 +119,68 @@ RSpec.describe FavoritesController, type: :request do
       expect(response).to have_http_status(:ok)
     end
   end
+
+  describe 'POST /favorites/playlists/:id (create_playlist)' do
+    let(:owner) { create(:user) }
+
+    it 'creates a PlaylistFollow for a public, non-owned playlist' do
+      target = create(:playlist, user: owner, status: :public)
+
+      expect {
+        post playlist_favorites_path(target), headers: turbo_headers
+      }.to change { user.playlist_follows.count }.by(1)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'is idempotent (no second row created on repeat)' do
+      target = create(:playlist, user: owner, status: :public)
+      post playlist_favorites_path(target), headers: turbo_headers
+
+      expect {
+        post playlist_favorites_path(target), headers: turbo_headers
+      }.not_to change { user.playlist_follows.count }
+    end
+
+    it 'is forbidden when the user owns the playlist' do
+      own = create(:playlist, user: user, status: :public)
+
+      post playlist_favorites_path(own), headers: turbo_headers
+      expect(response).to have_http_status(:forbidden)
+      expect(user.playlist_follows.count).to eq(0)
+    end
+
+    it 'is forbidden when the playlist is private' do
+      target = create(:playlist, user: owner, status: :private)
+
+      post playlist_favorites_path(target), headers: turbo_headers
+      expect(response).to have_http_status(:forbidden)
+      expect(user.playlist_follows.count).to eq(0)
+    end
+  end
+
+  describe 'DELETE /favorites/playlists/:id (destroy_playlist)' do
+    let(:owner) { create(:user) }
+
+    it 'removes the PlaylistFollow' do
+      target = create(:playlist, user: owner, status: :public)
+      post playlist_favorites_path(target), headers: turbo_headers
+
+      expect {
+        delete playlist_favorites_path(target), headers: turbo_headers
+      }.to change { user.playlist_follows.count }.by(-1)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'is a no-op when no follow exists' do
+      target = create(:playlist, user: owner, status: :public)
+
+      expect {
+        delete playlist_favorites_path(target), headers: turbo_headers
+      }.not_to change { user.playlist_follows.count }
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end

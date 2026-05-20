@@ -1,0 +1,27 @@
+<%
+  playlist = playlist_follow.playlist
+  owner    = playlist.user
+%>
+<li class="library__item" data-sortable-id="<%= playlist_follow.id %>">
+  <%= link_to playlist_path(playlist),
+              class: "library-item",
+              data: { turbo_stream: true } do %>
+    <% if playlist.image.attached? %>
+      <%= image_tag playlist.image, class: "library-item__art", loading: "lazy", alt: "" %>
+    <% else %>
+      <div class="library-item__art library-item__art--initial">
+        <%= playlist.name.to_s.first&.upcase %>
+      </div>
+    <% end %>
+
+    <div class="library-item__meta">
+      <p class="library-item__name">
+        <%= icon :heart, size: 14 %>
+        <%= playlist.name %>
+      </p>
+      <p class="library-item__sub">
+        By <%= owner.email_address %>
+      </p>
+    </div>
+  <% end %>
+</li>

@@ -2,8 +2,9 @@
 
 # FavoritesController
 class FavoritesController < ApplicationController
-  before_action :load_song,  only: %i[create_song destroy_song playlists_modal add_to_playlist remove_from_playlist]
-  before_action :load_album, only: %i[create_album destroy_album]
+  before_action :load_song,     only: %i[create_song destroy_song playlists_modal add_to_playlist remove_from_playlist]
+  before_action :load_album,    only: %i[create_album destroy_album]
+  before_action :load_playlist, only: %i[create_playlist destroy_playlist]
 
   def create_song
     playlist = ensure_saved_songs_playlist
@@ -87,6 +88,25 @@ class FavoritesController < ApplicationController
     end
   end
 
+  def create_playlist
+    authorize @playlist, :follow?, policy_class: PlaylistPolicy
+    current_user.playlist_follows.find_or_create_by!(playlist: @playlist)
+    @followed = true
+
+    respond_to do |format|
+      format.turbo_stream { render :playlist_heart }
+    end
+  end
+
+  def destroy_playlist
+    current_user.playlist_follows.find_by(playlist_id: @playlist.id)&.destroy
+    @followed = false
+
+    respond_to do |format|
+      format.turbo_stream { render :playlist_heart }
+    end
+  end
+
   private
 
   def load_song
@@ -99,6 +119,12 @@ class FavoritesController < ApplicationController
     @album = Album.friendly.find(params[:id])
     @button_class = params[:button_class] || "album-show__icon-btn"
     @size = (params[:size] || 24).to_i
+  end
+
+  def load_playlist
+    @playlist = Playlist.friendly.find(params[:id])
+    @button_class = params[:button_class] || "playlist-show__icon-btn"
+    @size = (params[:size] || 22).to_i
   end
 
   def ensure_saved_songs_playlist

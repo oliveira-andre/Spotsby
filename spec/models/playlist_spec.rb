@@ -64,4 +64,15 @@ RSpec.describe Playlist, type: :model do
       expect(playlist.errors[:image]).to be_present
     end
   end
+
+  describe 'follower associations' do
+    it 'destroys playlist_follows when the playlist is destroyed' do
+      follower = create(:user)
+      owner    = create(:user)
+      playlist = create(:playlist, user: owner, status: :public)
+      create(:playlist_follow, user: follower, playlist: playlist)
+
+      expect { playlist.destroy }.to change(PlaylistFollow, :count).by(-1)
+    end
+  end
 end

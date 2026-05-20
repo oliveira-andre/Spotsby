@@ -84,4 +84,26 @@ RSpec.describe PlaylistPolicy do
       expect(described_class.new(nil, playlist).clone?).to be(false)
     end
   end
+
+  describe '#follow?' do
+    it 'allows a signed-in non-owner of a public playlist' do
+      playlist = create(:playlist, user: owner, status: :public)
+      expect(described_class.new(other, playlist).follow?).to be(true)
+    end
+
+    it 'denies the owner from following their own playlist' do
+      playlist = create(:playlist, user: owner, status: :public)
+      expect(described_class.new(owner, playlist).follow?).to be(false)
+    end
+
+    it 'denies following a private playlist' do
+      playlist = create(:playlist, user: owner, status: :private)
+      expect(described_class.new(other, playlist).follow?).to be(false)
+    end
+
+    it 'denies an anonymous (nil) user' do
+      playlist = create(:playlist, user: owner, status: :public)
+      expect(described_class.new(nil, playlist).follow?).to be(false)
+    end
+  end
 end

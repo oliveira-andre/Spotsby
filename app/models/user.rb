@@ -16,6 +16,8 @@ class User < ApplicationRecord
   has_many :playlists, -> { ordered }, dependent: :destroy
   has_many :play_histories, dependent: :destroy
   has_many :song_queues, -> { ordered }
+  has_many :playlist_follows, dependent: :destroy
+  has_many :followed_playlists, through: :playlist_follows, source: :playlist
   belongs_to :active_session, class_name: "Session", optional: true
 
   def active_session?(session)
@@ -42,6 +44,12 @@ class User < ApplicationRecord
     Rails.cache.fetch([ cache_key_with_version, "saved_album_names" ]) do
       playlists.pluck(:name)
     end
+  end
+
+  def followed_playlist?(playlist)
+    return false unless playlist
+
+    playlist_follows.exists?(playlist_id: playlist.id)
   end
 
   private
