@@ -119,12 +119,14 @@ UI work follows `DESIGN.md` — color tokens, type scale, spacing, and component
 
 ## Contrib ideas
 
-- Keep Playing session between logged user on different devices.
+- Make Public Playlists importable (heartable)
+- Make public playlists clonnable
+- Make playlists public by edditing them.
 - Download Songs
 - Download Albums
 - Download Playlists
 - Create a System Based user for attaching public Playlists. Create Playlists for all categories
-- Make Public Playlists searchable
+- Enhance Player across devices
 - Sound Equalyzer
 - Inline playlist name edit for the playlist owner only (use Pundit)
 - Authors can create their own albums and songs without admin access
