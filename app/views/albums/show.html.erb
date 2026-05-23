@@ -7,7 +7,7 @@
     elsif @album.image.attached?
       @album.image
     end
-  first_song_image_url = first_song_image_blob ? rails_storage_proxy_url(first_song_image_blob) : nil
+  first_song_image_url = first_song_image_blob ? url_for(first_song_image_blob) : nil
   first_song_image_content_type = first_song_image_blob&.blob&.content_type
   first_song_audio_url = first_song&.audio&.attached? ? url_for(first_song.audio) : nil
   first_song_authors = first_song ? first_song.authors.map(&:name).join(", ") : nil
