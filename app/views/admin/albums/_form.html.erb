@@ -1,4 +1,6 @@
-<% categories = Category.ordered.pluck(:name, :id) %>
+<% categories = Rails.cache.fetch([ "admin/categories_for_select", Category.count, Category.maximum(:updated_at)&.to_i ]) do
+     Category.ordered.pluck(:name, :id)
+   end %>
 
 <div class="admin-modal" id="album-form" data-controller="admin-modal" data-admin-modal-auto-open-value="true">
   <div class="admin-modal__backdrop" data-action="click->admin-modal#close"></div>

@@ -16,44 +16,50 @@
 
   <% if author&.persisted? %>
     <div class="wizard-summary">
-      <div class="wizard-summary__row">
-        <% if author.image.attached? %>
-          <%= image_tag author.image, class: "wizard-summary__art wizard-summary__art--round", alt: "" %>
-        <% else %>
-          <span class="wizard-summary__art wizard-summary__art--round wizard-summary__art--placeholder">
-            <%= icon :microphone, size: 16 %>
-          </span>
-        <% end %>
-        <div class="wizard-summary__info">
-          <span class="wizard-summary__label">Author</span>
-          <span class="wizard-summary__name"><%= author.name %></span>
-        </div>
-      </div>
-
-      <% if album&.persisted? %>
+      <% cache [ author, "wizard_summary/author" ] do %>
         <div class="wizard-summary__row">
-          <% if album.image.attached? %>
-            <%= image_tag album.image, class: "wizard-summary__art", alt: "" %>
+          <% if author.image.attached? %>
+            <%= image_tag author.image, class: "wizard-summary__art wizard-summary__art--round", alt: "" %>
           <% else %>
-            <span class="wizard-summary__art wizard-summary__art--placeholder">
-              <%= icon :disc, size: 16 %>
+            <span class="wizard-summary__art wizard-summary__art--round wizard-summary__art--placeholder">
+              <%= icon :microphone, size: 16 %>
             </span>
           <% end %>
           <div class="wizard-summary__info">
-            <span class="wizard-summary__label">Album</span>
-            <span class="wizard-summary__name"><%= album.name %></span>
+            <span class="wizard-summary__label">Author</span>
+            <span class="wizard-summary__name"><%= author.name %></span>
           </div>
         </div>
+      <% end %>
+
+      <% if album&.persisted? %>
+        <% cache [ album, "wizard_summary/album" ] do %>
+          <div class="wizard-summary__row">
+            <% if album.image.attached? %>
+              <%= image_tag album.image, class: "wizard-summary__art", alt: "" %>
+            <% else %>
+              <span class="wizard-summary__art wizard-summary__art--placeholder">
+                <%= icon :disc, size: 16 %>
+              </span>
+            <% end %>
+            <div class="wizard-summary__info">
+              <span class="wizard-summary__label">Album</span>
+              <span class="wizard-summary__name"><%= album.name %></span>
+            </div>
+          </div>
+        <% end %>
 
         <% if songs.any? %>
           <div class="wizard-summary__songs">
             <span class="wizard-summary__label">Songs (<%= songs.size %>)</span>
             <ol class="wizard-summary__songs-list">
               <% songs.each do |s| %>
-                <li class="wizard-summary__song">
-                  <span class="wizard-summary__song-num"><%= s.position %></span>
-                  <span class="wizard-summary__song-name"><%= s.name %></span>
-                </li>
+                <% cache [ s, "wizard_summary/song" ] do %>
+                  <li class="wizard-summary__song">
+                    <span class="wizard-summary__song-num"><%= s.position %></span>
+                    <span class="wizard-summary__song-name"><%= s.name %></span>
+                  </li>
+                <% end %>
               <% end %>
             </ol>
           </div>

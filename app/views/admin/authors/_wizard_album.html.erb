@@ -1,4 +1,6 @@
-<% categories = Category.ordered.pluck(:name, :id) %>
+<% categories = Rails.cache.fetch([ "admin/categories_for_select", Category.count, Category.maximum(:updated_at)&.to_i ]) do
+     Category.ordered.pluck(:name, :id)
+   end %>
 
 <% if album.errors.any? %>
   <div class="flash flash--alert" role="alert">

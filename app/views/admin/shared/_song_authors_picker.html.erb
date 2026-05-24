@@ -1,6 +1,9 @@
 <%
   exclude_id = local_assigns[:exclude_author_id]
-  authors = Author.order(:name).where.not(id: exclude_id).pluck(:name, :id)
+  all_authors = Rails.cache.fetch([ "admin/song_authors_picker/authors", Author.count, Author.maximum(:updated_at)&.to_i ]) do
+    Author.order(:name).pluck(:name, :id)
+  end
+  authors = exclude_id ? all_authors.reject { |_name, id| id == exclude_id } : all_authors
   selected_ids = Array(local_assigns[:selected_ids])
   field_name = local_assigns[:field_name] || "song[additional_author_ids][]"
 %>
