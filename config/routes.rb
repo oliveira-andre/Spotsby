@@ -19,7 +19,6 @@ Rails.application.routes.draw do
     collection do
       post   "songs/:id",                        action: :create_song,          as: :song
       delete "songs/:id",                        action: :destroy_song
-      post   "songs/:id/modal",                  action: :playlists_modal,      as: :song_modal
       post   "songs/:id/playlists/:playlist_id", action: :add_to_playlist,      as: :add_song_to_playlist
       delete "songs/:id/playlists/:playlist_id", action: :remove_from_playlist, as: :remove_song_from_playlist
       post   "albums/:id",                       action: :create_album,         as: :album

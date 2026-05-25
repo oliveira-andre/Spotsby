@@ -38,16 +38,6 @@ RSpec.describe FavoritesController, type: :request do
     end
   end
 
-  describe 'POST /favorites/songs/:id/modal' do
-    it 'renders the playlists modal' do
-      create(:playlist, user: user, name: 'My Mix')
-
-      post song_modal_favorites_path(song), headers: turbo_headers
-      expect(response).to have_http_status(:ok)
-      expect(response.media_type).to eq(Mime[:turbo_stream].to_s)
-    end
-  end
-
   describe 'POST /favorites/songs/:id/playlists/:playlist_id (add_to_playlist)' do
     let!(:playlist) { create(:playlist, user: user, name: 'Roadtrip') }
 

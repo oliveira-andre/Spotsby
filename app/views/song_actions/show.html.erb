@@ -17,6 +17,30 @@
       </div>
     </div>
 
+    <% if @playlists.any? && (@saved_song_playlsit.song_ids.any?(@song.id) || @playlists.any? { |playlist| playlist.song_ids.include?(@song.id) }) %>
+      <div class="song-actions__playlists">
+        <ul class="playlists-modal__list">
+          <% @playlists.each do |playlist| %>
+            <li>
+              <%= button_to add_song_to_playlist_favorites_path(@song, playlist_id: playlist.id),
+                            method: :post,
+                            form: { class: "playlists-modal__form", data: { turbo_stream: true } },
+                            class: "playlists-modal__option" do %>
+                <% if playlist.image.attached? %>
+                  <%= image_tag playlist.image, class: "playlists-modal__art", loading: "lazy", alt: "" %>
+                <% else %>
+                  <div class="playlists-modal__art playlists-modal__art--initial">
+                    <%= playlist.name.to_s.first&.upcase %>
+                  </div>
+                <% end %>
+                <span class="playlists-modal__name"><%= playlist.name %></span>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
     <%= button_to song_queues_path(song_id: @song.id),
                   method: :post,
                   class: "song-actions__option",

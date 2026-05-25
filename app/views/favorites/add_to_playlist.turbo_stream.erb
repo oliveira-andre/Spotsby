@@ -23,7 +23,7 @@
                button_class: @button_class %>
   <% end %>
 
-  <%= turbo_stream.replace "bottom-modal" do %>
-    <%= render "shared/modal", id: "bottom-modal" %>
+  <%= turbo_stream.replace "song-actions-modal" do %>
+    <%= render "shared/song_actions_modal" %>
   <% end %>
 <% end %>

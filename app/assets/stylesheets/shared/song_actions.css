@@ -91,6 +91,13 @@
   text-overflow: ellipsis;
 }
 
+.song-actions__playlists {
+  max-height: calc(56px * 4 + var(--space-1) * 3);
+  overflow-y: auto;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
 .song-actions__form {
   margin: 0;
   display: block;

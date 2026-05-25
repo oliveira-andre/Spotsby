@@ -15,13 +15,15 @@
     <% end %>
 
     <div class="library-item__meta">
-      <p class="library-item__name">
-        <%= icon :heart, size: 14 %>
-        <%= playlist.name %>
-      </p>
+      <p class="library-item__name"><%= playlist.name %></p>
       <p class="library-item__sub">
         By <%= owner.email_address %>
       </p>
     </div>
   <% end %>
+  <%= render "shared/playlist_heart",
+             playlist: playlist,
+             followed: true,
+             button_class: "library-item__heart",
+             size: 20 %>
 </li>
