@@ -147,7 +147,7 @@
         <p class="player__details-album"><%= song.album&.name %></p>
       </div>
       <%= render "shared/share_button",
-                 url: player_url(song),
+                 url: player_path(song),
                  btn_class: "player__details-share" %>
     </div>
   <% else %>
