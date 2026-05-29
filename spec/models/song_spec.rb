@@ -78,4 +78,58 @@ RSpec.describe Song, type: :model do
       expect(Song.friendly.find(song.slug)).to eq(song)
     end
   end
+
+  describe 'user-modification guard' do
+    let(:song) { create(:song) }
+    let(:regular_user) { create(:user, status: :active) }
+    let(:admin_user) { create(:user, status: :admin) }
+    let(:session) { Session.new(user: user) }
+
+    around do |example|
+      Current.set(session: session) { example.run }
+    end
+
+    context 'as a regular user' do
+      let(:user) { regular_user }
+
+      it 'raises ReadOnlyRecord on update' do
+        expect { song.update!(name: 'Different') }.to raise_error(ActiveRecord::ReadOnlyRecord)
+      end
+    end
+
+    context 'as an admin user' do
+      let(:user) { admin_user }
+
+      it 'allows the update' do
+        expect { song.update!(name: 'Different') }.not_to raise_error
+      end
+    end
+
+    context 'with no Current.session (job context)' do
+      let(:session) { nil }
+
+      around do |example|
+        Current.set(session: nil) { example.run }
+      end
+
+      it 'allows the update' do
+        expect { song.update!(name: 'Different') }.not_to raise_error
+      end
+    end
+  end
+
+  describe 'audio_fragment job enqueue' do
+    let(:fixture_path) { Rails.root.join('spec/fixtures/files/sample.mp3') }
+
+    it 'enqueues GenerateInitialFragmentJob when audio is attached and fragment is missing' do
+      song = create(:song)
+      expect {
+        song.audio.attach(io: File.open(fixture_path, 'rb'), filename: 'sample.mp3', content_type: 'audio/mpeg')
+      }.to have_enqueued_job(GenerateInitialFragmentJob).with(song.id)
+    end
+
+    it 'does not enqueue when no audio is attached' do
+      expect { create(:song) }.not_to have_enqueued_job(GenerateInitialFragmentJob)
+    end
+  end
 end

@@ -8,6 +8,7 @@
   song_image_url = song_image_blob ? url_for(song_image_blob) : nil
   song_image_content_type = song_image_blob&.blob&.content_type
   song_audio_url = song&.audio&.attached? ? url_for(song.audio) : nil
+  song_fragment_url = song&.audio_fragment&.attached? ? url_for(song.audio_fragment) : nil
   song_authors = song ? song.authors.map(&:name).join(", ") : nil
 %>
 
@@ -19,5 +20,7 @@
      data-song-loader-album-value="<%= song&.album&.name %>"
      data-song-loader-image-url-value="<%= song_image_url %>"
      data-song-loader-image-content-type-value="<%= song_image_content_type %>"
-     data-song-loader-audio-url-value="<%= song_audio_url %>">
+     data-song-loader-audio-url-value="<%= song_audio_url %>"
+     data-song-loader-fragment-url-value="<%= song_fragment_url %>"
+     data-song-loader-duration-ms-value="<%= song&.duration_ms %>">
 </div>

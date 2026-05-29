@@ -6,10 +6,13 @@ class Song < ApplicationRecord
 
   has_one_attached :image
   has_one_attached :audio
+  has_one_attached :audio_fragment
 
   validates :image, content_type: %w[image/jpeg image/png image/webp]
   validates :audio, content_type: %w[audio/mpeg audio/mp4 audio/ogg audio/vnd.wave], if: :audio_attached?
   validates :audio, size: { less_than: 100.megabytes }
+  validates :audio_fragment, content_type: %w[audio/mpeg audio/mp4 audio/ogg audio/vnd.wave], if: :audio_attached?
+  validates :audio_fragment, size: { less_than: 100.megabytes }
 
   belongs_to :category
   belongs_to :album, touch: true
@@ -34,12 +37,27 @@ class Song < ApplicationRecord
   validates_numericality_of :age, greater_than_or_equal_to: 0
 
   before_validation :inherit_album_image, on: :create
+  before_update :reject_user_modifications
   after_commit :sync_popular_songs, on: [ :create, :update ], if: :saved_change_to_popular?
+  after_commit :enqueue_initial_fragment_job, on: [ :create, :update ]
 
   private
 
   def audio_attached?
     audio.attached?
+  end
+
+  def reject_user_modifications
+    return if Current.user.nil? || Current.user.admin?
+
+    raise ActiveRecord::ReadOnlyRecord, "Song fields cannot be updated by non-admin users"
+  end
+
+  def enqueue_initial_fragment_job
+    return unless audio.attached?
+    return if audio_fragment.attached?
+
+    GenerateInitialFragmentJob.perform_later(id)
   end
 
   def inherit_album_image

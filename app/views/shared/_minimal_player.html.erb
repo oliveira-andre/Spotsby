@@ -3,6 +3,7 @@
      data-controller="now-playing"
      hidden>
   <audio data-now-playing-target="audio" preload="metadata"></audio>
+  <audio data-now-playing-target="prefetch" preload="auto" hidden></audio>
 
   <%= link_to "#",
               class: "minimal-player__link",

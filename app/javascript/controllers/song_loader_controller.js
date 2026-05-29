@@ -12,7 +12,9 @@ export default class extends Controller {
     album: String,
     imageUrl: String,
     imageContentType: String,
-    audioUrl: String
+    audioUrl: String,
+    fragmentUrl: String,
+    durationMs: Number
   }
 
   connect() {
@@ -28,6 +30,8 @@ export default class extends Controller {
           imageUrl: this.imageUrlValue,
           imageContentType: this.imageContentTypeValue,
           audioUrl: this.audioUrlValue,
+          fragmentUrl: this.fragmentUrlValue,
+          durationMs: this.durationMsValue,
           autoplay: this.shouldAutoplay(target)
         }
       }))
