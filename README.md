@@ -119,8 +119,8 @@ UI work follows `DESIGN.md` — color tokens, type scale, spacing, and component
 
 ## Contrib ideas
 
-- Make Public Playlists importable (heartable)
-- Make public playlists clonnable
+- Fragment Songs to have the initial song and then load on start only the fragment, while loading async full song
+- Cache images
 - Make playlists public by edditing them.
 - Download Songs
 - Download Albums
