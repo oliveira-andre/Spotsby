@@ -16,6 +16,15 @@ module Spotsby
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # Serve image blobs through the proxy controller. The proxy controller sets
+    # `Cache-Control: public, max-age=315360000` so browsers cache the bytes
+    # by URL. Default redirect mode 302s to a disk URL whose signed token
+    # rotates per request, defeating browser caching even when the page's
+    # <img src=...> is stable. Audio callsites stay on redirect (see
+    # `redirect_blob_url` helper) — proxy mode would tie up Rails workers
+    # serving multi-MB byte ranges.
+    config.active_storage.resolve_model_to_route = :rails_storage_proxy
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

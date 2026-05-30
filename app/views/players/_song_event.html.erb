@@ -7,8 +7,8 @@
     end
   song_image_url = song_image_blob ? url_for(song_image_blob) : nil
   song_image_content_type = song_image_blob&.blob&.content_type
-  song_audio_url = song&.audio&.attached? ? url_for(song.audio) : nil
-  song_fragment_url = song&.audio_fragment&.attached? ? url_for(song.audio_fragment) : nil
+  song_audio_url = song&.audio&.attached? ? redirect_blob_url(song.audio) : nil
+  song_fragment_url = song&.audio_fragment&.attached? ? redirect_blob_url(song.audio_fragment) : nil
   song_authors = song ? song.authors.map(&:name).join(", ") : nil
 %>
 
