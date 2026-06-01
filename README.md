@@ -119,8 +119,6 @@ UI work follows `DESIGN.md` — color tokens, type scale, spacing, and component
 
 ## Contrib ideas
 
-- Fragment Songs to have the initial song and then load on start only the fragment, while loading async full song
-- Cache images
 - Make playlists public by edditing them.
 - Download Songs
 - Download Albums
