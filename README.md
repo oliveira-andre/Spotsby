@@ -119,7 +119,7 @@ UI work follows `DESIGN.md` — color tokens, type scale, spacing, and component
 
 ## Contrib ideas
 
-- Make playlists public by edditing them.
+- Make playlists public by editing them.
 - Download Songs
 - Download Albums
 - Download Playlists
