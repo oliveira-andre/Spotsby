@@ -33,7 +33,7 @@ class Song < ApplicationRecord
   validates :name, presence: true, uniqueness: { scope: :album_id }
   validates :category_id, presence: true
   validates :album_id, presence: true
-  validates_numericality_of :duration_ms, greater_than_or_equal_to: 0
+  validates_numericality_of :duration_ms, greater_than: 0
   validates_numericality_of :age, greater_than_or_equal_to: 0
 
   before_validation :inherit_album_image, on: :create
