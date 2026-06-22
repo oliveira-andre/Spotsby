@@ -2519,6 +2519,27 @@
   color: var(--color-text-muted);
 }
 
+.multi-select__create {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.multi-select__create-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.multi-select__create-input {
+  flex: 1;
+}
+
+.multi-select__create-error {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--color-negative);
+}
+
 .multi-select__dropdown {
   position: absolute;
   top: 100%;

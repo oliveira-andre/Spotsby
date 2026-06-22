@@ -1,0 +1,5 @@
+<%# Append the new author to the picker's select, already selected. The
+    multi-select controller then re-renders chips and returns to the picker. %>
+<%= turbo_stream.append "song-additional-author-select" do %>
+  <option value="<%= @author.id %>" selected><%= @author.name %></option>
+<% end %>

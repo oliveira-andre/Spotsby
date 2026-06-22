@@ -20,6 +20,21 @@ module Admin
       @author = Author.new
     end
 
+    # Inline author creation from the song form's "Featured artists" picker.
+    # Responds with turbo_stream so the wizard/song modal stays open.
+    def quick_create
+      @author = Author.new(quick_create_params)
+      if @author.save
+        render :quick_create, status: :ok
+      else
+        render turbo_stream: turbo_stream.update(
+          "author-quick-add-error",
+          partial: "admin/authors/quick_add_error",
+          locals: { author: @author }
+        ), status: :unprocessable_content
+      end
+    end
+
     def create
       @author = Author.new(author_params)
 
@@ -67,6 +82,10 @@ module Admin
 
     def author_params
       params.require(:author).permit(:name, :description, :image, :user_id)
+    end
+
+    def quick_create_params
+      params.require(:author).permit(:name)
     end
   end
 end

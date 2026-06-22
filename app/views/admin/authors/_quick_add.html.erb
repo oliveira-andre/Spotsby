@@ -1,0 +1,26 @@
+<div class="multi-select__create">
+  <div class="label-row">
+    <span class="label">New artist</span>
+  </div>
+
+  <div id="author-quick-add-error" data-inline-create-target="error">
+    <%= render "admin/authors/quick_add_error", author: author %>
+  </div>
+
+  <div class="multi-select__create-row">
+    <input type="text"
+           class="multi-select__search multi-select__create-input"
+           placeholder="New artist name…"
+           autocomplete="off"
+           value="<%= author.name %>"
+           data-inline-create-target="input"
+           data-action="keydown.enter->inline-create#submit keydown.esc->inline-create#hide">
+    <button type="button"
+            class="btn btn--primary btn--sm"
+            data-inline-create-target="submit"
+            data-action="click->inline-create#submit">Add</button>
+    <button type="button"
+            class="btn btn--outlined btn--sm"
+            data-action="click->inline-create#hide">Cancel</button>
+  </div>
+</div>

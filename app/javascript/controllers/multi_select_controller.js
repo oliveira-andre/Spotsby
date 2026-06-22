@@ -11,11 +11,21 @@ export default class extends Controller {
     this.isOpen = false
     this.outsideClick = this.handleOutsideClick.bind(this)
     document.addEventListener("click", this.outsideClick)
+    this.observeSelect()
     this.render()
   }
 
   disconnect() {
     document.removeEventListener("click", this.outsideClick)
+    if (this.selectObserver) this.selectObserver.disconnect()
+  }
+
+  // Re-sync the UI when <option>s are added/removed externally (e.g. a
+  // companion inline-create controller appends a freshly created record).
+  observeSelect() {
+    if (!this.hasSelectTarget || typeof MutationObserver === "undefined") return
+    this.selectObserver = new MutationObserver(() => this.render())
+    this.selectObserver.observe(this.selectTarget, { childList: true })
   }
 
   get options() {

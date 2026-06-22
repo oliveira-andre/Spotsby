@@ -8,36 +8,60 @@
   field_name = local_assigns[:field_name] || "song[additional_author_ids][]"
 %>
 
-<div class="form-field">
-  <%= label_tag :"song_additional_author_ids", "Featured artists", class: "label" %>
-  <div class="multi-select"
-       data-controller="multi-select"
-       data-multi-select-placeholder-value="Search authors…"
-       data-multi-select-empty-text-value="No matches">
-    <%= select_tag field_name,
-                    options_for_select(authors, selected_ids),
-                    multiple: true,
-                    class: "multi-select__native",
-                    hidden: true,
-                    data: { multi_select_target: "select" } %>
-    <input type="hidden" name="<%= field_name %>" value="">
+<div class="form-field"
+     data-controller="inline-create"
+     data-inline-create-url-value="<%= quick_create_admin_authors_path %>"
+     data-inline-create-param-value="author[name]">
 
-    <div class="multi-select__chips" data-multi-select-target="chips"></div>
-
-    <div class="multi-select__control">
-      <input type="text"
-             class="multi-select__search"
-             placeholder="Search authors…"
-             autocomplete="off"
-             data-multi-select-target="search"
-             data-action="input->multi-select#search focus->multi-select#focusSearch">
+  <%# Picker view — the multi-select. The "+" swaps in the create view. %>
+  <div data-inline-create-target="pickerView">
+    <div class="label-row">
+      <%= label_tag :"song_additional_author_ids", "Featured artists", class: "label" %>
+      <button type="button"
+              class="ai-button mb-1"
+              aria-label="Add new artist"
+              data-action="click->inline-create#show">
+        <%= icon :plus, size: 14 %>
+      </button>
     </div>
 
-    <div class="multi-select__dropdown"
-         data-multi-select-target="dropdown"
-         hidden>
-      <div class="multi-select__options" data-multi-select-target="options"></div>
+    <div class="multi-select"
+         id="featured-artists-select"
+         data-controller="multi-select"
+         data-multi-select-placeholder-value="Search authors…"
+         data-multi-select-empty-text-value="No matches">
+      <%= select_tag field_name,
+                      options_for_select(authors, selected_ids),
+                      multiple: true,
+                      id: "song-additional-author-select",
+                      class: "multi-select__native",
+                      hidden: true,
+                      data: { multi_select_target: "select" } %>
+      <input type="hidden" name="<%= field_name %>" value="">
+
+      <div class="multi-select__chips" data-multi-select-target="chips"></div>
+
+      <div class="multi-select__control">
+        <input type="text"
+               class="multi-select__search"
+               placeholder="Search authors…"
+               autocomplete="off"
+               data-multi-select-target="search"
+               data-action="input->multi-select#search focus->multi-select#focusSearch">
+      </div>
+
+      <div class="multi-select__dropdown"
+           data-multi-select-target="dropdown"
+           hidden>
+        <div class="multi-select__options" data-multi-select-target="options"></div>
+      </div>
     </div>
+
+    <span class="form-field__hint">Album's main artist is always credited.</span>
   </div>
-  <span class="form-field__hint">Album's main artist is always credited.</span>
+
+  <%# Create view — replaces the picker while adding a brand-new artist. %>
+  <div data-inline-create-target="createView" hidden>
+    <%= render "admin/authors/quick_add", author: Author.new %>
+  </div>
 </div>

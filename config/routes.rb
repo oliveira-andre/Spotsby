@@ -109,6 +109,9 @@ Rails.application.routes.draw do
     end
     resources :users
     resources :authors do
+      collection do
+        post :quick_create
+      end
       resources :albums, only: %i[new create], controller: "author_albums" do
         resources :songs, only: %i[new create], controller: "album_songs"
       end
