@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 const FORCE_PLAY_KEY = "spotsby:force-play"
 
 export default class extends Controller {
-  static targets = ["playButton", "playIcon", "pauseIcon", "slider", "currentTime", "totalTime", "repeatButton"]
+  static targets = ["playButton", "playIcon", "pauseIcon", "slider", "currentTime", "totalTime", "repeatButton", "volumeSlider", "volumeHighIcon", "volumeLowIcon", "volumeMuteIcon"]
   static outlets = ["modal", "now-playing"]
   static values = {
     songId: String,
@@ -22,6 +22,7 @@ export default class extends Controller {
     this.onState = this.handleState.bind(this)
     this.onTimeUpdate = this.handleTimeUpdate.bind(this)
     this.onRepeat = this.handleRepeat.bind(this)
+    this.onVolume = this.handleVolume.bind(this)
   }
 
   connect() {
@@ -33,6 +34,7 @@ export default class extends Controller {
       this.boundOutletElement.removeEventListener("now-playing:state", this.onState)
       this.boundOutletElement.removeEventListener("now-playing:timeupdate", this.onTimeUpdate)
       this.boundOutletElement.removeEventListener("now-playing:repeat", this.onRepeat)
+      this.boundOutletElement.removeEventListener("now-playing:volume", this.onVolume)
       this.boundOutletElement = null
     }
     document.body.classList.remove("is-big-player")
@@ -43,7 +45,9 @@ export default class extends Controller {
     element.addEventListener("now-playing:state", this.onState)
     element.addEventListener("now-playing:timeupdate", this.onTimeUpdate)
     element.addEventListener("now-playing:repeat", this.onRepeat)
+    element.addEventListener("now-playing:volume", this.onVolume)
     this.applyRepeatState(outlet.repeat)
+    this.applyVolumeState(outlet.volumePercent, outlet.isMuted)
 
     let autoplay = outlet.isPlaying
     try {
@@ -94,6 +98,7 @@ export default class extends Controller {
       element.removeEventListener("now-playing:state", this.onState)
       element.removeEventListener("now-playing:timeupdate", this.onTimeUpdate)
       element.removeEventListener("now-playing:repeat", this.onRepeat)
+      element.removeEventListener("now-playing:volume", this.onVolume)
       this.boundOutletElement = null
     }
   }
@@ -115,6 +120,28 @@ export default class extends Controller {
     this.repeatButtonTarget.classList.toggle("is-active", !!on)
     this.repeatButtonTarget.setAttribute("aria-label", on ? "Turn off repeat" : "Turn on repeat")
     this.repeatButtonTarget.setAttribute("aria-pressed", String(!!on))
+  }
+
+  changeVolume(event) {
+    if (this.hasNowPlayingOutlet) this.nowPlayingOutlet.setVolume(event.target.value)
+  }
+
+  toggleMute() {
+    if (this.hasNowPlayingOutlet) this.nowPlayingOutlet.toggleMute()
+  }
+
+  handleVolume(event) {
+    this.applyVolumeState(Math.round((event.detail?.volume ?? 0) * 100), event.detail?.muted)
+  }
+
+  applyVolumeState(percent, muted) {
+    const value = Number.isFinite(percent) ? percent : 100
+    if (this.hasVolumeSliderTarget) this.volumeSliderTarget.value = value
+    const effective = muted ? 0 : value
+
+    if (this.hasVolumeHighIconTarget) this.volumeHighIconTarget.hidden = muted || effective < 50
+    if (this.hasVolumeLowIconTarget) this.volumeLowIconTarget.hidden = muted || effective === 0 || effective >= 50
+    if (this.hasVolumeMuteIconTarget) this.volumeMuteIconTarget.hidden = !muted && effective !== 0
   }
 
   seek(event) {

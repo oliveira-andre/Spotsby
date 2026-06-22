@@ -3,6 +3,9 @@ import { createConsumer } from "@rails/actioncable"
 
 const STORAGE_KEY = "spotsby:now-playing"
 const REPEAT_KEY = "spotsby:repeat"
+const VOLUME_KEY = "spotsby:volume"
+const MUTED_KEY = "spotsby:muted"
+const DEFAULT_VOLUME = 1
 const NAV_STACK_KEY = "spotsby:nav-stack"
 const NAV_STACK_MAX = 30
 const HEARTBEAT_MS = 60_000
@@ -39,6 +42,7 @@ export default class extends Controller {
     this.onActiveChanged = this.handleActiveChanged.bind(this)
     this.onRemoteState = this.handleRemoteState.bind(this)
     this.onPrefetchCanPlay = this.handlePrefetchCanPlay.bind(this)
+    this.onKeydown = this.handleKeydown.bind(this)
 
     this.audioTarget.addEventListener("play", this.onPlay)
     this.audioTarget.addEventListener("pause", this.onPause)
@@ -49,6 +53,7 @@ export default class extends Controller {
     }
     this.element.addEventListener("now-playing:load", this.onLoadEvent)
     document.addEventListener("click", this.onDocumentClick, true)
+    document.addEventListener("keydown", this.onKeydown)
     window.addEventListener("now-playing:active-changed", this.onActiveChanged)
     window.addEventListener("now-playing:remote-state", this.onRemoteState)
 
@@ -58,6 +63,7 @@ export default class extends Controller {
     this.syncIsActive()
 
     this.repeat = readRepeat()
+    this.applyVolume()
     this.seedNavStack()
     this.restoreFromStorage()
     this.setupMediaSession()
@@ -82,6 +88,7 @@ export default class extends Controller {
     }
     this.element.removeEventListener("now-playing:load", this.onLoadEvent)
     document.removeEventListener("click", this.onDocumentClick, true)
+    document.removeEventListener("keydown", this.onKeydown)
     window.removeEventListener("now-playing:active-changed", this.onActiveChanged)
     window.removeEventListener("now-playing:remote-state", this.onRemoteState)
 
@@ -158,10 +165,62 @@ export default class extends Controller {
 
   // ---------- Existing audio + nav stack logic (unchanged) ----------
 
+  handleKeydown(event) {
+    if (event.code !== "Space" && event.key !== " ") return
+    // Don't hijack space while typing or when focus is on a clickable control
+    // (the browser already maps space to "activate" there).
+    const el = event.target
+    if (el?.isContentEditable) return
+    const tag = el?.tagName
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return
+    if (el?.closest("button, a, [role='button'], [contenteditable='true']")) return
+    if (!this.state) return
+
+    event.preventDefault()
+    this.toggle()
+  }
+
   toggleRepeat() {
     this.repeat = !this.repeat
     writeRepeat(this.repeat)
     this.dispatch("repeat", { detail: { repeat: this.repeat } })
+  }
+
+  // ---------- Volume ----------
+
+  applyVolume() {
+    this.audioTarget.volume = readVolume()
+    this.audioTarget.muted = readMuted()
+  }
+
+  get volumePercent() {
+    return Math.round(this.audioTarget.volume * 100)
+  }
+
+  get isMuted() {
+    return this.audioTarget.muted
+  }
+
+  setVolume(percent) {
+    const volume = clamp(Number(percent) / 100, 0, 1)
+    this.audioTarget.volume = volume
+    // Sliding off zero implicitly unmutes; sliding to zero reads as muted.
+    this.audioTarget.muted = volume === 0
+    writeVolume(volume)
+    writeMuted(this.audioTarget.muted)
+    this.dispatch("volume", { detail: { volume, muted: this.audioTarget.muted } })
+  }
+
+  toggleMute() {
+    const muted = !this.audioTarget.muted
+    // Unmuting at zero volume would stay silent — restore a usable level.
+    if (!muted && this.audioTarget.volume === 0) {
+      this.audioTarget.volume = DEFAULT_VOLUME
+      writeVolume(DEFAULT_VOLUME)
+    }
+    this.audioTarget.muted = muted
+    writeMuted(muted)
+    this.dispatch("volume", { detail: { volume: this.audioTarget.volume, muted } })
   }
 
   seedNavStack() {
@@ -645,4 +704,28 @@ function readRepeat() {
 
 function writeRepeat(on) {
   try { localStorage.setItem(REPEAT_KEY, on ? "true" : "false") } catch (_) {}
+}
+
+function readVolume() {
+  let raw
+  try { raw = localStorage.getItem(VOLUME_KEY) } catch (_) { return DEFAULT_VOLUME }
+  if (raw === null) return DEFAULT_VOLUME
+  const value = Number(raw)
+  return Number.isFinite(value) ? clamp(value, 0, 1) : DEFAULT_VOLUME
+}
+
+function writeVolume(volume) {
+  try { localStorage.setItem(VOLUME_KEY, String(volume)) } catch (_) {}
+}
+
+function readMuted() {
+  try { return localStorage.getItem(MUTED_KEY) === "true" } catch (_) { return false }
+}
+
+function writeMuted(on) {
+  try { localStorage.setItem(MUTED_KEY, on ? "true" : "false") } catch (_) {}
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value))
 }

@@ -134,6 +134,41 @@
         <%= icon :repeat, size: 22 %>
       </button>
     </div>
+
+    <div class="bellow_player__ctrls" data-player-target="volume">
+      <button type="button"
+              class="player__ctrl player__volume-btn"
+              aria-label="Mute"
+              data-player-target="volumeHighIcon"
+              data-action="click->player#toggleMute">
+        <%= icon :volume_high, size: 22 %>
+      </button>
+      <button type="button"
+              class="player__ctrl player__volume-btn"
+              aria-label="Mute"
+              hidden
+              data-player-target="volumeLowIcon"
+              data-action="click->player#toggleMute">
+        <%= icon :volume_low, size: 22 %>
+      </button>
+      <button type="button"
+              class="player__ctrl player__volume-btn"
+              aria-label="Unmute"
+              hidden
+              data-player-target="volumeMuteIcon"
+              data-action="click->player#toggleMute">
+        <%= icon :volume_mute, size: 22 %>
+      </button>
+      <input type="range"
+             class="player__slider player__volume-slider"
+             min="0"
+             max="100"
+             step="1"
+             value="100"
+             aria-label="Volume"
+             data-player-target="volumeSlider"
+             data-action="input->player#changeVolume">
+    </div>
   </footer>
 </div>
 

@@ -308,6 +308,32 @@
   transform: scale(1.04);
 }
 
+.bellow_player__ctrls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.player__volume-btn {
+  color: var(--color-text-muted);
+}
+
+.player__volume-btn:hover {
+  color: var(--color-text-base);
+}
+
+.player__volume-slider {
+  width: 160px;
+  max-width: 60%;
+}
+
+@media (max-width: 575px) {
+  .bellow_player__ctrls {
+    display: none;
+  }
+}
+
 .minimal-player {
   position: fixed;
   left: var(--space-2);
