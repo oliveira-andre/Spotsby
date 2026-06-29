@@ -19,7 +19,7 @@ module Admin
       album_scope = Album.with_attached_image
                          .includes(:author)
                          .where(id: matching_album_ids.select("albums.id").distinct)
-                         .order("LOWER(albums.name)")
+                         .order("LOWER(albums.name)", "albums.id") # id tiebreaker: names collide
 
       @pagy, @albums = pagy(album_scope, limit: DEFAULT_PER_PAGE)
 
@@ -47,7 +47,7 @@ module Admin
     end
 
     def new
-      scope = Author.with_attached_image.order(:name)
+      scope = Author.with_attached_image.order(:name, :id)
 
       if params[:q].present?
         like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"

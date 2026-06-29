@@ -30,6 +30,7 @@ export default class extends Controller {
     this.fragmentMode = false
     this.fullAudioUrl = null
     this.lastPersistedAt = 0
+    this.recoveryAttempts = 0
   }
 
   connect() {
@@ -43,11 +44,13 @@ export default class extends Controller {
     this.onRemoteState = this.handleRemoteState.bind(this)
     this.onPrefetchCanPlay = this.handlePrefetchCanPlay.bind(this)
     this.onKeydown = this.handleKeydown.bind(this)
+    this.onError = this.handleError.bind(this)
 
     this.audioTarget.addEventListener("play", this.onPlay)
     this.audioTarget.addEventListener("pause", this.onPause)
     this.audioTarget.addEventListener("timeupdate", this.onTimeUpdate)
     this.audioTarget.addEventListener("ended", this.onEnded)
+    this.audioTarget.addEventListener("error", this.onError)
     if (this.hasPrefetchTarget) {
       this.prefetchTarget.addEventListener("canplaythrough", this.onPrefetchCanPlay)
     }
@@ -83,6 +86,7 @@ export default class extends Controller {
     this.audioTarget.removeEventListener("pause", this.onPause)
     this.audioTarget.removeEventListener("timeupdate", this.onTimeUpdate)
     this.audioTarget.removeEventListener("ended", this.onEnded)
+    this.audioTarget.removeEventListener("error", this.onError)
     if (this.hasPrefetchTarget) {
       this.prefetchTarget.removeEventListener("canplaythrough", this.onPrefetchCanPlay)
     }
@@ -573,8 +577,41 @@ export default class extends Controller {
     this.dispatch("state", { detail: { playing: false } })
   }
 
+  handleError() {
+    // The <audio> element caches the disk URL it resolved the redirect to as
+    // currentSrc. That signed URL expires (ActiveStorage service_urls_expire_in,
+    // 5 min), so a resume after a long pause — once the browser has evicted the
+    // buffered range — re-requests an expired URL and 404s, stalling playback.
+    // Re-attach from the permanent redirect URL (state.audioUrl) to mint a fresh
+    // disk URL and resume from the saved position.
+    if (!this.isActive || this.swapping) return
+    if (!this.state?.audioUrl) return
+
+    const err = this.audioTarget.error
+    // Ignore user-initiated aborts and a deliberately cleared src (no media).
+    if (!err || err.code === MediaError.MEDIA_ERR_ABORTED) return
+    if (this.recoveryAttempts >= 3) return // give up rather than hammer the server
+
+    this.recoveryAttempts += 1
+    this.recoverPlayback()
+  }
+
+  recoverPlayback() {
+    const resumeAt = Number(this.state.currentTime) || this.audioTarget.currentTime || 0
+    // Recovery always uses the full audio; the fragment is only for t=0 starts.
+    this.fragmentMode = false
+    this.fullAudioUrl = null
+    this.audioTarget.src = resumeAt > 1 ? `${this.state.audioUrl}#t=${resumeAt}` : this.state.audioUrl
+    this.audioTarget.load()
+    // The error almost always surfaces on a resume attempt, so play through.
+    this.safePlay()
+  }
+
   handleTimeUpdate() {
     if (this.swapping) return
+    // Healthy playback — clear the recovery budget so a future stall gets a
+    // fresh set of retries.
+    this.recoveryAttempts = 0
     const { currentTime } = this.audioTarget
     // In fragmentMode, the audio element's duration is the fragment's (~15s).
     // The slider and lock-screen progress should reflect the full song duration

@@ -3,7 +3,7 @@ module Admin
     before_action :load_user, only: %i[edit update destroy]
 
     def index
-      scope = User.with_attached_avatar.order(created_at: :desc)
+      scope = User.with_attached_avatar.order(created_at: :desc, id: :desc)
 
       if params[:q].present?
         like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"

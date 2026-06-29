@@ -3,7 +3,7 @@ module Admin
     before_action :load_playlist, only: %i[edit update destroy]
 
     def index
-      scope = Playlist.with_attached_image.includes(:user).order(updated_at: :desc)
+      scope = Playlist.with_attached_image.includes(:user).order(updated_at: :desc, id: :desc)
 
       if params[:q].present?
         like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"

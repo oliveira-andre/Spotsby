@@ -6,7 +6,7 @@ module Admin
       author_scope = Author.with_attached_image
                            .joins(:albums)
                            .distinct
-                           .order(:name)
+                           .order(:name, :id) # id tiebreaker: names aren't unique, keep paging stable
 
       if params[:q].present?
         like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"
@@ -35,7 +35,7 @@ module Admin
     end
 
     def new
-      scope = Author.with_attached_image.order(:name)
+      scope = Author.with_attached_image.order(:name, :id)
 
       if params[:q].present?
         like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"
