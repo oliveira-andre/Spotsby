@@ -33,6 +33,18 @@ RSpec.describe PlayersController, type: :request do
       expect(response).to have_http_status(:ok)
       expect(user.song_queues.count).to eq(0)
     end
+
+    it 'de-duplicates search history so a replayed song appears once, most recent first' do
+      other_song = create(:song, album: album, position: 2)
+
+      get player_path(song, source: PlayHistory::SOURCE_SEARCH)
+      get player_path(other_song, source: PlayHistory::SOURCE_SEARCH)
+      get player_path(song, source: PlayHistory::SOURCE_SEARCH)
+
+      searches = user.play_histories.from_search
+      expect(searches.where(song_id: song.id).count).to eq(1)
+      expect(searches.recent.map(&:song_id)).to eq([ song.id, other_song.id ])
+    end
   end
 
   describe 'POST /players/next' do

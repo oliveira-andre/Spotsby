@@ -40,4 +40,24 @@ RSpec.describe "Search", type: :system do
 
     expect(page).to have_css("h1", text: @author.name, wait: 5)
   end
+
+  it "keeps a replayed song in the recent searches history only once" do
+    play_song_from_search
+    play_song_from_search
+
+    visit search_path
+    find("input[aria-label='Search']").click # focus reveals the history panel
+
+    within("#play_histories") do
+      expect(page).to have_css("li", text: @song.name, count: 1, wait: 5)
+    end
+  end
+
+  def play_song_from_search
+    visit search_path
+    fill_in "Search", with: "Searchable"
+
+    find_link(@song.name, href: %r{players/#{@song.slug}}, wait: 5).click
+    expect(page).to have_link(@song.name, wait: 5) # player rendered
+  end
 end

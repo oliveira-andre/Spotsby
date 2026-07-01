@@ -230,6 +230,13 @@ class PlayersController < ApplicationController
   def record_play_history!(song, source)
     return unless current_user
 
+    # Search history is a de-duplicated, most-recent-first list: drop any prior
+    # search entry for this song so replaying it moves it to the top instead of
+    # stacking duplicates.
+    if source == PlayHistory::SOURCE_SEARCH
+      current_user.play_histories.from_search.where(song_id: song.id).delete_all
+    end
+
     current_user.play_histories.create!(song: song, source: source, played_at: Time.current)
     prune_play_histories!(source)
   end

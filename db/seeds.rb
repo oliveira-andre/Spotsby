@@ -104,9 +104,25 @@ queen.image.attach(io: File.open(Rails.root.join('tmp/images/queen.jpg')), filen
 katy_perry = Author.create(name: 'Katy Perry')
 katy_perry.image.attach(io: File.open(Rails.root.join('tmp/images/katy_perry.webp')), filename: 'katy_perry.webp')
 
-(1..20).each do |i|
+generic_categories = [ rock, pop, classical, jazz, electronic, hip_hop, funk ]
+
+(1..30).each do |i|
   author = Author.create(name: "Author #{i}")
   author.image.attach(io: File.open(Rails.root.join('tmp/images/katy_perry.webp')), filename: "author_#{i}.jpg")
+
+  # Give each generic author a real album with a few songs so there are more
+  # distinct artists and albums that can surface on the home page.
+  author_category = generic_categories[i % generic_categories.length]
+
+  author_album = Album.create(name: "Album #{i}", release_date: '2018-01-01', category: author_category, author: author)
+  author_album.image.attach(io: File.open(Rails.root.join('tmp/images/katy_perry_album.png')), filename: "author_album_#{i}.jpg")
+
+  (1..3).each do |j|
+    author_song = Song.create(name: "Song #{i}-#{j}", duration_ms: 210000, age: 2018, category: author_category, album: author_album)
+    author_song.image.attach(io: File.open(Rails.root.join('tmp/images/katy_perry_song.png')), filename: "author_song_#{i}_#{j}.jpg")
+    author_song.audio.attach(io: File.open(Rails.root.join('tmp/audio/katy_perry_song.mp3')), filename: "author_song_#{i}_#{j}.mp3")
+    author_song.authors << author
+  end
 end
 
 michael = Author.create(name: 'Michael Jackson')

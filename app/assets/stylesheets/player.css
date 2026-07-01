@@ -308,6 +308,24 @@
   transform: scale(1.04);
 }
 
+/* On desktop the full-width bar spreads the transport controls too far apart.
+   Keep previous / play-pause / next grouped together with a 25px gap, while
+   shuffle and repeat stay pinned to the edges via auto margins. */
+@media (min-width: 896px) {
+  .player__controls {
+    justify-content: center;
+    gap: 25px;
+  }
+
+  .player__controls > :first-child {
+    margin-right: auto;
+  }
+
+  .player__controls > :last-child {
+    margin-left: auto;
+  }
+}
+
 .bellow_player__ctrls {
   display: flex;
   align-items: center;
