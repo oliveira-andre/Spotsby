@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class NowPlayingController < ApplicationController
+  include NowPlayingBroadcasts
+
   def play
     if current_user.active_session_id.nil?
       current_user.update!(active_session_id: Current.session.id)
@@ -40,15 +42,6 @@ class NowPlayingController < ApplicationController
       end
       format.any { head :no_content }
     end
-  end
-
-  def broadcast_active_device
-    Turbo::StreamsChannel.broadcast_replace_to(
-      current_user, :now_playing,
-      target: "now-playing-active-device",
-      partial: "shared/now_playing_active_device",
-      locals: { user: current_user }
-    )
   end
 
   def broadcast_play_state(playing:)

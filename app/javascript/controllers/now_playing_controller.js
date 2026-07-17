@@ -76,7 +76,9 @@ export default class extends Controller {
   syncIsActive() {
     const tracker = document.getElementById("now-playing-active-device")
     if (!tracker) return
-    const sessionId = tracker.dataset.activeDeviceSessionIdValue
+    // This device's id is stable (meta tag); the tracker only names the active
+    // session and gets broadcast-replaced identically on every device.
+    const sessionId = document.querySelector('meta[name="session-id"]')?.content
     const activeId = tracker.dataset.activeDeviceActiveIdValue
     this.isActive = !!sessionId && sessionId === activeId
   }

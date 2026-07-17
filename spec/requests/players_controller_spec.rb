@@ -34,6 +34,18 @@ RSpec.describe PlayersController, type: :request do
       expect(user.song_queues.count).to eq(0)
     end
 
+    it 'makes the visiting device the active playback session' do
+      # A second device is currently the active one.
+      other = user.sessions.create!(user_agent: "Other", ip_address: "1.2.3.4")
+      user.update!(active_session_id: other.id)
+
+      get player_path(song)
+
+      # Visiting the player claims playback for this request's session, not the old one.
+      expect(user.reload.active_session_id).to eq(user.sessions.order(:created_at).first.id)
+      expect(user.active_session_id).not_to eq(other.id)
+    end
+
     it 'de-duplicates search history so a replayed song appears once, most recent first' do
       other_song = create(:song, album: album, position: 2)
 

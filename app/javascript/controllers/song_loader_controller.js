@@ -46,7 +46,7 @@ export default class extends Controller {
 
   shouldAutoplay(target) {
     const tracker = document.getElementById("now-playing-active-device")
-    const sessionId = tracker?.dataset.activeDeviceSessionIdValue
+    const sessionId = document.querySelector('meta[name="session-id"]')?.content
     const activeId = tracker?.dataset.activeDeviceActiveIdValue
     const isCurrentDevice = !!sessionId && sessionId === activeId
     if (!isCurrentDevice) return false

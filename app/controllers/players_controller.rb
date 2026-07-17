@@ -2,10 +2,14 @@
 
 # PlayersController
 class PlayersController < ApplicationController
+  include NowPlayingBroadcasts
+
   before_action :load_song, only: %i[show]
 
   def show
     return unless @song
+
+    claim_active_session!
 
     source = params[:source].presence
     source_id = source_id_for(source)
