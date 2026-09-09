@@ -2,3 +2,8 @@
  * Stylesheet manifest. Each .css file in app/assets/stylesheets/ is loaded
  * individually by `stylesheet_link_tag :app`, so no @imports are needed here.
  */
+
+
+.hotwire-native .native-hidden {
+  display: none;
+}

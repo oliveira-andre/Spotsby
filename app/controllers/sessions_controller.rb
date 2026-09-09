@@ -17,6 +17,7 @@ class SessionsController < ApplicationController
 
   def destroy
     terminate_session
+    redirect_to refresh_app_path and return if hotwire_native_app?
     redirect_to new_session_path
   end
 

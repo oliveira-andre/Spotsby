@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  draw :hotwire
+
   resource :session
   resource :registration, only: %i[new create]
   resource :account, only: %i[show update destroy]
@@ -143,6 +145,7 @@ Rails.application.routes.draw do
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
+  get "refresh_app" => "hotwire#refresh"
 
   root "home#index"
 end
