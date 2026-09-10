@@ -22,7 +22,7 @@
     <%= link_to edit_admin_playlist_path(playlist),
                 class: "admin-author__icon-btn",
                 aria: { label: "Edit" },
-                data: { turbo_frame: "playlist-form-modal" } do %>
+                data: { turbo_frame: admin_form_frame("playlist") } do %>
       <%= icon :pencil, size: 18 %>
     <% end %>
 

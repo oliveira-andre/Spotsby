@@ -367,6 +367,13 @@
   box-shadow: var(--shadow-medium);
 }
 
+/* Native app: the mini player is a native accessory above the tab bar. The
+   element stays in the DOM (the now-playing controller lives on it and still
+   drives the app's player) but is never shown. */
+.hotwire-native .minimal-player {
+  display: none;
+}
+
 .minimal-player[hidden] {
   display: none;
 }
@@ -455,4 +462,10 @@ body.is-big-player .minimal-player {
 
 body.has-footer-nav.has-minimal-player {
   padding-bottom: calc(76px + 64px + env(safe-area-inset-bottom));
+}
+
+/* Native app: the tab bar and its mini player accessory are part of the
+   safe area, which the web view's scroll view already insets for. */
+.hotwire-native body.has-footer-nav.has-minimal-player {
+  padding-bottom: 0;
 }

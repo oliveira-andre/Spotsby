@@ -25,7 +25,7 @@
     <%= link_to edit_admin_album_path(album),
                 class: "admin-author__icon-btn",
                 aria: { label: "Edit" },
-                data: { turbo_frame: "album-form-modal" } do %>
+                data: { turbo_frame: admin_form_frame("album") } do %>
       <%= icon :pencil, size: 18 %>
     <% end %>
 

@@ -30,6 +30,10 @@ module Authentication
     end
 
     def request_authentication
+      # API clients (the native app's queue requests) can't follow a redirect
+      # to the sign-in page; tell them plainly.
+      return head :unauthorized if request.format.json?
+
       session[:return_to_after_authenticating] = request.url
       redirect_to new_session_path
     end

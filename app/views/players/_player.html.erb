@@ -1,15 +1,6 @@
 <%
-  song_image_blob =
-    if song&.image&.attached?
-      song.image
-    elsif song&.album&.image&.attached?
-      song.album.image
-    end
-  song_image_url = song_image_blob ? url_for(song_image_blob) : nil
-  song_image_content_type = song_image_blob&.blob&.content_type
-  song_audio_url = song&.audio&.attached? ? redirect_blob_url(song.audio) : nil
-  song_fragment_url = song&.audio_fragment&.attached? ? redirect_blob_url(song.audio_fragment) : nil
-  song_authors = song ? song.authors.map(&:name).join(", ") : nil
+  payload = song_payload(song)
+  song_image_url = payload[:image_url]
   song_author_links =
     if song
       safe_join(
@@ -24,16 +15,16 @@
      data-controller="player"
      data-player-modal-outlet="#song-details"
      data-player-now-playing-outlet="#minimal-player"
-     data-player-song-id-value="<%= song&.id %>"
-     data-player-slug-value="<%= song&.slug %>"
-     data-player-name-value="<%= song&.name %>"
-     data-player-authors-value="<%= song_authors %>"
-     data-player-album-value="<%= song&.album&.name %>"
-     data-player-image-url-value="<%= song_image_url %>"
-     data-player-image-content-type-value="<%= song_image_content_type %>"
-     data-player-audio-url-value="<%= song_audio_url %>"
-     data-player-fragment-url-value="<%= song_fragment_url %>"
-     data-player-duration-ms-value="<%= song&.duration_ms %>">
+     data-player-song-id-value="<%= payload[:id] %>"
+     data-player-slug-value="<%= payload[:slug] %>"
+     data-player-name-value="<%= payload[:name] %>"
+     data-player-authors-value="<%= payload[:authors] %>"
+     data-player-album-value="<%= payload[:album] %>"
+     data-player-image-url-value="<%= payload[:image_url] %>"
+     data-player-image-content-type-value="<%= payload[:image_content_type] %>"
+     data-player-audio-url-value="<%= payload[:audio_url] %>"
+     data-player-fragment-url-value="<%= payload[:fragment_url] %>"
+     data-player-duration-ms-value="<%= payload[:duration_ms] %>">
   <header class="player__header">
     <%= link_to root_path,
                 class: "player__icon-btn",
@@ -135,7 +126,7 @@
       </button>
     </div>
 
-    <div class="bellow_player__ctrls" data-player-target="volume">
+    <div class="bellow_player__ctrls native-hidden" data-player-target="volume">
       <button type="button"
               class="player__ctrl player__volume-btn"
               aria-label="Mute"

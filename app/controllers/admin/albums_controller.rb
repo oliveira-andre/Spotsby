@@ -1,5 +1,6 @@
 module Admin
   class AlbumsController < AdminController
+    include Admin::ModalResponses
     before_action :load_album, only: %i[edit update destroy update_position]
 
     def index
@@ -71,9 +72,7 @@ module Admin
                                 .order(:position)
           @song_counts = Song.where(album_id: @author_albums.map(&:id)).group(:album_id).count
         end
-        respond_to do |format|
-          format.turbo_stream
-        end
+        saved_in_modal(admin_albums_path)
       else
         render turbo_stream: turbo_stream.replace(
           "album-form",

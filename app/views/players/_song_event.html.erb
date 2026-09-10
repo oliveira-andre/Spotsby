@@ -1,26 +1,14 @@
-<%
-  song_image_blob =
-    if song&.image&.attached?
-      song.image
-    elsif song&.album&.image&.attached?
-      song.album.image
-    end
-  song_image_url = song_image_blob ? url_for(song_image_blob) : nil
-  song_image_content_type = song_image_blob&.blob&.content_type
-  song_audio_url = song&.audio&.attached? ? redirect_blob_url(song.audio) : nil
-  song_fragment_url = song&.audio_fragment&.attached? ? redirect_blob_url(song.audio_fragment) : nil
-  song_authors = song ? song.authors.map(&:name).join(", ") : nil
-%>
+<% payload = song_payload(song) %>
 
 <div data-controller="song-loader"
-     data-song-loader-id-value="<%= song&.id %>"
-     data-song-loader-slug-value="<%= song&.slug %>"
-     data-song-loader-name-value="<%= song&.name %>"
-     data-song-loader-authors-value="<%= song_authors %>"
-     data-song-loader-album-value="<%= song&.album&.name %>"
-     data-song-loader-image-url-value="<%= song_image_url %>"
-     data-song-loader-image-content-type-value="<%= song_image_content_type %>"
-     data-song-loader-audio-url-value="<%= song_audio_url %>"
-     data-song-loader-fragment-url-value="<%= song_fragment_url %>"
-     data-song-loader-duration-ms-value="<%= song&.duration_ms %>">
+     data-song-loader-id-value="<%= payload[:id] %>"
+     data-song-loader-slug-value="<%= payload[:slug] %>"
+     data-song-loader-name-value="<%= payload[:name] %>"
+     data-song-loader-authors-value="<%= payload[:authors] %>"
+     data-song-loader-album-value="<%= payload[:album] %>"
+     data-song-loader-image-url-value="<%= payload[:image_url] %>"
+     data-song-loader-image-content-type-value="<%= payload[:image_content_type] %>"
+     data-song-loader-audio-url-value="<%= payload[:audio_url] %>"
+     data-song-loader-fragment-url-value="<%= payload[:fragment_url] %>"
+     data-song-loader-duration-ms-value="<%= payload[:duration_ms] %>">
 </div>

@@ -17,7 +17,7 @@
     <%= link_to new_admin_playlist_path,
                 class: "admin-playlists__new",
                 aria: { label: "New playlist" },
-                data: { turbo_frame: "playlist-form-modal" } do %>
+                data: { turbo_frame: admin_form_frame("playlist") } do %>
       <%= icon :plus, size: 18 %>
     <% end %>
   </header>

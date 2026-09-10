@@ -35,9 +35,12 @@ class PlaylistsController < ApplicationController
     redirect_to player_path(song, source: SongQueue::SOURCE_PLAYLIST, playlist_id: @playlist.id)
   end
 
+  # Bottom sheet on the web (Turbo Stream); a page of its own in the app,
+  # which presents it as a native modal.
   def create_options
     respond_to do |format|
       format.turbo_stream { render :create_options }
+      format.html
     end
   end
 

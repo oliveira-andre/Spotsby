@@ -22,7 +22,7 @@
     <%= link_to edit_admin_author_path(author),
                 class: "admin-author__icon-btn",
                 aria: { label: "Edit" },
-                data: { turbo_frame: "author-form-modal" } do %>
+                data: { turbo_frame: admin_form_frame("author") } do %>
       <%= icon :pencil, size: 18 %>
     <% end %>
 

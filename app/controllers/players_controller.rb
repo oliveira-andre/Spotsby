@@ -5,10 +5,13 @@ class PlayersController < ApplicationController
   include NowPlayingBroadcasts
 
   before_action :load_song, only: %i[show]
+  after_action :verify_authorized
 
   def show
+    authorize :player
     return unless @song
 
+    authorize @song, :show?
     claim_active_session!
 
     source = params[:source].presence
@@ -18,14 +21,17 @@ class PlayersController < ApplicationController
   end
 
   def next
+    authorize :player
     advance(direction: :next)
   end
 
   def previous
+    authorize :player
     advance(direction: :previous)
   end
 
   def toggle_random
+    authorize :player
     current_user.update!(random_mode: !current_user.random_mode)
 
     respond_to do |format|
@@ -93,17 +99,20 @@ class PlayersController < ApplicationController
   end
 
   def respond_advance_user_custom(song)
+    authorize song, :show?
     record_play_history!(song, SongQueue::SOURCE_USER_CUSTOM)
     respond_to do |format|
       format.turbo_stream do
         @song = song
         render "advance"
       end
+      format.json { render_song_json(song) }
       format.html { redirect_to player_path(song, source: SongQueue::SOURCE_USER_CUSTOM) }
     end
   end
 
   def respond_advance(song, source, source_id = nil)
+    authorize song, :show?
     record_queue_entry!(song, source, source_id)
     record_play_history!(song, source)
 
@@ -112,16 +121,21 @@ class PlayersController < ApplicationController
         @song = song
         render "advance"
       end
+      format.json { render_song_json(song) }
       format.html { redirect_to player_path(song, **redirect_source_params(source, source_id)) }
     end
   end
 
+  # Nothing to advance to: answer with the song we already have so a client
+  # that drives the queue (the native app) keeps showing something sensible.
   def respond_advance_fallback(song)
+    authorize song, :show?
     respond_to do |format|
       format.turbo_stream do
         @song = song
         render "advance"
       end
+      format.json { render_song_json(song) }
       format.html { redirect_back_or_to(player_path(song)) }
     end
   end
@@ -129,8 +143,14 @@ class PlayersController < ApplicationController
   def respond_no_song
     respond_to do |format|
       format.turbo_stream { head :no_content }
+      format.json { head :no_content }
       format.html { redirect_back_or_to(root_path) }
     end
+  end
+
+  # Same field list the page partials render, so web and native never drift.
+  def render_song_json(song)
+    render json: view_context.song_payload(song)
   end
 
   def redirect_source_params(source, source_id)

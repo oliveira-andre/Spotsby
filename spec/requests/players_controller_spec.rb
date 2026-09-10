@@ -119,6 +119,56 @@ RSpec.describe PlayersController, type: :request do
     end
   end
 
+  describe 'POST /players/next as JSON (native app)' do
+    let(:json_headers) { { "Accept" => "application/json" } }
+
+    it 'returns the next song payload and records history' do
+      next_song = create(:song, album: album, position: 2)
+      create(:song_queue, user: user, song: song, source: SongQueue::SOURCE_ALBUM)
+
+      expect {
+        post next_players_path, headers: json_headers
+      }.to change { user.play_histories.count }.by(1)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq("application/json")
+      body = JSON.parse(response.body)
+      expect(body.keys).to match_array(%w[id slug name authors album image_url image_content_type audio_url fragment_url duration_ms])
+      expect(body["id"]).to eq(next_song.id)
+      expect(body["slug"]).to eq(next_song.slug)
+      expect(body["authors"]).to eq(next_song.authors.map(&:name).join(", "))
+      expect(body["duration_ms"]).to eq(next_song.duration_ms)
+    end
+
+    it 'answers with the current song when there is nothing to advance to' do
+      create(:song_queue, user: user, song: song, source: SongQueue::SOURCE_ALBUM)
+
+      post previous_players_path, headers: json_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["id"]).to eq(song.id)
+    end
+
+    it 'returns no_content when nothing has been played yet' do
+      post next_players_path, headers: json_headers
+      expect(response).to have_http_status(:no_content)
+    end
+
+    it 'is forbidden for a blocked user' do
+      user.update!(status: :blocked)
+      post next_players_path, headers: json_headers
+      expect(response).to have_http_status(:forbidden)
+    end
+  end
+
+  describe 'POST /players/next as JSON when signed out' do
+    it 'is unauthorized instead of redirecting to sign-in' do
+      delete session_path
+      post next_players_path, headers: { "Accept" => "application/json" }
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
   describe 'POST /players/toggle_random' do
     it 'flips the random_mode flag and renders a turbo stream' do
       expect {

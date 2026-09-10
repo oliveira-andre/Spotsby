@@ -56,9 +56,9 @@
       </p>
     <% end %>
 
-    <div class="admin-modal__actions">
-      <%= submit_tag "Continue", class: "btn btn--primary btn--uppercase", disabled: authors.empty? %>
-      <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close">Cancel</button>
+    <div class="admin-modal__actions" data-controller="bridge--form">
+      <%= submit_tag "Continue", class: "btn btn--primary btn--uppercase", disabled: authors.empty?, data: { bridge__form_target: "primary" } %>
+      <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close" data-bridge--form-target="secondary">Cancel</button>
     </div>
   <% end %>
 <% end %>

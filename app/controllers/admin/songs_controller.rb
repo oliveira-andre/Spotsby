@@ -1,5 +1,6 @@
 module Admin
   class SongsController < AdminController
+    include Admin::ModalResponses
     before_action :load_song, only: %i[edit update destroy update_position]
 
     def index
@@ -96,9 +97,7 @@ module Admin
                              .where(album_id: @song.album_id)
                              .order(:position)
         end
-        respond_to do |format|
-          format.turbo_stream
-        end
+        saved_in_modal(admin_songs_path)
       else
         render turbo_stream: turbo_stream.replace(
           "song-form",

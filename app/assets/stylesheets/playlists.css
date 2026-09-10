@@ -374,6 +374,19 @@
 
 /* ===== Create-options modal ===== */
 
+/* Standalone page (native modal) */
+.create-options {
+  padding: var(--space-5);
+}
+
+.create-options__title {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-base);
+}
+
 .create-options__list {
   list-style: none;
   margin: 0;

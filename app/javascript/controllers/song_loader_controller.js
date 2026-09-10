@@ -2,6 +2,14 @@ import { Controller } from "@hotwired/stimulus"
 
 const FORCE_PLAY_KEY = "spotsby:force-play"
 
+// Hands a server-rendered song (the page seed, or an advance) to the
+// now-playing controller through a `now-playing:load` event.
+//
+// Controllers connect in the order their modules finish loading, so this one
+// can run before now-playing exists. The event is cancelable: now-playing
+// calls preventDefault() to say it took the song, and only then does this
+// element go away. Until then it stays, and now-playing re-announces every
+// loader it finds when it initializes.
 export default class extends Controller {
   static values = {
     selector: { type: String, default: "#minimal-player" },
@@ -19,29 +27,41 @@ export default class extends Controller {
 
   connect() {
     const target = document.querySelector(this.selectorValue)
-    if (target && this.audioUrlValue) {
-      target.dispatchEvent(new CustomEvent("now-playing:load", {
-        detail: {
-          id: this.idValue,
-          slug: this.slugValue,
-          name: this.nameValue,
-          authors: this.authorsValue,
-          album: this.albumValue,
-          imageUrl: this.imageUrlValue,
-          imageContentType: this.imageContentTypeValue,
-          audioUrl: this.audioUrlValue,
-          fragmentUrl: this.fragmentUrlValue,
-          durationMs: this.durationMsValue,
-          autoplay: this.shouldAutoplay(target)
-        }
-      }))
-    }
+    // Decided once: reading the force-play flag consumes it.
+    this.autoplay = target ? this.shouldAutoplay(target) : false
 
     if (this.slugValue && /^\/players(\/|$)/.test(window.location.pathname)) {
       window.history.replaceState({}, "", `/players/${this.slugValue}`)
     }
 
-    this.element.remove()
+    this.announce()
+  }
+
+  announce() {
+    const target = document.querySelector(this.selectorValue)
+    if (!target || !this.audioUrlValue) {
+      this.element.remove()
+      return
+    }
+
+    const event = new CustomEvent("now-playing:load", {
+      cancelable: true,
+      detail: {
+        id: this.idValue,
+        slug: this.slugValue,
+        name: this.nameValue,
+        authors: this.authorsValue,
+        album: this.albumValue,
+        imageUrl: this.imageUrlValue,
+        imageContentType: this.imageContentTypeValue,
+        audioUrl: this.audioUrlValue,
+        fragmentUrl: this.fragmentUrlValue,
+        durationMs: this.durationMsValue,
+        autoplay: this.autoplay
+      }
+    })
+    const handled = !target.dispatchEvent(event)
+    if (handled) this.element.remove()
   }
 
   shouldAutoplay(target) {

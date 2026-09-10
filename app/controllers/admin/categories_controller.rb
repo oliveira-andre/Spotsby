@@ -1,5 +1,6 @@
 module Admin
   class CategoriesController < AdminController
+    include Admin::ModalResponses
     before_action :load_category, only: %i[edit update destroy update_position]
 
     def index
@@ -23,9 +24,7 @@ module Admin
       @category = Category.new(category_params)
 
       if @category.save
-        respond_to do |format|
-          format.turbo_stream
-        end
+        saved_in_modal(admin_categories_path)
       else
         render turbo_stream: turbo_stream.replace(
           "category-form",
@@ -48,9 +47,7 @@ module Admin
           @reordered = true
           @pagy, @categories = pagy(Category.with_attached_image.ordered, limit: DEFAULT_PER_PAGE)
         end
-        respond_to do |format|
-          format.turbo_stream
-        end
+        saved_in_modal(admin_categories_path)
       else
         render turbo_stream: turbo_stream.replace(
           "category-form",

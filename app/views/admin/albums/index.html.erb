@@ -17,7 +17,7 @@
     <%= link_to new_admin_album_path,
                 class: "admin-albums__new",
                 aria: { label: "New album" },
-                data: { turbo_frame: "album-form-modal" } do %>
+                data: { turbo_frame: admin_form_frame("album") } do %>
       <%= icon :plus, size: 18 %>
     <% end %>
   </header>

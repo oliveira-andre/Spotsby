@@ -1,5 +1,6 @@
 module Admin
   class UsersController < AdminController
+    include Admin::ModalResponses
     before_action :load_user, only: %i[edit update destroy]
 
     def index
@@ -24,9 +25,7 @@ module Admin
       @user = User.new(user_params)
 
       if @user.save
-        respond_to do |format|
-          format.turbo_stream
-        end
+        saved_in_modal(admin_users_path)
       else
         render turbo_stream: turbo_stream.replace(
           "user-form",
@@ -40,9 +39,7 @@ module Admin
 
     def update
       if @user.update(user_params)
-        respond_to do |format|
-          format.turbo_stream
-        end
+        saved_in_modal(admin_users_path)
       else
         render turbo_stream: turbo_stream.replace(
           "user-form",

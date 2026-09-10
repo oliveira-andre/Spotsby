@@ -48,6 +48,12 @@ body.has-footer-nav {
   padding-bottom: 76px;
 }
 
+/* Native app: the footer nav is hidden and the native tab bar is part of the
+   safe area, which the web view's scroll view already insets for. */
+.hotwire-native body.has-footer-nav {
+  padding-bottom: 0;
+}
+
 
 .magnifying-glass-icon {
   margin-left: var(--space-1);

@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "author-form-modal" do %>
+<%= turbo_frame_tag "author-form-modal", target: admin_form_frame_target do %>
   <div class="admin-modal admin-modal--wizard" id="author-wizard" data-controller="admin-modal" data-admin-modal-auto-open-value="true">
     <div class="admin-modal__backdrop" data-action="click->admin-modal#close"></div>
 

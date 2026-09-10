@@ -33,8 +33,10 @@ class ApplicationController < ActionController::Base
 
   def block_users
     return unless authenticated?
+    return unless current_user.blocked?
+    return head :forbidden if request.format.json?
 
-    redirect_to new_session_path, alert: "Your account has been blocked." if current_user.blocked?
+    redirect_to new_session_path, alert: "Your account has been blocked."
   end
 
   def forbidden

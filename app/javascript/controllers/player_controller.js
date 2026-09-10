@@ -70,7 +70,10 @@ export default class extends Controller {
           audioUrl: this.audioUrlValue,
           fragmentUrl: this.fragmentUrlValue,
           durationMs: this.durationMsValue,
-          autoplay
+          autoplay,
+          // The user opened this song; in the app this must replace whatever
+          // is loaded even without autoplay (the page seed must not).
+          explicit: true
         }
       }))
     }

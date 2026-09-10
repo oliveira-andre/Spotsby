@@ -1,5 +1,6 @@
 module Admin
   class PlaylistsController < AdminController
+    include Admin::ModalResponses
     before_action :load_playlist, only: %i[edit update destroy]
 
     def index
@@ -42,9 +43,7 @@ module Admin
 
     def update
       if @playlist.update(playlist_params)
-        respond_to do |format|
-          format.turbo_stream
-        end
+        saved_in_modal(admin_playlists_path)
       else
         @users = User.order(:email_address).pluck(:email_address, :id)
         render turbo_stream: turbo_stream.replace(

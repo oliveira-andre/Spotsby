@@ -22,7 +22,7 @@
     <%= link_to edit_admin_category_path(category),
                 class: "admin-category__icon-btn",
                 aria: { label: "Edit" },
-                data: { turbo_frame: "category-form-modal" } do %>
+                data: { turbo_frame: admin_form_frame("category") } do %>
       <%= icon :pencil, size: 18 %>
     <% end %>
 

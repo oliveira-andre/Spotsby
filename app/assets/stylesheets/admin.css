@@ -2589,3 +2589,31 @@
   color: var(--color-text-muted);
   text-align: center;
 }
+
+/* Native app: an add/edit page is presented as a native modal. Drop the admin
+   chrome and render the form panel as the page itself. */
+body.admin-sheet .admin__topbar,
+body.admin-sheet .admin-sidebar,
+body.admin-sheet .admin-modal__backdrop,
+body.admin-sheet .admin-modal__close {
+  display: none;
+}
+
+body.admin-sheet .admin {
+  height: auto;
+  min-height: 100vh;
+}
+
+body.admin-sheet .admin-modal {
+  position: static;
+  padding: 0;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.admin-sheet .admin-modal__panel {
+  width: 100%;
+  max-height: none;
+  border-radius: 0;
+  box-shadow: none;
+}

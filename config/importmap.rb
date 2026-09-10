@@ -14,3 +14,4 @@ pin "sortablejs", to: "https://ga.jspm.io/npm:sortablejs@1.15.6/modular/sortable
 pin "@rails/actioncable", to: "@rails--actioncable.js" # @8.1.300
 pin "@hotwired/hotwire-native-bridge", to: "@hotwired--hotwire-native-bridge.js" # @1.2.2
 pin_all_from "app/javascript/controllers", under: "controllers"
+pin_all_from "app/javascript/playback", under: "playback"

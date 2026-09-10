@@ -173,9 +173,9 @@
         </div>
       </div>
 
-      <div class="admin-modal__actions">
-        <%= form.submit "Save", class: "btn btn--primary btn--uppercase" %>
-        <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close">Cancel</button>
+      <div class="admin-modal__actions" data-controller="bridge--form">
+        <%= form.submit "Save", class: "btn btn--primary btn--uppercase", data: { bridge__form_target: "primary" } %>
+        <button type="button" class="btn btn--outlined btn--uppercase" data-action="click->admin-modal#close" data-bridge--form-target="secondary">Cancel</button>
       </div>
     <% end %>
   </div>

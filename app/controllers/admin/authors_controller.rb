@@ -1,5 +1,6 @@
 module Admin
   class AuthorsController < AdminController
+    include Admin::ModalResponses
     before_action :load_author, only: %i[edit update destroy]
 
     def index
@@ -55,9 +56,7 @@ module Admin
 
     def update
       if @author.update(author_params)
-        respond_to do |format|
-          format.turbo_stream
-        end
+        saved_in_modal(admin_authors_path)
       else
         render turbo_stream: turbo_stream.replace(
           "author-form",

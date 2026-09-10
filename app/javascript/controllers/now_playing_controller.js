@@ -1,5 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { createConsumer } from "@rails/actioncable"
+import WebAudioBackend from "playback/web_audio_backend"
+import NativeBackend from "playback/native_backend"
 
 const STORAGE_KEY = "spotsby:now-playing"
 const REPEAT_KEY = "spotsby:repeat"
@@ -10,6 +12,17 @@ const NAV_STACK_KEY = "spotsby:nav-stack"
 const NAV_STACK_MAX = 30
 const HEARTBEAT_MS = 60_000
 
+// The app advertises its bridge components in the user agent (same check the
+// bridge library uses for `shouldLoad`). With a `player` component present,
+// audio is played by the app and this controller only drives it.
+const NATIVE_PLAYER = /bridge-components: \[[^\]]*\bplayer\b[^\]]*\]/.test(window.navigator.userAgent)
+
+// Mini player + single owner of playback state for the page.
+//
+// Audio itself goes through a backend: WebAudioBackend (the <audio> element)
+// in a browser, NativeBackend (the app's AVPlayer via the `player` bridge
+// component) inside the iOS app. Everything above the backend — active-device
+// sync, queue advancement in the browser, persistence, rendering — is shared.
 export default class extends Controller {
   static targets = [
     "audio",
@@ -24,37 +37,44 @@ export default class extends Controller {
     "pauseIcon"
   ]
 
+  // Other controllers reach this one as an outlet (the big player) and may do
+  // so before connect() has run, so everything they read — the backend, the
+  // repeat and volume preferences — is set up here, not in connect().
   initialize() {
     this.isActive = false
-    this.swapping = false
-    this.fragmentMode = false
-    this.fullAudioUrl = null
+    this.isConnected = false
+    this.pendingLoad = null
     this.lastPersistedAt = 0
-    this.recoveryAttempts = 0
-  }
 
-  connect() {
-    this.onPlay = this.handlePlay.bind(this)
-    this.onPause = this.handlePause.bind(this)
-    this.onTimeUpdate = this.handleTimeUpdate.bind(this)
-    this.onEnded = this.handleEnded.bind(this)
+    this.backend = NATIVE_PLAYER
+      ? new NativeBackend(this.element, this.application, this)
+      : new WebAudioBackend(this.audioTarget, this.hasPrefetchTarget ? this.prefetchTarget : null, this)
+    this.repeat = readRepeat()
+    this.applyVolume()
+
     this.onLoadEvent = this.handleLoadEvent.bind(this)
     this.onDocumentClick = this.trackLastPage.bind(this)
     this.onActiveChanged = this.handleActiveChanged.bind(this)
     this.onRemoteState = this.handleRemoteState.bind(this)
-    this.onPrefetchCanPlay = this.handlePrefetchCanPlay.bind(this)
     this.onKeydown = this.handleKeydown.bind(this)
-    this.onError = this.handleError.bind(this)
 
-    this.audioTarget.addEventListener("play", this.onPlay)
-    this.audioTarget.addEventListener("pause", this.onPause)
-    this.audioTarget.addEventListener("timeupdate", this.onTimeUpdate)
-    this.audioTarget.addEventListener("ended", this.onEnded)
-    this.audioTarget.addEventListener("error", this.onError)
-    if (this.hasPrefetchTarget) {
-      this.prefetchTarget.addEventListener("canplaythrough", this.onPrefetchCanPlay)
-    }
+    // Kept for the life of the element: a load dispatched before connect()
+    // is buffered and replayed once connected.
     this.element.addEventListener("now-playing:load", this.onLoadEvent)
+    this.announcePendingLoaders()
+  }
+
+  // Song loaders that connected before this controller existed dispatched
+  // into the void and kept their element; ask them again now that we listen.
+  announcePendingLoaders() {
+    document.querySelectorAll('[data-controller~="song-loader"]').forEach((el) => {
+      this.application.getControllerForElementAndIdentifier(el, "song-loader")?.announce()
+    })
+  }
+
+  connect() {
+    this.backend.connect()
+
     document.addEventListener("click", this.onDocumentClick, true)
     document.addEventListener("keydown", this.onKeydown)
     window.addEventListener("now-playing:active-changed", this.onActiveChanged)
@@ -65,12 +85,18 @@ export default class extends Controller {
     // guarantee strict DOM-order connection).
     this.syncIsActive()
 
-    this.repeat = readRepeat()
-    this.applyVolume()
+    this.backend.setRepeat(this.repeat)
     this.seedNavStack()
     this.restoreFromStorage()
-    this.setupMediaSession()
+    if (!this.backend.isNative) this.setupMediaSession()
     this.openCableSubscription()
+
+    this.isConnected = true
+    if (this.pendingLoad) {
+      const detail = this.pendingLoad
+      this.pendingLoad = null
+      this.handleLoadEvent({ detail })
+    }
   }
 
   syncIsActive() {
@@ -84,15 +110,8 @@ export default class extends Controller {
   }
 
   disconnect() {
-    this.audioTarget.removeEventListener("play", this.onPlay)
-    this.audioTarget.removeEventListener("pause", this.onPause)
-    this.audioTarget.removeEventListener("timeupdate", this.onTimeUpdate)
-    this.audioTarget.removeEventListener("ended", this.onEnded)
-    this.audioTarget.removeEventListener("error", this.onError)
-    if (this.hasPrefetchTarget) {
-      this.prefetchTarget.removeEventListener("canplaythrough", this.onPrefetchCanPlay)
-    }
-    this.element.removeEventListener("now-playing:load", this.onLoadEvent)
+    this.isConnected = false
+    this.backend.disconnect()
     document.removeEventListener("click", this.onDocumentClick, true)
     document.removeEventListener("keydown", this.onKeydown)
     window.removeEventListener("now-playing:active-changed", this.onActiveChanged)
@@ -123,13 +142,11 @@ export default class extends Controller {
 
     if (wasActive && !next) {
       // Lost active — stop emitting audio.
-      this.audioTarget.pause()
-      this.audioTarget.removeAttribute("src")
-      this.audioTarget.load()
+      this.backend.detach()
     }
-    if (!wasActive && next && this.state?.audioUrl && !this.audioTarget.src) {
+    if (!wasActive && next && this.state?.audioUrl && !this.backend.hasSource) {
       // Just became active; make sure audio is loaded so the next play click works.
-      this.attachAudio(this.state)
+      this.backend.load(this.state)
     }
   }
 
@@ -139,9 +156,9 @@ export default class extends Controller {
     const playing = !!event.detail?.playing
     this.renderPlayIcon(playing)
     if (!this.isActive) return
-    if (!this.audioTarget.src) return
-    if (playing && this.audioTarget.paused) this.safePlay()
-    if (!playing && !this.audioTarget.paused) this.audioTarget.pause()
+    if (!this.backend.hasSource) return
+    if (playing && this.backend.paused) this.backend.play()
+    if (!playing && !this.backend.paused) this.backend.pause()
   }
 
   claimActive() {
@@ -169,7 +186,7 @@ export default class extends Controller {
     }).catch(() => {})
   }
 
-  // ---------- Existing audio + nav stack logic (unchanged) ----------
+  // ---------- Keyboard ----------
 
   handleKeydown(event) {
     if (event.code !== "Space" && event.key !== " ") return
@@ -189,45 +206,48 @@ export default class extends Controller {
   toggleRepeat() {
     this.repeat = !this.repeat
     writeRepeat(this.repeat)
+    this.backend.setRepeat(this.repeat)
     this.dispatch("repeat", { detail: { repeat: this.repeat } })
   }
 
   // ---------- Volume ----------
 
   applyVolume() {
-    this.audioTarget.volume = readVolume()
-    this.audioTarget.muted = readMuted()
+    this.backend.volume = readVolume()
+    this.backend.muted = readMuted()
   }
 
   get volumePercent() {
-    return Math.round(this.audioTarget.volume * 100)
+    return Math.round(this.backend.volume * 100)
   }
 
   get isMuted() {
-    return this.audioTarget.muted
+    return this.backend.muted
   }
 
   setVolume(percent) {
     const volume = clamp(Number(percent) / 100, 0, 1)
-    this.audioTarget.volume = volume
+    this.backend.volume = volume
     // Sliding off zero implicitly unmutes; sliding to zero reads as muted.
-    this.audioTarget.muted = volume === 0
+    this.backend.muted = volume === 0
     writeVolume(volume)
-    writeMuted(this.audioTarget.muted)
-    this.dispatch("volume", { detail: { volume, muted: this.audioTarget.muted } })
+    writeMuted(this.backend.muted)
+    this.dispatch("volume", { detail: { volume, muted: this.backend.muted } })
   }
 
   toggleMute() {
-    const muted = !this.audioTarget.muted
+    const muted = !this.backend.muted
     // Unmuting at zero volume would stay silent — restore a usable level.
-    if (!muted && this.audioTarget.volume === 0) {
-      this.audioTarget.volume = DEFAULT_VOLUME
+    if (!muted && this.backend.volume === 0) {
+      this.backend.volume = DEFAULT_VOLUME
       writeVolume(DEFAULT_VOLUME)
     }
-    this.audioTarget.muted = muted
+    this.backend.muted = muted
     writeMuted(muted)
-    this.dispatch("volume", { detail: { volume: this.audioTarget.volume, muted } })
+    this.dispatch("volume", { detail: { volume: this.backend.volume, muted } })
   }
+
+  // ---------- Navigation stack (back link from the big player) ----------
 
   seedNavStack() {
     const here = window.location.pathname + window.location.search + window.location.hash
@@ -269,27 +289,31 @@ export default class extends Controller {
     const detail = event.detail || {}
     const { audioUrl } = detail
     if (!audioUrl) return
+    // Tell the loader its song was taken (see song_loader_controller).
+    event.preventDefault?.()
+    if (!this.isConnected) {
+      this.pendingLoad = detail
+      return
+    }
 
     // Compare by id, not audioUrl — Active Storage signed URLs rotate per request.
-    const sameSong = this.state?.id && detail.id && this.state.id === detail.id
+    const sameSong = this.state?.id && detail.id && String(this.state.id) === String(detail.id)
     const shouldAutoplay = !!detail.autoplay
 
     this.loadMeta(detail, { sameSong })
 
     if (!this.isActive) {
-      // Passive: show info only, do not load audio src.
+      // Passive: show info only, do not load audio.
       return
     }
 
-    if (sameSong) {
-      // restoreFromStorage hydrated state but didn't attach audio (isActive was false
-      // when it ran). Attach now so the first user-gesture play has a source.
-      if (!this.audioTarget.src) this.attachAudio(this.state)
-      if (shouldAutoplay && this.audioTarget.paused) this.safePlay()
+    if (sameSong && this.backend.hasSource) {
+      if (shouldAutoplay && this.backend.paused) this.backend.play()
       return
     }
-    this.attachAudio(this.state)
-    if (shouldAutoplay) this.safePlay()
+    // Either a new song, or restoreFromStorage hydrated state without attaching
+    // audio (isActive was false when it ran). Load now so play has a source.
+    this.backend.load(this.state, { autoplay: shouldAutoplay, explicit: !!detail.explicit })
   }
 
   loadMeta(data, { sameSong = false } = {}) {
@@ -313,70 +337,9 @@ export default class extends Controller {
     this.show()
   }
 
-  attachAudio(data) {
-    const savedTime = Number(data.currentTime) || 0
-    const fragmentUrl = data.fragmentUrl
-    const audioUrl = data.audioUrl
-    if (!audioUrl) return
-
-    // Fragment-first only when starting from the beginning. The fragment is from
-    // t=0; using it mid-song would jump audibly. Resume from a saved position
-    // goes straight to the full URL with #t= and accepts the brief load delay.
-    if (fragmentUrl && savedTime < 1) {
-      this.fragmentMode = true
-      this.fullAudioUrl = audioUrl
-      this.audioTarget.src = fragmentUrl
-      this.audioTarget.load()
-      if (this.hasPrefetchTarget) {
-        this.prefetchTarget.src = audioUrl
-        // preload="auto" causes the browser to start byte-Range-buffering now.
-      }
-    } else {
-      this.fragmentMode = false
-      this.fullAudioUrl = null
-      this.audioTarget.src = savedTime > 1 ? `${audioUrl}#t=${savedTime}` : audioUrl
-      this.audioTarget.load()
-    }
-  }
-
-  handlePrefetchCanPlay() {
-    if (!this.fragmentMode) return
-    if (!this.fullAudioUrl) return
-
-    const wasPlaying = !this.audioTarget.paused
-    const pos = this.audioTarget.currentTime || 0
-    this.swapping = true
-
-    const onMetadata = () => {
-      this.audioTarget.removeEventListener("loadedmetadata", onMetadata)
-      try { this.audioTarget.currentTime = pos } catch (_) {}
-      if (wasPlaying) this.safePlay()
-    }
-    const onPlaying = () => {
-      this.audioTarget.removeEventListener("playing", onPlaying)
-      this.swapping = false
-      this.fragmentMode = false
-    }
-
-    this.audioTarget.addEventListener("loadedmetadata", onMetadata)
-    this.audioTarget.addEventListener("playing", onPlaying)
-    this.audioTarget.src = this.fullAudioUrl
-    this.audioTarget.load()
-
-    // If audio was paused (user paused mid-fragment), there will be no "playing"
-    // event — clear the flags after a short tick so the next play works normally.
-    if (!wasPlaying) {
-      setTimeout(() => {
-        this.audioTarget.removeEventListener("playing", onPlaying)
-        this.swapping = false
-        this.fragmentMode = false
-      }, 250)
-    }
-  }
-
   loadSong(data) {
     this.loadMeta(data)
-    this.attachAudio(data)
+    this.backend.load(this.state, { explicit: true })
   }
 
   renderMeta(data) {
@@ -416,6 +379,8 @@ export default class extends Controller {
     document.title = parts.length ? parts.join(" — ") : "Spotsby"
   }
 
+  // ---------- MediaSession (browser only; the app uses Now Playing natively) ----------
+
   setupMediaSession() {
     if ("audioSession" in navigator) {
       try { navigator.audioSession.type = "playback" } catch (_) { /* iOS only */ }
@@ -425,12 +390,13 @@ export default class extends Controller {
     navigator.mediaSession.setActionHandler("play", () => this.toggle())
     navigator.mediaSession.setActionHandler("pause", () => this.toggle())
     navigator.mediaSession.setActionHandler("seekto", (details) => {
-      if (typeof details.seekTime === "number") this.audioTarget.currentTime = details.seekTime
+      if (typeof details.seekTime === "number") this.backend.seek(details.seekTime)
     })
     navigator.mediaSession.setActionHandler("nexttrack", () => this.requestNext())
   }
 
   updateMediaSessionMetadata(data) {
+    if (this.backend.isNative) return
     if (!data || !("mediaSession" in navigator) || typeof MediaMetadata === "undefined") return
 
     const artwork = data.imageUrl
@@ -449,6 +415,23 @@ export default class extends Controller {
     })
   }
 
+  setMediaSessionPlaybackState(state) {
+    if (this.backend.isNative) return
+    if ("mediaSession" in navigator) navigator.mediaSession.playbackState = state
+  }
+
+  setMediaSessionPosition(currentTime, duration) {
+    if (this.backend.isNative) return
+    if (!("mediaSession" in navigator) || !Number.isFinite(duration) || duration <= 0) return
+    try {
+      navigator.mediaSession.setPositionState({
+        duration,
+        position: Math.min(currentTime, duration),
+        playbackRate: this.backend.playbackRate
+      })
+    } catch (_) { /* some browsers throw on invalid state */ }
+  }
+
   // ---------- User actions ----------
 
   toggle() {
@@ -457,9 +440,9 @@ export default class extends Controller {
       if (!this.someoneIsActive()) {
         // No active device anywhere — claim it and play locally.
         this.claimActive()
-        if (!this.audioTarget.src && this.state.audioUrl) this.attachAudio(this.state)
         this.isActive = true
-        this.safePlay()
+        this.ensureLoaded()
+        this.backend.play()
         return
       }
       // Remote control: ask the active device to play/pause, don't play here.
@@ -468,14 +451,18 @@ export default class extends Controller {
       return
     }
 
-    if (this.audioTarget.paused) {
-      if (!this.audioTarget.src && this.state.audioUrl) this.attachAudio(this.state)
-      this.safePlay()
+    if (this.backend.paused) {
+      this.ensureLoaded()
+      this.backend.play()
       this.claimActive()
     } else {
-      this.audioTarget.pause()
+      this.backend.pause()
       this.announcePause()
     }
+  }
+
+  ensureLoaded() {
+    if (!this.backend.hasSource && this.state?.audioUrl) this.backend.load(this.state)
   }
 
   someoneIsActive() {
@@ -497,10 +484,12 @@ export default class extends Controller {
   }
 
   requestNext() {
+    if (this.backend.isNative) return this.backend.next()
     this.requestAdvance("/players/next")
   }
 
   requestPrevious() {
+    if (this.backend.isNative) return this.backend.previous()
     this.requestAdvance("/players/previous")
   }
 
@@ -528,100 +517,33 @@ export default class extends Controller {
   }
 
   seekToPercent(percent) {
-    // User initiated seek: switch out of fragment mode immediately. The fragment
-    // only covers t=0..15, so seeking anywhere meaningful needs the full audio.
-    if (this.fragmentMode && this.fullAudioUrl && this.state?.durationMs) {
-      const fullDuration = this.state.durationMs / 1000
-      const targetTime = (Number(percent) / 100) * fullDuration
-      this.swapping = true
-      const onPlaying = () => {
-        this.audioTarget.removeEventListener("playing", onPlaying)
-        this.swapping = false
-        this.fragmentMode = false
-      }
-      this.audioTarget.addEventListener("playing", onPlaying)
-      this.audioTarget.src = `${this.fullAudioUrl}#t=${targetTime}`
-      this.audioTarget.load()
-      this.safePlay()
-      return
-    }
-    if (!this.audioTarget.duration) return
-    this.audioTarget.currentTime = (Number(percent) / 100) * this.audioTarget.duration
-  }
-
-  safePlay() {
-    const result = this.audioTarget.play()
-    if (result && typeof result.catch === "function") result.catch(() => {})
+    this.backend.seekToPercent(percent)
   }
 
   get isPlaying() {
-    return !this.audioTarget.paused
+    return !this.backend.paused
   }
 
   get currentSong() {
     return this.state || null
   }
 
-  // ---------- Audio element events ----------
+  // ---------- Backend callbacks ----------
 
-  handlePlay() {
-    if (this.swapping) return
+  onPlay() {
     this.renderPlayIcon(true)
-    if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "playing"
+    this.setMediaSessionPlaybackState("playing")
     this.updateMediaSessionMetadata(this.state)
     this.dispatch("state", { detail: { playing: true } })
   }
 
-  handlePause() {
-    if (this.swapping) return
+  onPause() {
     this.renderPlayIcon(false)
-    if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused"
+    this.setMediaSessionPlaybackState("paused")
     this.dispatch("state", { detail: { playing: false } })
   }
 
-  handleError() {
-    // The <audio> element caches the disk URL it resolved the redirect to as
-    // currentSrc. That signed URL expires (ActiveStorage service_urls_expire_in,
-    // 5 min), so a resume after a long pause — once the browser has evicted the
-    // buffered range — re-requests an expired URL and 404s, stalling playback.
-    // Re-attach from the permanent redirect URL (state.audioUrl) to mint a fresh
-    // disk URL and resume from the saved position.
-    if (!this.isActive || this.swapping) return
-    if (!this.state?.audioUrl) return
-
-    const err = this.audioTarget.error
-    // Ignore user-initiated aborts and a deliberately cleared src (no media).
-    if (!err || err.code === MediaError.MEDIA_ERR_ABORTED) return
-    if (this.recoveryAttempts >= 3) return // give up rather than hammer the server
-
-    this.recoveryAttempts += 1
-    this.recoverPlayback()
-  }
-
-  recoverPlayback() {
-    const resumeAt = Number(this.state.currentTime) || this.audioTarget.currentTime || 0
-    // Recovery always uses the full audio; the fragment is only for t=0 starts.
-    this.fragmentMode = false
-    this.fullAudioUrl = null
-    this.audioTarget.src = resumeAt > 1 ? `${this.state.audioUrl}#t=${resumeAt}` : this.state.audioUrl
-    this.audioTarget.load()
-    // The error almost always surfaces on a resume attempt, so play through.
-    this.safePlay()
-  }
-
-  handleTimeUpdate() {
-    if (this.swapping) return
-    // Healthy playback — clear the recovery budget so a future stall gets a
-    // fresh set of retries.
-    this.recoveryAttempts = 0
-    const { currentTime } = this.audioTarget
-    // In fragmentMode, the audio element's duration is the fragment's (~15s).
-    // The slider and lock-screen progress should reflect the full song duration
-    // so the UX doesn't reveal the fragment.
-    const reportedDuration = this.fragmentMode && this.state?.durationMs
-      ? this.state.durationMs / 1000
-      : this.audioTarget.duration
-
+  onTimeUpdate(currentTime, duration) {
     // Persist currentTime so a fresh page load (audio element re-created) can
     // resume from where we left off. Throttle to ~1s to avoid hot writes.
     if (this.state) {
@@ -633,52 +555,44 @@ export default class extends Controller {
       }
     }
 
-    if ("mediaSession" in navigator && Number.isFinite(reportedDuration) && reportedDuration > 0) {
-      try {
-        navigator.mediaSession.setPositionState({
-          duration: reportedDuration,
-          position: Math.min(currentTime, reportedDuration),
-          playbackRate: this.audioTarget.playbackRate || 1
-        })
-      } catch (_) { /* some browsers throw on invalid state */ }
-    }
-    this.dispatch("timeupdate", { detail: { currentTime, duration: reportedDuration } })
+    this.setMediaSessionPosition(currentTime, duration)
+    this.dispatch("timeupdate", { detail: { currentTime, duration } })
   }
 
-  handleEnded() {
-    // If the fragment ended before the prefetcher signaled canplaythrough
-    // (very slow network), force the swap rather than advancing to the next
-    // song — the user expected to keep hearing the same song.
-    if (this.fragmentMode && this.fullAudioUrl) {
-      const fallbackPos = this.audioTarget.duration > 0
-        ? Math.max(0, this.audioTarget.duration - 0.5)
-        : 14.5
-      this.swapping = true
-      const onPlaying = () => {
-        this.audioTarget.removeEventListener("playing", onPlaying)
-        this.swapping = false
-        this.fragmentMode = false
-      }
-      this.audioTarget.addEventListener("playing", onPlaying)
-      this.audioTarget.src = this.fullAudioUrl
-      this.audioTarget.load()
-      const onMetadata = () => {
-        this.audioTarget.removeEventListener("loadedmetadata", onMetadata)
-        try { this.audioTarget.currentTime = fallbackPos } catch (_) {}
-        this.safePlay()
-      }
-      this.audioTarget.addEventListener("loadedmetadata", onMetadata)
-      return
-    }
-
+  // Browser only: the app advances (or repeats) on its own when a track ends.
+  onEnded() {
     this.dispatch("ended")
     if (!this.isActive) return // passive devices don't drive the queue forward
     if (this.repeat) {
-      this.audioTarget.currentTime = 0
-      this.safePlay()
+      this.backend.seek(0)
+      this.backend.play()
       return
     }
     this.requestNext()
+  }
+
+  // The app is playing a song this page doesn't know about yet: it advanced
+  // while the page was frozen, or another tab picked a song. Adopt it, and if
+  // this is the big player page, show that song instead of the stale one.
+  onSongChanged(song) {
+    this.loadMeta(song)
+
+    const here = window.location.pathname
+    if (!isPlayerPath(here) || !song.slug) return
+    const target = `/players/${song.slug}`
+    if (here === target) return
+    window.Turbo?.visit(target, { action: "replace" })
+  }
+
+  onCleared() {
+    this.state = null
+    this.renderPlayIcon(false)
+    this.hide()
+  }
+
+  onError(error) {
+    this.renderPlayIcon(false)
+    this.dispatch("error", { detail: error })
   }
 
   // ---------- UI show/hide + persistence ----------
@@ -711,9 +625,9 @@ export default class extends Controller {
 
     this.state = data
     this.renderMeta(data)
-    // Don't pre-attach audio src — wait for the song_event partial to mount its
+    // Don't pre-attach audio — wait for the song_event partial to mount its
     // song_loader controller and fire now-playing:load with fresh fragmentUrl +
-    // audioUrl + durationMs. That path routes through attachAudio which knows
+    // audioUrl + durationMs. That path routes through the backend which knows
     // when to play the fragment vs. resume with #t=savedTime.
     this.show()
   }
