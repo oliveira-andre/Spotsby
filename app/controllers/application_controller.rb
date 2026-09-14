@@ -18,8 +18,18 @@ class ApplicationController < ActionController::Base
     if flash[:_full_render]
       render action_name, formats: :html
     elsif request.format.turbo_stream? && !turbo_stream_template_exists?
-      body = render_to_string(action_name, layout: false)
-      render turbo_stream: turbo_stream.update("page-content", body)
+      if hotwire_native_app? && request.get?
+        # Turbo submits `data-turbo-stream` links as hidden GET forms and
+        # fetches them itself, so the app never gets a visit proposal. A
+        # page-content stream would then swap the page inside the current
+        # native screen: no navigation bar, and the mini player stays.
+        # Answering with the full page makes Turbo propose a visit carrying
+        # this response, and the app pushes a proper screen for it.
+        render action_name, formats: :html
+      else
+        body = render_to_string(action_name, layout: false)
+        render turbo_stream: turbo_stream.update("page-content", body)
+      end
     else
       super
     end

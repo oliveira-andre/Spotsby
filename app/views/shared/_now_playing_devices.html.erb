@@ -20,6 +20,7 @@
   <% if toggle_session %>
     <button type="button"
             class="now-playing-devices__toggle <%= 'is-active' if toggle_session.id == active_id %>"
+            data-bridge-active="<%= toggle_session.id == active_id %>"
             data-action="click->now-playing-devices#toggle"
             aria-expanded="false"
             aria-controls="now-playing-devices-list">
@@ -40,6 +41,7 @@
                         form: { class: "now-playing-devices__form",
                                 data: { turbo: true } },
                         class: "now-playing-devices__button",
+                        data: { bridge_session_id: session.id, bridge_active: is_active },
                         disabled: is_active,
                         aria: { label: "Switch playback to #{session.device_label}" } do %>
             <span class="now-playing-devices__dot"></span>

@@ -25,7 +25,10 @@
      data-player-audio-url-value="<%= payload[:audio_url] %>"
      data-player-fragment-url-value="<%= payload[:fragment_url] %>"
      data-player-duration-ms-value="<%= payload[:duration_ms] %>">
-  <header class="player__header">
+  <%# In the native app `bridge--player-header` hides this row and puts the
+      device selector and details button in the navigation bar, next to the
+      native back button. %>
+  <header class="player__header" data-controller="bridge--player-header">
     <%= link_to root_path,
                 class: "player__icon-btn",
                 data: { turbo_stream: true, controller: "back-link" },
@@ -42,6 +45,7 @@
     <button type="button"
             class="player__icon-btn"
             aria-label="Song details"
+            data-bridge--player-header-target="details"
             data-action="click->player#openDetails">
       <%= icon :dots_vertical, size: 22 %>
     </button>

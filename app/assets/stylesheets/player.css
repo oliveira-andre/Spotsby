@@ -1,10 +1,18 @@
+/* Packs from the top so the transport controls sit right under the poster
+   and stay on screen without scrolling; the poster shrinks on short
+   viewports (see .player__art) instead of pushing the controls down. */
 .player {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-  min-height: 89vh;
-  padding: 0 var(--space-5) var(--space-7);
+  gap: var(--space-5);
+  padding: 0 var(--space-5) var(--space-6);
   background-color: var(--color-bg-base);
+}
+
+/* Native app: the header row lives in the navigation bar, so give the poster
+   the same breathing room below the bar that the header gives it on the web. */
+.hotwire-native .player {
+  padding-top: var(--space-5);
 }
 
 .player__header {
@@ -123,20 +131,32 @@
 }
 
 .player__art-wrap {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-2) 0;
+  /* Extra room around the poster, on top of the section gap. */
+  padding: 28px 0;
 }
 
+/* Square poster, capped by width and by what is left of the viewport once
+   the header, track info, progress and controls (~456px) have their room. */
 .player__art {
-  width: 100%;
+  width: clamp(160px, calc(100svh - 456px), 100%);
   max-width: 360px;
   aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: var(--radius-comfortable);
   box-shadow: var(--shadow-heavy);
+}
+
+/* Web only: 32px around the poster (20px section gap + 12px padding), and
+   always full size; a short window scrolls to the controls. */
+html:not(.hotwire-native) .player__art-wrap {
+  padding: var(--space-3) 0;
+}
+
+html:not(.hotwire-native) .player__art {
+  width: 100%;
 }
 
 .player__art--placeholder {
