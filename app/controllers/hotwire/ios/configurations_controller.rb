@@ -29,6 +29,11 @@ module Hotwire
               patterns: [ "^/players/" ],
               properties: build_properties(hides_player_accessory: true)
             },
+            {
+              # The big player has full controls; the native mini player would only duplicate them.
+              patterns: [ "^/admin/" ],
+              properties: build_properties(hides_back_button: true)
+            },
             # {
             #   patterns: [todos_path],
             #   properties: { context: "default", view_controller: "hello" }
