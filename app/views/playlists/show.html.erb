@@ -28,7 +28,7 @@
      data-album-show-first-audio-url-value="<%= first_song_audio_url %>">
   <header class="playlist-show__header">
     <%= link_to library_path,
-                class: "playlist-show__back",
+                class: "playlist-show__back native-hidden",
                 data: { turbo_stream: true, controller: "back-link" },
                 aria: { label: "Back" } do %>
       <%= icon :chevron_left, size: 24 %>
