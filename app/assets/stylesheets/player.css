@@ -159,6 +159,19 @@ html:not(.hotwire-native) .player__art {
   width: 100%;
 }
 
+/* Web desktop: fill the viewport above the fixed footer nav and let the
+   poster area absorb the spare height, so the track info and transport
+   controls sit near the bottom instead of floating mid-screen. */
+@media (min-width: 896px) {
+  html:not(.hotwire-native) .player {
+    min-height: calc(100vh - 76px);
+  }
+
+  html:not(.hotwire-native) .player__art-wrap {
+    flex: 1;
+  }
+}
+
 .player__art--placeholder {
   background-color: var(--color-bg-elevated);
 }
