@@ -84,6 +84,94 @@
   color: var(--color-negative);
 }
 
+/* Theme picker: one card per theme. Each preview carries its own
+   `data-theme`, so it renders in that theme's tokens regardless of the
+   theme currently applied to the page. */
+.theme-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.theme-picker__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.theme-picker__option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-comfortable);
+  background-color: var(--color-bg-surface);
+  box-shadow: transparent 0px 0px 0px 2px inset;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.theme-picker__option:hover {
+  background-color: var(--color-bg-card);
+}
+
+.theme-picker__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.theme-picker__option:has(.theme-picker__input:checked) {
+  box-shadow: var(--color-accent) 0px 0px 0px 2px inset;
+}
+
+.theme-picker__option:has(.theme-picker__input:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.theme-picker__preview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 56px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-standard);
+  background-color: var(--color-bg-base);
+  box-shadow: var(--shadow-medium);
+  overflow: hidden;
+}
+
+.theme-picker__preview-bar {
+  flex: 1;
+  height: 20px;
+  border-radius: var(--radius-full-pill);
+  background-color: var(--color-bg-elevated);
+}
+
+.theme-picker__preview-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-circle);
+  background-color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.theme-picker__name {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-base);
+}
+
 @media (max-width: 575px) {
   .account__row {
     grid-template-columns: 1fr;

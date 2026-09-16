@@ -30,7 +30,11 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="<%= 'has-footer-nav' if current_user %>">
+  <%# `data-theme` scopes the theme variables in app/assets/stylesheets/themes/.
+      It lives on <body> (not <html>) so a Turbo visit after saving a new
+      theme on /account picks it up. %>
+  <body class="<%= 'has-footer-nav' if current_user %>"
+        data-theme="<%= current_user&.theme || 'default' %>">
     <div id="page-content">
       <%= yield %>
     </div>

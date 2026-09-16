@@ -26,9 +26,16 @@ class AccountsController < ApplicationController
       params.dig(:user, :current_password).present?
   end
 
+  def theme_change?
+    params.require(:user).keys == [ "theme" ]
+  end
+
   def update_profile
     if current_user.update(profile_params)
-      redirect_to account_path, notice: "Account updated."
+      # The theme lives on <body>, outside the page-content stream target, so
+      # the redirected page must be a full render for it to apply.
+      flash[:_full_render] = true if theme_change?
+      redirect_to account_path, notice: theme_change? ? "Theme updated." : "Account updated."
     else
       flash.now[:alert] = current_user.errors.full_messages.to_sentence
       render :show, status: :unprocessable_content
@@ -50,7 +57,7 @@ class AccountsController < ApplicationController
   end
 
   def profile_params
-    params.require(:user).permit(:first_name, :last_name, :birthdate)
+    params.require(:user).permit(:first_name, :last_name, :birthdate, :theme)
   end
 
   def password_params

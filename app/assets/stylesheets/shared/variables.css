@@ -1,4 +1,8 @@
-:root {
+/* The "default" theme. Other themes redefine the color tokens under
+   `[data-theme="<name>"]` in themes/, so any element carrying `data-theme`
+   (the <body>, or a preview swatch) renders in that palette. */
+:root,
+[data-theme="default"] {
   --color-bg-base: #121212;
   --color-bg-surface: #181818;
   --color-bg-elevated: #1f1f1f;

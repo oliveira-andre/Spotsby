@@ -219,7 +219,36 @@ What distinguishes Spotify is its pill-and-circle geometry. Primary buttons use 
 - Search: pill input maintained, width adjusts
 - Navigation: sidebar → bottom bar on mobile
 
-## 9. Agent Prompt Guide
+## 9. Themes
+
+Users pick a theme on `/account` (`users.theme`, default `"default"`). The
+default theme is the palette above. Every other theme redefines the color
+tokens in `app/assets/stylesheets/themes/<name>.css` under
+`[data-theme="<name>"]`, which the application layout sets on `<body>`.
+Admin pages use their own layout and always render the default palette.
+
+Themes may change buttons, backgrounds and add decorative images. They must
+keep the pill/circle geometry, the type scale, the spacing system and the
+semantic colors (negative, warning, announcement).
+
+### Kuromi
+
+| Role | Hex | RGB |
+|------|-----|-----|
+| Background base | `#363232` | (54,50,50) |
+| Surface / elevated | `#565656` | (86,86,86) |
+| Card / border | `#6b6b6b` | (107,107,107) |
+| Accent | `#eea1e3` | (238,161,227) |
+| Accent hover | `#f4b5eb` | (244,181,235) |
+
+- Text on the pink accent is `#363232`, not black.
+- Previous / next / play in the big player carry a small pink circle on one
+  side with a Kuromi character from `app/assets/images/kuromi/` standing on it.
+- The big player background gets a soft pink gradient at the top and a faint
+  Kuromi watermark. The minimal player gets a pink play button and a 1px
+  pink inset ring.
+
+## 10. Agent Prompt Guide
 
 ### Quick Color Reference
 - Background: Near Black (`#121212`)

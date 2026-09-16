@@ -1,5 +1,12 @@
 class User < ApplicationRecord
+  # Visual themes a user can pick on /account. "default" is the palette in
+  # DESIGN.md; every other entry has a matching app/assets/stylesheets/themes/
+  # file scoped to `body[data-theme="<name>"]`.
+  THEMES = %w[default kuromi].freeze
+
   after_create :create_playlist
+
+  validates :theme, inclusion: { in: THEMES }
 
   has_one_attached :avatar
   validates :avatar, content_type: %w[image/png image/jpeg image/gif]

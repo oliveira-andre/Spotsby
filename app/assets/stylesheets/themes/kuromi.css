@@ -1,0 +1,255 @@
+/*
+ * Kuromi theme. Palette (see DESIGN.md, "Themes"):
+ *   #363232 base, #565656 surface, #6b6b6b card, #eea1e3 accent, #f4b5eb accent hover.
+ *
+ * Applied wherever an element carries `data-theme="kuromi"`: the <body> once
+ * the user picks it on /account, and the preview swatch on that page.
+ * Admin pages use their own layout without `data-theme`, so they keep the
+ * default palette.
+ */
+[data-theme="kuromi"] {
+  --color-bg-base: #363232;
+  --color-bg-surface: #565656;
+  --color-bg-elevated: #565656;
+  --color-bg-card: #6b6b6b;
+  --color-bg-card-alt: #6b6b6b;
+
+  --color-accent: #eea1e3;
+  --color-accent-hover: #f4b5eb;
+  --color-accent-pressed: #eea1e3;
+  --color-accent-border: #f4b5eb;
+
+  --color-border: #6b6b6b;
+  --color-border-light: #6b6b6b;
+
+  --shadow-input-inset: rgb(54, 50, 50) 0px 1px 0px,
+    rgb(107, 107, 107) 0px 0px 0px 1px inset;
+  --shadow-input-focus: rgb(54, 50, 50) 0px 1px 0px,
+    rgb(238, 161, 227) 0px 0px 0px 1px inset;
+  --shadow-input-error: rgb(54, 50, 50) 0px 1px 0px,
+    var(--color-negative) 0px 0px 0px 1px inset;
+
+  /* Text/icon color on top of the pink accent. */
+  --kuromi-ink: #363232;
+  --kuromi-accent-soft: rgba(238, 161, 227, 0.16);
+}
+
+/* ---------------------------------------------------------------------
+ * Shared components: places that hardcode Spotify green in the default
+ * stylesheets, plus the pink treatment for primary buttons.
+ * ------------------------------------------------------------------- */
+body[data-theme="kuromi"] .btn--primary {
+  color: var(--kuromi-ink);
+}
+
+body[data-theme="kuromi"] .btn--primary:hover {
+  background-color: var(--color-accent-hover);
+  filter: none;
+}
+
+body[data-theme="kuromi"] .btn--primary:active {
+  background-color: var(--color-accent);
+}
+
+body[data-theme="kuromi"] .flash--notice {
+  background-color: rgba(238, 161, 227, 0.12);
+  border-color: rgba(238, 161, 227, 0.4);
+}
+
+body[data-theme="kuromi"] .home__header {
+  background:
+    linear-gradient(180deg, var(--kuromi-accent-soft), transparent 100%),
+    var(--color-bg-base);
+}
+
+body[data-theme="kuromi"] .select__option.is-selected {
+  background-color: rgba(238, 161, 227, 0.12);
+}
+
+body[data-theme="kuromi"] .footer-nav {
+  border-top-color: rgba(244, 181, 235, 0.12);
+}
+
+body[data-theme="kuromi"] .footer-nav__item.is-active {
+  color: var(--color-accent);
+}
+
+/* ---------------------------------------------------------------------
+ * Big player (players/show)
+ * ------------------------------------------------------------------- */
+body[data-theme="kuromi"] .player {
+  position: relative;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, var(--kuromi-accent-soft) 0%, transparent 45%),
+    var(--color-bg-base);
+}
+
+/* Faint Kuromi watermark behind the poster, bottom-right of the page. */
+body[data-theme="kuromi"] .player::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: 0;
+  bottom: 220px;
+  width: 200px;
+  height: 260px;
+  background: url("/kuromi/1726975454_Kuromi_PNG-32399700.png") center / contain no-repeat;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+body[data-theme="kuromi"] .player__art {
+  box-shadow:
+    var(--shadow-heavy),
+    var(--color-accent) 0px 0px 0px 3px;
+}
+
+body[data-theme="kuromi"] .player__slider::-webkit-slider-thumb {
+  background-color: var(--color-accent);
+}
+
+body[data-theme="kuromi"] .player__slider::-moz-range-thumb {
+  background-color: var(--color-accent);
+}
+
+/* Previous / next: filled surface circles. */
+body[data-theme="kuromi"] .player__ctrl--prev,
+body[data-theme="kuromi"] .player__ctrl--next {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background-color: var(--color-bg-elevated);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Play / pause: pink circle with dark icon. */
+body[data-theme="kuromi"] .player__ctrl--primary {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  background-color: var(--color-accent);
+  color: var(--kuromi-ink);
+  box-shadow: var(--shadow-heavy);
+}
+
+body[data-theme="kuromi"] .player__ctrl--primary:hover {
+  background-color: var(--color-accent-hover);
+}
+
+/* Character add-ons: a small pink circle (::before) hugging one side of the
+   button, with a Kuromi standing on it (::after) and overflowing the circle
+   like a sticker. Previous gets it on the left, play and next on the right. */
+body[data-theme="kuromi"] .player__ctrl--prev::before,
+body[data-theme="kuromi"] .player__ctrl--next::before,
+body[data-theme="kuromi"] .player__ctrl--primary::before {
+  content: "";
+  position: absolute;
+  border-radius: var(--radius-circle);
+  background-color: var(--color-accent-hover);
+  box-shadow: var(--shadow-medium);
+  pointer-events: none;
+}
+
+body[data-theme="kuromi"] .player__ctrl--prev::after,
+body[data-theme="kuromi"] .player__ctrl--next::after,
+body[data-theme="kuromi"] .player__ctrl--primary::after {
+  content: "";
+  position: absolute;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+}
+
+body[data-theme="kuromi"] .player__ctrl--prev::before {
+  width: 26px;
+  height: 26px;
+  left: -10px;
+  top: -8px;
+}
+
+body[data-theme="kuromi"] .player__ctrl--prev::after {
+  width: 34px;
+  height: 40px;
+  left: -14px;
+  top: -26px;
+  background-image: url("/kuromi/kuromi_render_by_pedroagainvs_djgfvek-375w-2x.png");
+}
+
+body[data-theme="kuromi"] .player__ctrl--next::before {
+  width: 26px;
+  height: 26px;
+  right: -10px;
+  top: -8px;
+}
+
+body[data-theme="kuromi"] .player__ctrl--next::after {
+  width: 34px;
+  height: 40px;
+  right: -14px;
+  top: -26px;
+  background-image: url("/kuromi/1726975454_Kuromi_PNG-32399700.png");
+}
+
+body[data-theme="kuromi"] .player__ctrl--primary::before {
+  width: 34px;
+  height: 34px;
+  right: -14px;
+  top: -12px;
+}
+
+body[data-theme="kuromi"] .player__ctrl--primary::after {
+  width: 48px;
+  height: 52px;
+  right: -20px;
+  top: -36px;
+  background-image: url("/kuromi/png-transparent-kuromi.png");
+}
+
+/* Keep the sticker scale in step with the button's hover / press transforms. */
+body[data-theme="kuromi"] .player__ctrl--primary:hover {
+  transform: scale(1.04);
+}
+
+/* ---------------------------------------------------------------------
+ * Minimal player (bottom bar on every page)
+ * ------------------------------------------------------------------- */
+body[data-theme="kuromi"] .minimal-player {
+  background-color: var(--color-bg-elevated);
+  box-shadow:
+    var(--shadow-medium),
+    var(--color-accent) 0px 0px 0px 1px inset;
+}
+
+body[data-theme="kuromi"] .minimal-player__play {
+  position: relative;
+  background-color: var(--color-accent);
+  color: var(--kuromi-ink);
+}
+
+body[data-theme="kuromi"] .minimal-player__play::after {
+  content: "";
+  position: absolute;
+  width: 26px;
+  height: 30px;
+  right: -12px;
+  top: -18px;
+  background: url("/kuromi/png-transparent-kuromi.png") center bottom / contain no-repeat;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------
+ * Theme picker preview on /account
+ * ------------------------------------------------------------------- */
+.theme-picker__preview[data-theme="kuromi"]::after {
+  content: "";
+  position: absolute;
+  right: 44px;
+  bottom: -6px;
+  width: 36px;
+  height: 44px;
+  background: url("/kuromi/png-transparent-kuromi.png") center bottom / contain no-repeat;
+  pointer-events: none;
+}

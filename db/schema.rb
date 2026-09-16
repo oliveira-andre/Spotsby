@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_20_043234) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_15_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -201,6 +201,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_043234) do
     t.datetime "updated_at", null: false
     t.boolean "random_mode", default: false, null: false
     t.uuid "active_session_id"
+    t.string "theme", default: "default", null: false
     t.index ["active_session_id"], name: "index_users_on_active_session_id"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end

@@ -52,6 +52,31 @@
   <hr class="divider">
 
   <section class="account__section">
+    <h2 class="account__section-title">Appearance</h2>
+    <%= form_with model: current_user, url: account_path, method: :patch, class: "form", data: { turbo_frame: "_top" } do |form| %>
+      <fieldset class="theme-picker">
+        <legend class="label">Theme</legend>
+        <div class="theme-picker__options">
+          <% User::THEMES.each do |theme| %>
+            <label class="theme-picker__option">
+              <%= form.radio_button :theme, theme, class: "theme-picker__input" %>
+              <span class="theme-picker__preview" data-theme="<%= theme %>" aria-hidden="true">
+                <span class="theme-picker__preview-bar"></span>
+                <span class="theme-picker__preview-dot"></span>
+              </span>
+              <span class="theme-picker__name"><%= theme.titleize %></span>
+            </label>
+          <% end %>
+        </div>
+      </fieldset>
+
+      <%= form.submit "Save theme", class: "btn btn--primary btn--uppercase" %>
+    <% end %>
+  </section>
+
+  <hr class="divider">
+
+  <section class="account__section">
     <h2 class="account__section-title">Password</h2>
     <%= form_with model: current_user, url: account_path, method: :patch, class: "form", data: { turbo_frame: "_top" } do |form| %>
       <div class="form-field">

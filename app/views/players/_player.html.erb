@@ -101,7 +101,7 @@
     <div class="player__controls">
       <%= render "players/random_button" %>
       <button type="button"
-              class="player__ctrl"
+              class="player__ctrl player__ctrl--prev"
               aria-label="Previous"
               data-action="click->player#requestPrevious">
         <%= icon :backward, size: 28 %>
@@ -115,7 +115,7 @@
         <span data-player-target="pauseIcon" hidden><%= icon :pause, size: 22 %></span>
       </button>
       <button type="button"
-              class="player__ctrl"
+              class="player__ctrl player__ctrl--next"
               aria-label="Next"
               data-action="click->player#requestNext">
         <%= icon :forward, size: 28 %>
