@@ -179,6 +179,14 @@
         <p class="player__details-artist"><%= song.authors.map(&:name).join(", ") %></p>
         <p class="player__details-album"><%= song.album&.name %></p>
       </div>
+      <% if song.audio.attached? %>
+        <%= link_to rails_blob_path(song.audio, disposition: "attachment"),
+                    class: "player__details-share",
+                    aria: { label: "Download song" },
+                    data: { turbo: false } do %>
+          <%= icon :download, size: 22 %>
+        <% end %>
+      <% end %>
       <%= render "shared/share_button",
                  url: player_url(song),
                  btn_class: "player__details-share" %>

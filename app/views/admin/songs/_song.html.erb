@@ -19,6 +19,15 @@
   </div>
 
   <div class="admin-album__actions">
+    <% if song.audio.attached? %>
+      <%= link_to rails_blob_path(song.audio, disposition: "attachment"),
+                  class: "admin-author__icon-btn",
+                  aria: { label: "Download" },
+                  data: { turbo: false } do %>
+        <%= icon :download, size: 18 %>
+      <% end %>
+    <% end %>
+
     <%= link_to edit_admin_song_path(song),
                 class: "admin-author__icon-btn",
                 aria: { label: "Edit" },
