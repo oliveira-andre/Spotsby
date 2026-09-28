@@ -1,17 +1,30 @@
 class SessionsController < ApplicationController
   allow_unauthenticated_access only: %i[ new create ]
   before_action :redirect_if_authenticated, only: %i[ new ]
-  rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_url, alert: "Try again later." }
+  # Two buckets: per IP (one client hammering) and per email (one account
+  # targeted from many IPs, e.g. proxies or VPNs). Throttled attempts get the
+  # same generic failure as a wrong password, so the limits aren't advertised.
+  rate_limit to: 10, within: 3.minutes, only: :create, name: "ip",
+    with: -> { render_failed_login }
+  rate_limit to: 5, within: 15.minutes, only: :create, name: "email",
+    by: -> { params[:email_address].to_s.strip.downcase },
+    with: -> { render_failed_login }
 
-  def new
-  end
+  def new; end
 
   def create
-    if user = User.authenticate_by(session_params)
+    user = User.authenticate_by(session_params)
+
+    # Blocked and login-locked accounts are rejected with the same generic
+    # error and no session, so neither status is disclosed.
+    if user&.can_sign_in?
+      user.reset_failed_logins!
       start_new_session_for user
       redirect_to after_authentication_url
     else
-      redirect_to new_session_path, alert: "Try another email address or password."
+      # A correct password on a blocked/locked account isn't a failed guess.
+      User.find_by(email_address: params[:email_address].to_s)&.register_failed_login! if user.nil?
+      render_failed_login
     end
   end
 
@@ -25,5 +38,9 @@ class SessionsController < ApplicationController
 
   def session_params
     params.permit(:email_address, :password)
+  end
+
+  def render_failed_login
+    redirect_to new_session_path, alert: "Try another email address or password."
   end
 end

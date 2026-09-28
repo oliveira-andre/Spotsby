@@ -4,7 +4,15 @@ class User < ApplicationRecord
   # file scoped to `body[data-theme="<name>"]`.
   THEMES = %w[default kuromi].freeze
 
+  # Consecutive wrong-password limit before sign-in is locked until a reset.
+  LOGIN_MAX_ATTEMPTS = 15
+
   after_create :create_playlist
+
+  # Setting a new password (the reset link from the lock email, or an admin
+  # changing it) lifts a login lock. Deliberately separate from the `blocked`
+  # status: a reset must never undo an admin ban or demote an admin.
+  before_save :clear_login_lock, if: :will_save_change_to_password_digest?
 
   validates :theme, inclusion: { in: THEMES }
 
@@ -59,7 +67,50 @@ class User < ApplicationRecord
     playlist_follows.exists?(playlist_id: playlist.id)
   end
 
+  # --- Sign-in lockout ---
+
+  def login_locked?
+    locked_at.present?
+  end
+
+  def can_sign_in?
+    !blocked? && !login_locked?
+  end
+
+  # Count a wrong password. The LOGIN_MAX_ATTEMPTS-th locks sign-in and emails
+  # a reset link. Banned or already-locked accounts aren't counted, so a banned
+  # user never gets an "unlock" email.
+  def register_failed_login!
+    return if blocked? || login_locked?
+
+    increment!(:failed_login_attempts)
+    lock_login! if failed_login_attempts >= LOGIN_MAX_ATTEMPTS
+  end
+
+  def reset_failed_logins!
+    update_columns(failed_login_attempts: 0) if failed_login_attempts.positive?
+  end
+
   private
+
+  # Conditional on locked_at still being nil so concurrent failures lock (and
+  # email) exactly once.
+  def lock_login!
+    now = Time.current
+    return unless self.class.where(id: id, locked_at: nil).update_all(locked_at: now).positive?
+
+    # Mirror the write in memory as already persisted. Left as a pending
+    # change from nil, a later save on this same object that clears the lock
+    # would see nil -> nil and never write it.
+    self.locked_at = now
+    clear_attribute_changes([ :locked_at ])
+    PasswordsMailer.unlock(self).deliver_later
+  end
+
+  def clear_login_lock
+    self.failed_login_attempts = 0
+    self.locked_at = nil
+  end
 
   def create_playlist
     playlist = Playlist.create!(user: self, name: "Saved Songs", status: :private, position: 0)

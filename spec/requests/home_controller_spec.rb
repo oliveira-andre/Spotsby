@@ -120,11 +120,14 @@ RSpec.describe HomeController, type: :request do
     end
   end
 
-  context 'when blocked' do
-    let(:blocked_user) { create(:user, status: :blocked) }
+  # A blocked account can't sign in at all (see the sessions spec). This
+  # covers a user who is blocked while already holding a session.
+  context 'when blocked during a session' do
+    let(:user) { create(:user) }
 
     it 'redirects to login with an alert' do
-      sign_in(blocked_user)
+      sign_in(user)
+      user.update!(status: :blocked)
       get root_path
       expect(response).to redirect_to(new_session_path)
       expect(flash[:alert]).to be_present
