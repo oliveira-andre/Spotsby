@@ -11,6 +11,8 @@ const DEFAULT_VOLUME = 1
 const NAV_STACK_KEY = "spotsby:nav-stack"
 const NAV_STACK_MAX = 30
 const HEARTBEAT_MS = 60_000
+// Past this point in a song, "previous" rewinds it instead of going back.
+const RESTART_THRESHOLD_SECONDS = 5
 
 // The app advertises its bridge components in the user agent (same check the
 // bridge library uses for `shouldLoad`). With a `player` component present,
@@ -488,9 +490,32 @@ export default class extends Controller {
     this.requestAdvance("/players/next")
   }
 
+  // Like most players: past the first few seconds, "previous" rewinds the
+  // current song, and only a press near the start goes to the previous song.
+  // From 1:00, the first press restarts the song and a second press goes back.
   requestPrevious() {
+    if (this.canRestartCurrentSong()) return this.restartCurrentSong()
     if (this.backend.isNative) return this.backend.previous()
     this.requestAdvance("/players/previous")
+  }
+
+  canRestartCurrentSong() {
+    if (!this.state || !this.backend.hasSource) return false
+    // In the browser only the active device holds the audio. A remote control
+    // has nothing to rewind, so it asks the server for the previous song.
+    if (!this.backend.isNative && !this.isActive) return false
+    // The controller's mirror of the position, not the backend's: during the
+    // fragment-to-full swap the <audio> element briefly reports 0, while this
+    // keeps the last real position.
+    return (Number(this.state.currentTime) || 0) > RESTART_THRESHOLD_SECONDS
+  }
+
+  restartCurrentSong() {
+    this.backend.seek(0)
+    // Reset now rather than waiting for the backend's next time update, so a
+    // quick second press already counts as "near the start".
+    this.state.currentTime = 0
+    this.persist()
   }
 
   requestAdvance(path) {

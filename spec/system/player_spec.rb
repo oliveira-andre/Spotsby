@@ -40,6 +40,72 @@ RSpec.describe "Player", type: :system do
     expect(user.song_queues.where(song: song1)).to exist
   end
 
+  describe "Previous with audio playing" do
+    let(:fixture_path) { Rails.root.join("spec/fixtures/files/sample.mp3") }
+
+    before do
+      [ song1, song2 ].each do |song|
+        song.audio.attach(io: File.open(fixture_path, "rb"), filename: "sample.mp3", content_type: "audio/mpeg")
+      end
+
+      visit player_path(song2, source: SongQueue::SOURCE_ALBUM)
+      expect(page).to have_link(song2.name, wait: 5)
+      click_button "Play"
+      expect(page).to have_button("Pause", wait: 5)
+    end
+
+    # Position as the now-playing controller sees it, which is what decides
+    # between rewinding and going back.
+    def controller_time
+      page.evaluate_script(<<~JS)
+        (() => {
+          const el = document.getElementById("minimal-player")
+          const ctrl = window.Stimulus.getControllerForElementAndIdentifier(el, "now-playing")
+          return ctrl && ctrl.state ? ctrl.state.currentTime : null
+        })()
+      JS
+    end
+
+    def audio_time
+      page.evaluate_script("document.querySelector('#minimal-player audio').currentTime")
+    end
+
+    def wait_until(timeout: Capybara.default_max_wait_time)
+      deadline = Time.current + timeout
+      until yield
+        raise "condition not met within #{timeout}s" if Time.current > deadline
+
+        sleep 0.05
+      end
+    end
+
+    it "past the first 5 seconds, the first press restarts the song and the second goes back" do
+      # The Pause label shows on the `play` event, before the file has loaded;
+      # a seek issued that early is dropped. Wait for real playback first.
+      wait_until { audio_time > 0 }
+      page.execute_script("document.querySelector('#minimal-player audio').currentTime = 20")
+      wait_until { controller_time.to_f > 5 }
+
+      click_button "Previous"
+
+      wait_until { audio_time < 3 }
+      expect(controller_time).to be < 3
+      expect(page).to have_link(song2.name)
+
+      click_button "Previous"
+
+      expect(page).to have_link(song1.name, wait: 5)
+    end
+
+    it "within the first 5 seconds, a press goes straight to the previous track" do
+      expect(controller_time.to_f).to be <= 5
+
+      click_button "Previous"
+
+      expect(page).to have_link(song1.name, wait: 5)
+    end
+  end
+
   it "records a play history entry when the player opens" do
     expect {
       visit player_path(song1, source: SongQueue::SOURCE_ALBUM)
