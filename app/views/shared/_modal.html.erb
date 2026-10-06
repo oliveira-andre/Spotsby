@@ -5,7 +5,9 @@
     id    - DOM id used as the outlet target from other Stimulus controllers
     title - optional heading shown at the top of the modal
 
-  Block content is rendered into the modal body.
+  Block content is rendered into the modal body. Always pass a block, even an
+  empty do/end one for a modal that is filled later. Rendered from a layout
+  without a block, `yield` here returns the layout's whole page content.
 %>
 <div class="modal"
      id="<%= id %>"

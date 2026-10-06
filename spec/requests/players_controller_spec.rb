@@ -28,6 +28,17 @@ RSpec.describe PlayersController, type: :request do
       expect(user.song_queues.last.source).to eq(SongQueue::SOURCE_ALBUM)
     end
 
+    # The layout's empty bottom modal once rendered a hidden copy of the page.
+    # That copy's #player survived closing the big player, and the next
+    # advance's `replace "player"` revived it over the mini player.
+    it 'renders the big player exactly once and leaves the bottom modal empty' do
+      get player_path(song)
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.css('#player').size).to eq(1)
+      expect(page.at_css('#bottom-modal .modal__body').children.select(&:element?)).to be_empty
+    end
+
     it 'still renders when the song does not exist' do
       get player_path('does-not-exist')
       expect(response).to have_http_status(:ok)

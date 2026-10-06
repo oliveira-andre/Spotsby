@@ -48,7 +48,11 @@
       <%= render "shared/now_playing_active_device", user: current_user %>
       <div id="now-playing-state"></div>
       <%= render "shared/footer" %>
-      <%= render "shared/modal", id: "bottom-modal" %>
+      <%# The empty block is required: without one, `yield` inside the partial
+          falls back to this layout and renders a hidden copy of the whole
+          page in the modal (including #player, which an advance's
+          `replace "player"` would then bring back to life). %>
+      <%= render "shared/modal", id: "bottom-modal" do %><% end %>
     <% end %>
   </body>
 </html>
