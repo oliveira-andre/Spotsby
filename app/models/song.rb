@@ -48,6 +48,7 @@ class Song < ApplicationRecord
 
   before_validation :inherit_album_image, on: :create
   before_save :build_search_text
+  before_save :drop_stale_audio_fragment
   before_update :reject_user_modifications
   after_commit :sync_popular_songs, on: [ :create, :update ], if: :saved_change_to_popular?
   after_commit :enqueue_initial_fragment_job, on: [ :create, :update ]
@@ -76,6 +77,16 @@ class Song < ApplicationRecord
     return if Current.user.nil? || Current.user.admin?
 
     raise ActiveRecord::ReadOnlyRecord, "Song fields cannot be updated by non-admin users"
+  end
+
+  # The fragment is the first 15 seconds of `audio`, so a new audio file would leave
+  # it playing the old song. Dropping it here (which purges its blob) lets
+  # enqueue_initial_fragment_job clip a fresh one from the new file.
+  def drop_stale_audio_fragment
+    return unless attachment_changes.key?("audio")
+    return if attachment_changes.key?("audio_fragment")
+
+    self.audio_fragment = nil if audio_fragment.attached?
   end
 
   def enqueue_initial_fragment_job

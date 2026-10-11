@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "health_check", to: "health_check#show", as: :health_check
   draw :hotwire
 
   resource :session

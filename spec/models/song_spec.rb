@@ -131,6 +131,29 @@ RSpec.describe Song, type: :model do
     it 'does not enqueue when no audio is attached' do
       expect { create(:song) }.not_to have_enqueued_job(GenerateInitialFragmentJob)
     end
+
+    context 'when the song already has a fragment' do
+      let(:song) { create(:song) }
+
+      before do
+        song.audio.attach(io: File.open(fixture_path, 'rb'), filename: 'old.mp3', content_type: 'audio/mpeg')
+        song.audio_fragment.attach(io: File.open(fixture_path, 'rb'), filename: 'old-fragment.mp3', content_type: 'audio/mpeg')
+      end
+
+      it 'drops the fragment and regenerates it when the audio is replaced' do
+        expect {
+          song.update!(audio: { io: File.open(fixture_path, 'rb'), filename: 'new.mp3', content_type: 'audio/mpeg' })
+        }.to have_enqueued_job(GenerateInitialFragmentJob).with(song.id)
+        expect(song.reload.audio_fragment).not_to be_attached
+      end
+
+      it 'keeps the fragment when the audio is unchanged' do
+        expect {
+          song.update!(name: 'Different')
+        }.not_to have_enqueued_job(GenerateInitialFragmentJob)
+        expect(song.reload.audio_fragment).to be_attached
+      end
+    end
   end
 
   describe 'search text' do
