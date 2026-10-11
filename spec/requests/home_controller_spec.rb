@@ -65,6 +65,63 @@ RSpec.describe HomeController, type: :request do
         expect(response.body).to include('Searchable')
       end
 
+      context 'with songs leading and albums and artists in their own sections' do
+        let(:author) { create(:author, name: 'Night Owls') }
+        let(:album) { create(:album, name: 'Midnight Drive', author: author) }
+        let!(:song) { create(:song, name: 'Neon Lights', album: album) }
+
+        before { create(:song_author, song: song, author: author) }
+
+        def search(query)
+          get search_results_path, params: { q: query }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+        end
+
+        def section(title)
+          Nokogiri::HTML(response.body).css('.search-results__group')
+                  .find { |group| group.at_css('.search-results__title')&.text == title }
+        end
+
+        it "lists a song found by its author's name" do
+          search('Night Owls')
+          expect(response.body).to include("players/#{song.slug}")
+        end
+
+        it 'lists a song found by its album name, despite a typo' do
+          search('midnite drive')
+          expect(response.body).to include("players/#{song.slug}")
+        end
+
+        it "shows the album and artist of a song found by the song's own name" do
+          search('neon lights')
+
+          expect(section('Albums').to_html).to include(album_path(album))
+          expect(section('Artists').to_html).to include(author_path(author))
+        end
+
+        it 'still shows an album and an artist that match by name but have no matching song' do
+          lonely_author = create(:author, name: 'Solo Comet')
+          lonely_album = create(:album, name: 'Solo Comet Live', author: create(:author))
+
+          search('solo comet')
+
+          expect(section('Artists').to_html).to include(author_path(lonely_author))
+          expect(section('Albums').to_html).to include(album_path(lonely_album))
+          expect(section('Songs')).to be_nil
+        end
+
+        it 'does not find a song by the name of a playlist it is in' do
+          create(:playlist_song, song: song, playlist: create(:playlist, name: 'Road Trip', status: :public))
+          search('road trip')
+          expect(response.body).not_to include("players/#{song.slug}")
+        end
+
+        it 'finds a public playlist by its name despite a typo' do
+          playlist = create(:playlist, user: create(:user), name: 'Road Trip', status: :public)
+          search('road trp')
+          expect(section('Playlists').to_html).to include(playlist_path(playlist))
+        end
+      end
+
       it 'includes a public playlist whose name matches the query' do
         other_user = create(:user)
         public_playlist = create(:playlist, user: other_user, status: :public, name: 'Searchable Playlist')

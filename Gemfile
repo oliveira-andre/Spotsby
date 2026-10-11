@@ -45,6 +45,7 @@ gem "active_storage_validations"
 gem "friendly_id"
 gem "pagy"
 gem "pundit"
+gem "services_health_check"
 
 group :development, :test do
   # Loads environment variables from .env files (also provides the `dotenv` CLI

@@ -75,4 +75,30 @@ RSpec.describe Playlist, type: :model do
       expect { playlist.destroy }.to change(PlaylistFollow, :count).by(-1)
     end
   end
+
+  describe '.search' do
+    let!(:road_trip) { create(:playlist, name: 'Road Trip Anthems') }
+    let!(:other) { create(:playlist, name: 'Quiet Harbor') }
+
+    it 'finds a playlist by a word of its name, ignoring case' do
+      expect(described_class.search('ROAD')).to contain_exactly(road_trip)
+    end
+
+    it 'finds a fragment from inside a word (the plain substring match)' do
+      expect(described_class.search('nthem')).to contain_exactly(road_trip)
+    end
+
+    it 'finds a name with a small typo (word similarity)' do
+      expect(described_class.search('road trp')).to contain_exactly(road_trip)
+    end
+
+    it 'puts the closest name first' do
+      closer = create(:playlist, name: 'Road Trip')
+      expect(described_class.search('road trip').first).to eq(closer)
+    end
+
+    it 'finds nothing for an unrelated query' do
+      expect(described_class.search('zzzz')).to be_empty
+    end
+  end
 end
