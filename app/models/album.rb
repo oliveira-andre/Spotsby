@@ -1,4 +1,6 @@
 class Album < ApplicationRecord
+  include NameSearch
+
   acts_as_list scope: :author
 
   extend FriendlyId
@@ -17,4 +19,9 @@ class Album < ApplicationRecord
   validates :release_date, presence: true
   validates :category_id, presence: true
   validates :author_id, presence: true
+
+  # Its songs' search text includes the album name. `after_update`, not
+  # `after_update_commit`: a touch (a song saving, an attachment) also runs commit
+  # callbacks, and a freshly created album still reports its name as changed then.
+  after_update -> { songs.reorder(nil).find_each(&:save!) }, if: :saved_change_to_name?
 end

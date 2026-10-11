@@ -30,6 +30,16 @@ class Song < ApplicationRecord
 
   scope :ordered, -> { order(position: :asc) }
 
+  # Fuzzy search over `search_text` (pg_trgm). `<%` matches when the query is close to
+  # some run of words in the text, so partial words and small typos still match; the
+  # best matches come first.
+  scope :search, ->(q) {
+    q = q.to_s.downcase.strip
+    where("? <% search_text", q)
+      .order(Arel.sql(sanitize_sql_array([ "word_similarity(?, search_text) DESC", q ])))
+      .limit(20)
+  }
+
   validates :name, presence: true, uniqueness: { scope: :album_id }
   validates :category_id, presence: true
   validates :album_id, presence: true
@@ -37,11 +47,26 @@ class Song < ApplicationRecord
   validates_numericality_of :age, greater_than_or_equal_to: 0
 
   before_validation :inherit_album_image, on: :create
+  before_save :build_search_text
   before_update :reject_user_modifications
   after_commit :sync_popular_songs, on: [ :create, :update ], if: :saved_change_to_popular?
   after_commit :enqueue_initial_fragment_job, on: [ :create, :update ]
 
   private
+
+  # What Song.search matches against: the song, album and author names, lowercased.
+  # Album and Author re-save their songs when renamed, and SongAuthor when a song
+  # gains or loses an author, so the text follows them.
+  def build_search_text
+    self.search_text = [ name, album&.name, *author_names ].compact_blank.join(" ").downcase
+  end
+
+  # Reads the names without loading `authors` when it isn't loaded yet. Loading it here
+  # would cache the list on this object, and a later `author_ids=` on the same object
+  # would diff against that stale list and leave old authors behind.
+  def author_names
+    authors.loaded? ? authors.map(&:name) : authors.pluck(:name)
+  end
 
   def audio_attached?
     audio.attached?

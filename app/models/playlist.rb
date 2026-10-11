@@ -1,4 +1,6 @@
 class Playlist < ApplicationRecord
+  include NameSearch
+
   extend FriendlyId
   friendly_id :name, use: :slugged
 

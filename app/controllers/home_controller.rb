@@ -2,6 +2,9 @@
 
 # HomeController
 class HomeController < ApplicationController
+  # Most albums or artists a search lists.
+  SEARCH_SECTION_LIMIT = 20
+
   before_action :load_profile_stats, only: :profile
 
   def index
@@ -35,24 +38,24 @@ class HomeController < ApplicationController
       @authors = Author.none
       @playlists = Playlist.none
     else
-      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(query)}%"
-
-      @songs = Song.where("name ILIKE :p OR lyrics ILIKE :p", p: pattern)
+      # Songs lead: they match on their song, album and author names (Song.search).
+      # Albums and artists keep their own sections: first those of the songs found, by
+      # id in the songs' ranking order, then any whose own name matches, so one with no
+      # matching song in the top 20 is never lost. Playlists match on their own name.
+      @songs = Song.search(query)
                    .with_attached_image
                    .includes(:album, :authors)
-                   .limit(20)
+                   .to_a
 
-      @albums = Album.where("name ILIKE ?", pattern)
+      @albums = Album.in_order_of(:id, section_ids(@songs.map(&:album_id), Album.search(query)))
                      .with_attached_image
                      .includes(:author)
-                     .limit(20)
 
-      @authors = Author.where("name ILIKE ?", pattern)
+      @authors = Author.in_order_of(:id, section_ids(@songs.flat_map { |song| song.authors.map(&:id) }, Author.search(query)))
                        .with_attached_image
-                       .limit(20)
 
       @playlists = Playlist.public_status
-                           .where("name ILIKE ?", pattern)
+                           .search(query)
                            .with_attached_image
                            .includes(:user, playlist_songs: { song: { image_attachment: :blob } })
                            .limit(10)
@@ -93,6 +96,12 @@ class HomeController < ApplicationController
   end
 
   private
+
+  # Ids for a search section: the found songs' related ids first, then the ids of
+  # records whose own name matches, without repeats.
+  def section_ids(from_songs, name_matches)
+    (from_songs + name_matches.limit(SEARCH_SECTION_LIMIT).pluck(:id)).uniq.first(SEARCH_SECTION_LIMIT)
+  end
 
   def load_profile_stats
     month_start = Time.current.beginning_of_month
