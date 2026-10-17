@@ -1,26 +1,21 @@
 <% if @songs.empty? && @albums.empty? && @authors.empty? && @playlists.empty? %>
   <p class="search-results__empty">No results found.</p>
 <% else %>
-  <% if @songs.any? %>
+  <% if @authors.any? %>
     <section class="search-results__group">
-      <h3 class="search-results__title">Songs</h3>
+      <h3 class="search-results__title">Artists</h3>
       <ul class="search-results__list">
-        <% @songs.each do |song| %>
+        <% @authors.each do |author| %>
           <li>
-            <%= link_to player_path(song, source: PlayHistory::SOURCE_SEARCH), class: "search-result", data: { turbo_stream: true } do %>
-              <% if song.image.attached? %>
-                <%= image_tag song.image, class: "search-result__image", loading: "lazy", alt: "" %>
+            <%= link_to author_path(author), class: "search-result", data: { turbo_stream: true } do %>
+              <% if author.image.attached? %>
+                <%= image_tag author.image, class: "search-result__image search-result__image--round", loading: "lazy", alt: author.name %>
               <% else %>
-                <div class="search-result__image search-result__image--placeholder"></div>
+                <div class="search-result__image search-result__image--round search-result__image--placeholder"></div>
               <% end %>
               <div class="search-result__meta">
-                <p class="search-result__name"><%= song.name %></p>
-                <p class="search-result__sub">
-                  Song
-                  <% if song.authors.any? %>
-                    · <%= song.authors.map(&:name).join(", ") %>
-                  <% end %>
-                </p>
+                <p class="search-result__name"><%= author.name %></p>
+                <p class="search-result__sub">Artist</p>
               </div>
             <% end %>
           </li>
@@ -52,21 +47,26 @@
     </section>
   <% end %>
 
-  <% if @authors.any? %>
+  <% if @songs.any? %>
     <section class="search-results__group">
-      <h3 class="search-results__title">Artists</h3>
+      <h3 class="search-results__title">Songs</h3>
       <ul class="search-results__list">
-        <% @authors.each do |author| %>
+        <% @songs.each do |song| %>
           <li>
-            <%= link_to author_path(author), class: "search-result", data: { turbo_stream: true } do %>
-              <% if author.image.attached? %>
-                <%= image_tag author.image, class: "search-result__image search-result__image--round", loading: "lazy", alt: author.name %>
+            <%= link_to player_path(song, source: PlayHistory::SOURCE_SEARCH), class: "search-result", data: { turbo_stream: true } do %>
+              <% if song.image.attached? %>
+                <%= image_tag song.image, class: "search-result__image", loading: "lazy", alt: "" %>
               <% else %>
-                <div class="search-result__image search-result__image--round search-result__image--placeholder"></div>
+                <div class="search-result__image search-result__image--placeholder"></div>
               <% end %>
               <div class="search-result__meta">
-                <p class="search-result__name"><%= author.name %></p>
-                <p class="search-result__sub">Artist</p>
+                <p class="search-result__name"><%= song.name %></p>
+                <p class="search-result__sub">
+                  Song
+                  <% if song.authors.any? %>
+                    · <%= song.authors.map(&:name).join(", ") %>
+                  <% end %>
+                </p>
               </div>
             <% end %>
           </li>

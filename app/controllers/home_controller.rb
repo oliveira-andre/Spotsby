@@ -3,7 +3,7 @@
 # HomeController
 class HomeController < ApplicationController
   # Most albums or artists a search lists.
-  SEARCH_SECTION_LIMIT = 20
+  SEARCH_SECTION_LIMIT = 5
 
   before_action :load_profile_stats, only: :profile
 
@@ -38,10 +38,10 @@ class HomeController < ApplicationController
       @authors = Author.none
       @playlists = Playlist.none
     else
-      # Songs lead: they match on their song, album and author names (Song.search).
+      # Songs match on their song, album and author names (Song.search).
       # Albums and artists keep their own sections: first those of the songs found, by
-      # id in the songs' ranking order, then any whose own name matches, so one with no
-      # matching song in the top 20 is never lost. Playlists match on their own name.
+      # id in the songs' ranking order, then any whose own name matches, to fill the
+      # section up to SEARCH_SECTION_LIMIT. Playlists match on their own name.
       @songs = Song.search(query)
                    .with_attached_image
                    .includes(:album, :authors)

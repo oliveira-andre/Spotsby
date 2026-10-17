@@ -120,6 +120,24 @@ RSpec.describe HomeController, type: :request do
           search('road trp')
           expect(section('Playlists').to_html).to include(playlist_path(playlist))
         end
+
+        it 'lists artists first, then albums, then songs' do
+          search('neon lights')
+
+          titles = Nokogiri::HTML(response.body).css('.search-results__title').map(&:text)
+          expect(titles).to eq(%w[Artists Albums Songs])
+        end
+
+        it 'caps the albums and artists sections at five' do
+          6.times do |i|
+            create(:album, name: "Night Owls Vol #{i}", author: create(:author, name: "Night Owls #{i}"))
+          end
+
+          search('night owls')
+
+          expect(section('Albums').css('li').size).to eq(5)
+          expect(section('Artists').css('li').size).to eq(5)
+        end
       end
 
       it 'includes a public playlist whose name matches the query' do
